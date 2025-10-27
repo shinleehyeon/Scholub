@@ -1,6 +1,6 @@
 interface AsteriskProps {
-  className?: string
-  size?: number
+  className?: string;
+  size?: number;
 }
 
 export default function Asterisk({ className, size = 18 }: AsteriskProps) {
@@ -32,6 +32,5 @@ export default function Asterisk({ className, size = 18 }: AsteriskProps) {
         fill="currentColor"
       />
     </svg>
-  )
+  );
 }
-

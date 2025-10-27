@@ -2,9 +2,9 @@
 
 @theme {
   /* Layout */
-  --layout-padding: 24px;
+  --layout-padding: 20px;
   --layout-max-width: 1200px;
-  
+
   /* Spacing Scale */
   --spacing-4: 4px;
   --spacing-6: 6px;
@@ -20,7 +20,7 @@
   --spacing-48: 48px;
   --spacing-64: 64px;
   --spacing-100: 100px;
-  
+
   /* Radius Scale */
   --radius-4: 4px;
   --radius-8: 8px;
@@ -32,54 +32,97 @@
   --radius-32: 32px;
   --radius-64: 64px;
   --radius-9999: 9999px;
-  
+
   /* Custom Color Palette - Brand Colors */
-  --color-brand-default: #D92707;
-  --color-brand-heavy: #991B05;
-  --color-brand-subtle: #FEEDEA;
-  
+  --color-brand-default: #2e3a59;
+  --color-brand-heavy: #991b05;
+  --color-brand-subtle: #feedea;
+
   /* Border Colors */
-  --color-border-default: #E8E8E8;
-  --color-border-subtle: #EFEFEF;
-  
+  --color-border-default: #e8e8e8;
+  --color-border-subtle: #efefef;
+
   /* Text Colors */
   --color-text-default: #151515;
-  --color-text-subtle: #7D7D7D;
-  --color-text-white: #FFFFFF;
-  
+  --color-text-subtle: #7d7d7d;
+  --color-text-white: #ffffff;
+  --color-text-success: #0acf00;
+
+  /* Text Brand Colors */
+  --color-text-brand-default: #2e3a59;
+  --color-text-brand-heavy: #991b05;
+  --color-text-brand-subtle: #feedea;
+
   /* Surface Colors */
-  --color-surface-default: #FFFFFF;
-  --color-surface-subtle: #F5F5F5;
+  --color-surface-default: #ffffff;
+  --color-surface-subtle: #f5f5f5;
+
+  /* Surface Brand Colors */
+  --color-surface-brand-default: #2e3a59;
+  --color-surface-brand-heavy: #991b05;
+  --color-surface-brand-subtle: #feedea;
 }
 
 @keyframes fadeIn {
-  0% { opacity: 0; }
-  100% { opacity: 1; }
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 
 @keyframes fadeOut {
-  0% { opacity: 1; }
-  100% { opacity: 0; }
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
 }
 
 @keyframes slideIn {
-  0% { transform: translateY(-10px); opacity: 0; }
-  100% { transform: translateY(0); opacity: 1; }
+  0% {
+    transform: translateY(-10px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 @keyframes slideOut {
-  0% { transform: translateY(0); opacity: 1; }
-  100% { transform: translateY(-10px); opacity: 0; }
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-10px);
+    opacity: 0;
+  }
 }
 
 @keyframes scaleIn {
-  0% { transform: scale(0.95); opacity: 0; }
-  100% { transform: scale(1); opacity: 1; }
+  0% {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 @keyframes scaleOut {
-  0% { transform: scale(1); opacity: 1; }
-  100% { transform: scale(0.95); opacity: 0; }
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.95);
+    opacity: 0;
+  }
 }
 
 /* Base Styles */
@@ -88,7 +131,9 @@
 }
 
 body {
-  font-feature-settings: "rlig" 1, "calt" 1;
+  font-feature-settings:
+    "rlig" 1,
+    "calt" 1;
 }
 
 /* Custom Scrollbar */
