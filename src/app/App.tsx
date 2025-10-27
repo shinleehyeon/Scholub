@@ -1,4 +1,4 @@
-import { Input, Checkbox, Button } from "@/shared/ui";
+import { Input, Checkbox, Button, Search } from "@/shared/ui";
 import { useState } from "react";
 import { ArrowRight } from "lucide-react";
 
@@ -84,6 +84,16 @@ function App() {
               placeholder="이름을 입력해주세요"
               required
             />
+          </div>
+        </div>
+
+        <div className="border-2 border-dashed border-purple-500 rounded-3xl p-12">
+          <div className="flex items-center gap-2 mb-8">
+            <span className="text-purple-500 font-semibold">Search</span>
+          </div>
+
+          <div className="space-y-8">
+            <Search />
           </div>
         </div>
       </div>

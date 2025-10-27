@@ -117,3 +117,28 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 Button.displayName = "Button";
 
 export { Button };
+
+/**
+ * 사용법 예제:
+ *
+ * // 기본 사용
+ * <Button>클릭하세요</Button>
+ *
+ * // Variant 및 Size
+ * <Button variant="primary" size="medium">Primary 버튼</Button>
+ * <Button variant="secondary" size="large">Secondary 버튼</Button>
+ * <Button variant="tertiary">Tertiary 버튼</Button>
+ *
+ * // 아이콘 포함
+ * <Button leadingIcon={<PlusIcon />}>추가하기</Button>
+ * <Button trailingIcon={<ArrowIcon />}>다음</Button>
+ *
+ * // 로딩 상태
+ * <Button pending>로딩 중...</Button>
+ *
+ * // 전체 너비
+ * <Button fullWidth>전체 너비 버튼</Button>
+ *
+ * // 비활성화
+ * <Button disabled>비활성화</Button>
+ */
