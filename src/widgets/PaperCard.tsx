@@ -22,7 +22,7 @@ export default function PaperCard({
   return (
     <div className="flex items-start gap-[var(--spacing-24)]">
       <div className="flex flex-col items-start gap-[var(--spacing-12)]">
-        <h3 className="text-[var(--color-text-default)] font-[Pretendard] text-[18px] font-semibold leading-[26px]">
+        <h3 className="w-[469px] text-[var(--color-text-default)] font-[Pretendard] text-[18px] font-semibold leading-[26px]">
           {title}
         </h3>
 
