@@ -1,5 +1,8 @@
 import { useState } from "react";
 import Header from "@/widgets/Header";
+import PaperCard from "@/widgets/PaperCard";
+import UserProfileCard from "@/widgets/UserProfileCard";
+import TrendingPapers from "@/widgets/TrendingPapers";
 import ChevronLeft from "@/shared/ui/icons/ChevronLeft";
 import Pause from "@/shared/ui/icons/Pause";
 import ChevronRight from "@/shared/ui/icons/ChevronRight";
@@ -15,12 +18,12 @@ export default function Home() {
     <div className="min-h-screen bg-white">
       <Header />
 
-      <main className="flex max-w-[var(--layout-max-width)] px-[var(--layout-padding)] flex-col items-start gap-[var(--spacing-10)] self-stretch mx-auto mt-[var(--spacing-20)]">
+      <main className="flex flex-col max-w-[var(--layout-max-width)] px-[var(--layout-padding)] items-start gap-[var(--spacing-10)] mx-auto py-[var(--spacing-20)]">
         <div
           className="flex h-[371px] px-[55px] pt-[251px] pb-[42px] flex-col justify-end items-start gap-[7px] self-stretch rounded-[var(--radius-16)]"
           style={{
             background: `
-              linear-gradient(180deg, rgba(0, 0, 0, 0.00) 55.29%, #000 100%),
+              linear-gradient(180deg, rgba(0, 0, 0, 0.00) 55.29%, rgba(0, 0, 0, 1) 100%),
               linear-gradient(0deg, rgba(0, 0, 0, 0.10) 0%, rgba(0, 0, 0, 0.10) 100%),
               url('https://picsum.photos/1200/371') lightgray 50% / cover no-repeat
             `,
@@ -88,6 +91,69 @@ export default function Home() {
               🖊️ Ion stencils
             </button>
           </div>
+        </div>
+
+        <div className="flex items-start gap-[var(--spacing-24)] self-stretch pt-[var(--spacing-40)]">
+          <div className="flex flex-col items-start gap-[var(--spacing-24)] flex-1">
+            <h2 className="w-[469px] text-[var(--color-text-default)] font-[Pretendard] text-[24px] font-bold leading-[30px]">
+              추천 논문
+            </h2>
+
+            <div className="flex flex-col items-start gap-[var(--spacing-24)] self-stretch">
+              <PaperCard
+                imageUrl="https://picsum.photos/228/128?random=1"
+                title="Deaminative cross-coupling of amines by boryl radical β-scission"
+                description="This is a description of the research paper. It will be truncated to two lines with ellipsis if it's too long to fit in the available space."
+              />
+              <PaperCard
+                imageUrl="https://picsum.photos/228/128?random=1"
+                title="Deaminative cross-coupling of amines by boryl radical β-scission"
+                description="This is a description of the research paper. It will be truncated to two lines with ellipsis if it's too long to fit in the available space."
+              />
+              <PaperCard
+                imageUrl="https://picsum.photos/228/128?random=1"
+                title="Deaminative cross-coupling of amines by boryl radical β-scission"
+                description="This is a description of the research paper. It will be truncated to two lines with ellipsis if it's too long to fit in the available space."
+              />
+            </div>
+          </div>
+
+          <aside className="flex flex-col items-start gap-[var(--spacing-20)]">
+            <UserProfileCard
+              username="iamfiro"
+              subtitle="유저"
+              profileImage="https://i.pravatar.cc/150?img=3"
+            />
+            <TrendingPapers
+              papers={[
+                {
+                  id: 1,
+                  title: "DeepSeek-OCR: Context Optical",
+                  trendType: "single_up",
+                },
+                {
+                  id: 2,
+                  title: "Yuchan Han tried alcohol by ki...",
+                  trendType: "double_up",
+                },
+                {
+                  id: 3,
+                  title: "Universities are embracing AI",
+                  trendType: "double_down",
+                },
+                {
+                  id: 4,
+                  title: "Extreme confinement unleshe...",
+                  trendType: "double_down",
+                },
+                {
+                  id: 5,
+                  title: "First known fossil hand of the...",
+                  trendType: "single_up",
+                },
+              ]}
+            />
+          </aside>
         </div>
       </main>
     </div>
