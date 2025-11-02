@@ -166,3 +166,13 @@ body {
 .dark ::-webkit-scrollbar-thumb:hover {
   background-color: rgb(107 114 128 / 1);
 }
+
+/* Hide scrollbar for horizontal scroll */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
