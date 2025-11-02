@@ -49,7 +49,7 @@ export default function LatestResearchCard({
 
         <h3
           style={{
-            color: "#000",
+            color: "var(--color-text-default)",
             fontFamily: "Pretendard",
             fontSize: "18px",
             fontWeight: 600,

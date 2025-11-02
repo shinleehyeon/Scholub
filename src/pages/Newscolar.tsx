@@ -31,7 +31,7 @@ export default function Newscolar() {
         >
           <h2
             style={{
-              color: "#000",
+              color: "var(--color-text-default)",
               fontFamily: "Pretendard",
               fontSize: "24px",
               fontStyle: "normal",

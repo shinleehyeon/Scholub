@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import ChevronUp from "@/shared/ui/icons/ChevronUp";
 
 export default function SubHeader() {
   return (
@@ -8,7 +7,7 @@ export default function SubHeader() {
         display: "flex",
         height: "50px",
         padding: "0 var(--spacing-24)",
-        justifyContent: "space-between",
+        justifyContent: "flex-start",
         alignItems: "center",
         alignSelf: "stretch",
         borderBottom: "1px solid var(--color-border-default)",
@@ -74,76 +73,6 @@ export default function SubHeader() {
         >
           인공지능
         </a>
-      </div>
-
-      <div
-        style={{
-          background: "var(--color-border-default)",
-          width: "1px",
-          height: "var(--spacing-12)",
-        }}
-      />
-
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "var(--spacing-12)",
-        }}
-      >
-        <span
-          style={{
-            color: "var(--color-text-default)",
-            fontFamily: "Pretendard",
-            fontSize: "14px",
-            fontWeight: 500,
-            lineHeight: "var(--spacing-20)",
-          }}
-        >
-          실시간 인기 논문
-        </span>
-
-        <span
-          style={{
-            color: "var(--color-text-subtle)",
-            fontFamily: "Pretendard",
-            fontSize: "14px",
-            fontWeight: 500,
-            lineHeight: "var(--spacing-20)",
-            width: "10px",
-          }}
-        >
-          1
-        </span>
-
-        <span
-          style={{
-            overflow: "hidden",
-            color: "var(--color-text-default)",
-            textOverflow: "ellipsis",
-            fontFamily: "Pretendard",
-            fontSize: "14px",
-            fontWeight: 500,
-            lineHeight: "var(--spacing-20)",
-            display: "-webkit-box",
-            WebkitBoxOrient: "vertical",
-            WebkitLineClamp: 1,
-          }}
-        >
-          DeepSeek-OCR: Context Optical
-        </span>
-
-        <div
-          style={{
-            display: "flex",
-            width: "var(--spacing-16)",
-            height: "var(--spacing-16)",
-            alignItems: "center",
-            gap: "var(--spacing-10)",
-          }}
-        >
-          <ChevronUp size={16} />
-        </div>
       </div>
     </div>
   );

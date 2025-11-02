@@ -1,11 +1,23 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import Logo from "@/shared/ui/Logo";
 import SearchIcon from "@/shared/ui/icons/Search";
+import Bell from "@/shared/ui/icons/Bell";
+import NotificationBadge from "@/shared/ui/icons/NotificationBadge";
+import NotificationPopover from "./NotificationPopover";
 
-export default function Header() {
+interface HeaderProps {
+  status?: "logined" | "default";
+}
+
+export default function Header({ status = "logined" }: HeaderProps) {
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const hasNotifications = true;
+
   return (
     <header
       style={{
+        position: "relative",
         display: "flex",
         height: "71px",
         padding: "0 var(--spacing-24)",
@@ -71,32 +83,84 @@ export default function Header() {
           gap: "var(--spacing-20)",
         }}
       >
-        <Link
-          to="/login"
-          style={{
-            color: "var(--color-text-subtle)",
-            fontFamily: "Pretendard",
-            fontSize: "14px",
-            fontWeight: 500,
-            lineHeight: "var(--spacing-20)",
-            textDecoration: "none",
-          }}
-        >
-          로그인
-        </Link>
-        <Link
-          to="/register"
-          style={{
-            color: "var(--color-text-subtle)",
-            fontFamily: "Pretendard",
-            fontSize: "14px",
-            fontWeight: 500,
-            lineHeight: "var(--spacing-20)",
-            textDecoration: "none",
-          }}
-        >
-          회원가입
-        </Link>
+        {status === "logined" ? (
+          <>
+            <button
+              type="button"
+              onClick={() => setIsNotificationOpen(!isNotificationOpen)}
+              style={{
+                position: "relative",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                background: "transparent",
+                border: "none",
+                cursor: "pointer",
+                padding: 0,
+              }}
+            >
+              <Bell size={24} />
+              {hasNotifications && <NotificationBadge size={10} />}
+            </button>
+            <NotificationPopover
+              isOpen={isNotificationOpen}
+              onClose={() => setIsNotificationOpen(false)}
+            />
+
+            <div
+              style={{
+                width: "32px",
+                height: "32px",
+                borderRadius: "50%",
+                background: "var(--color-surface-subtle)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                overflow: "hidden",
+                cursor: "pointer",
+              }}
+            >
+              <img
+                src="https://picsum.photos/32/32?random=avatar"
+                alt="User avatar"
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                }}
+              />
+            </div>
+          </>
+        ) : (
+          <>
+            <Link
+              to="/login"
+              style={{
+                color: "var(--color-text-subtle)",
+                fontFamily: "Pretendard",
+                fontSize: "14px",
+                fontWeight: 500,
+                lineHeight: "var(--spacing-20)",
+                textDecoration: "none",
+              }}
+            >
+              로그인
+            </Link>
+            <Link
+              to="/register"
+              style={{
+                color: "var(--color-text-subtle)",
+                fontFamily: "Pretendard",
+                fontSize: "14px",
+                fontWeight: 500,
+                lineHeight: "var(--spacing-20)",
+                textDecoration: "none",
+              }}
+            >
+              회원가입
+            </Link>
+          </>
+        )}
       </div>
     </header>
   );

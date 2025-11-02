@@ -108,7 +108,7 @@ export default function Login() {
           >
             <span
               style={{
-                color: "#000",
+                color: "var(--color-text-default)",
                 fontFamily: "Pretendard",
                 fontSize: "14px",
                 fontStyle: "normal",

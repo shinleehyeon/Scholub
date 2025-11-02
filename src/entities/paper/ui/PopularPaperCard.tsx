@@ -47,7 +47,7 @@ export default function PopularPaperCard({
             WebkitLineClamp: 2,
             alignSelf: "stretch",
             overflow: "hidden",
-            color: "#000",
+            color: "var(--color-text-default)",
             textOverflow: "ellipsis",
             fontFamily: "Pretendard",
             fontSize: "18px",

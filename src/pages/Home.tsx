@@ -181,7 +181,7 @@ export default function Home() {
       >
         <h2
           style={{
-            color: "#000",
+            color: "var(--color-text-default)",
             fontFamily: "Pretendard",
             fontSize: "24px",
             fontStyle: "normal",
@@ -272,7 +272,7 @@ export default function Home() {
         >
           <h2
             style={{
-              color: "#000",
+              color: "var(--color-text-default)",
               fontFamily: "Pretendard",
               fontSize: "24px",
               fontStyle: "normal",
@@ -360,7 +360,7 @@ export default function Home() {
 
             <h2
               style={{
-                color: "#000",
+                color: "var(--color-text-default)",
                 fontFamily: "Pretendard",
                 fontSize: "24px",
                 fontStyle: "normal",
