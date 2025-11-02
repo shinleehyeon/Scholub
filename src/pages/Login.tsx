@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import Header from "@/widgets/Header";
 import SubHeader from "@/widgets/SubHeader";
-import PageLayout from "@/shared/ui/PageLayout";
 import { Input } from "@/shared/ui/Input";
 import { Button } from "@/shared/ui/Button";
 
@@ -13,7 +12,16 @@ export default function Login() {
         <SubHeader />
       </div>
 
-      <PageLayout>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          minHeight: "calc(100vh - 121px)",
+          padding: "var(--spacing-48) var(--spacing-24)",
+        }}
+      >
         <div
           style={{
             display: "flex",
@@ -132,7 +140,7 @@ export default function Login() {
             </span>
           </div>
         </div>
-      </PageLayout>
+      </div>
     </div>
   );
 }

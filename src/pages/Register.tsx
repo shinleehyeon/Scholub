@@ -1,11 +1,16 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Header from "@/widgets/Header";
 import SubHeader from "@/widgets/SubHeader";
-import PageLayout from "@/shared/ui/PageLayout";
 import { Input } from "@/shared/ui/Input";
 import { Button } from "@/shared/ui/Button";
 
 export default function Register() {
+  const navigate = useNavigate();
+
+  const handleRegister = () => {
+    navigate("/interest-areas");
+  };
+
   return (
     <div className="min-h-screen bg-white">
       <Header />
@@ -13,7 +18,16 @@ export default function Register() {
         <SubHeader />
       </div>
 
-      <PageLayout>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          minHeight: "calc(100vh - 121px)",
+          padding: "var(--spacing-48) var(--spacing-24)",
+        }}
+      >
         <div
           style={{
             display: "flex",
@@ -104,7 +118,12 @@ export default function Register() {
               size="large"
             />
 
-            <Button variant="primary" size="large" fullWidth>
+            <Button
+              variant="primary"
+              size="large"
+              fullWidth
+              onClick={handleRegister}
+            >
               회원가입
             </Button>
           </div>
@@ -150,7 +169,7 @@ export default function Register() {
             </span>
           </div>
         </div>
-      </PageLayout>
+      </div>
     </div>
   );
 }

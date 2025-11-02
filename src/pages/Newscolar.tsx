@@ -1,6 +1,5 @@
 import Header from "@/widgets/Header";
 import SubHeader from "@/widgets/SubHeader";
-import PageLayout from "@/shared/ui/PageLayout";
 import LatestResearchCard from "@/entities/paper/ui/LatestResearchCard";
 
 export default function Newscolar() {
@@ -11,7 +10,16 @@ export default function Newscolar() {
         <SubHeader />
       </div>
 
-      <PageLayout>
+      <div
+        style={{
+          display: "flex",
+          padding: "var(--spacing-40) var(--spacing-24)",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: "var(--spacing-32)",
+          alignSelf: "stretch",
+        }}
+      >
         <div
           style={{
             display: "flex",
@@ -56,7 +64,7 @@ export default function Newscolar() {
             ))}
           </div>
         </div>
-      </PageLayout>
+      </div>
     </div>
   );
 }
