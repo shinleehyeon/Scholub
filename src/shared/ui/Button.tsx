@@ -9,7 +9,7 @@ const buttonVariants = cva(
     variants: {
       variant: {
         primary:
-          "bg-[var(--color-brand-default)] text-[var(--color-text-white)] hover:opacity-90 disabled:bg-[var(--color-brand-subtle)] disabled:text-[var(--color-text-subtle)]",
+          "text-[var(--color-text-white)] hover:opacity-90 disabled:bg-[var(--color-brand-subtle)] disabled:text-[var(--color-text-subtle)]",
         secondary:
           "bg-[var(--color-surface-default)] text-[var(--color-text-default)] border border-[var(--color-border-default)] hover:border-gray-400",
         tertiary:
@@ -19,7 +19,7 @@ const buttonVariants = cva(
         medium:
           "px-[var(--spacing-16)] py-[var(--spacing-10)] text-sm leading-5 rounded-[var(--radius-14)]",
         large:
-          "px-[var(--spacing-24)] py-[var(--spacing-16)] text-base leading-6 rounded-[var(--radius-16)]",
+          "px-[var(--spacing-24)] py-[var(--spacing-16)] text-[17px] leading-[24px] rounded-[var(--radius-16)]",
       },
       fullWidth: {
         true: "w-full",
@@ -77,6 +77,14 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     },
     ref
   ) => {
+    const getStyle = () => {
+      const baseStyle: React.CSSProperties = {};
+      if (variant === "primary") {
+        baseStyle.backgroundColor = "var(--color-surface-brand-default)";
+      }
+      return { ...baseStyle, ...props.style };
+    };
+
     return (
       <button
         className={cn(
@@ -88,6 +96,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
             className,
           })
         )}
+        style={getStyle()}
         ref={ref}
         disabled={disabled || pending}
         {...props}

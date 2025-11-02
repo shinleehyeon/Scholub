@@ -239,6 +239,15 @@ export default function Home() {
             subtitle="Amines are among the most common functional groups in bioactive molecules and pharmaceuticals,1-3 yet they are almost universally treated as synthetic endpoint..."
             category="인공지능 > 머신러닝"
           />
+          {Array.from({ length: 10 }, (_, index) => (
+            <PopularPaperCard
+              key={index}
+              imageUrl="https://picsum.photos/300/169?random=1"
+              title="Deaminative cross-coupling of amines by boryl radical β-scission"
+              subtitle="Amines are among the most common functional groups in bioactive molecules and pharmaceuticals,1-3 yet they are almost universally treated as synthetic endpoint..."
+              category="인공지능 > 머신러닝"
+            />
+          ))}
         </div>
       </div>
 

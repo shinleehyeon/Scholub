@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import Logo from "@/shared/ui/Logo";
 import SearchIcon from "@/shared/ui/icons/Search";
 
@@ -15,9 +16,9 @@ export default function Header() {
         background: "var(--color-surface-default)",
       }}
     >
-      <a href="/" style={{ flexShrink: 0 }}>
+      <Link to="/" style={{ flexShrink: 0 }}>
         <Logo />
-      </a>
+      </Link>
 
       <div
         style={{
@@ -70,8 +71,8 @@ export default function Header() {
           gap: "var(--spacing-20)",
         }}
       >
-        <a
-          href="/login"
+        <Link
+          to="/login"
           style={{
             color: "var(--color-text-subtle)",
             fontFamily: "Pretendard",
@@ -82,9 +83,9 @@ export default function Header() {
           }}
         >
           로그인
-        </a>
-        <a
-          href="/signup"
+        </Link>
+        <Link
+          to="/register"
           style={{
             color: "var(--color-text-subtle)",
             fontFamily: "Pretendard",
@@ -95,7 +96,7 @@ export default function Header() {
           }}
         >
           회원가입
-        </a>
+        </Link>
       </div>
     </header>
   );
