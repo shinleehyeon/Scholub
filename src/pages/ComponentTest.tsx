@@ -1,4 +1,4 @@
-import { Input, Checkbox, Button, Search } from "@/shared/ui";
+import { Input, Checkbox, Button, Search, Chip } from "@/shared/ui";
 import { useState } from "react";
 import { ArrowRight } from "lucide-react";
 
@@ -6,6 +6,12 @@ export default function ComponentTest() {
   const [checked2, setChecked2] = useState(false);
   const [checked3, setChecked3] = useState(false);
   const [checked4, setChecked4] = useState(false);
+  const [chip1, setChip1] = useState(false);
+  const [chip2, setChip2] = useState(false);
+  const [chip3, setChip3] = useState(false);
+  const [chip4, setChip4] = useState(false);
+  const [chip5, setChip5] = useState(false);
+  const [chip6, setChip6] = useState(false);
 
   return (
     <div className="min-h-screen bg-white p-12">
@@ -94,6 +100,64 @@ export default function ComponentTest() {
 
           <div className="space-y-8">
             <Search />
+          </div>
+        </div>
+
+        <div className="border-2 border-dashed border-purple-500 rounded-3xl p-12">
+          <div className="flex items-center gap-2 mb-8">
+            <span className="text-purple-500 font-semibold">Chip</span>
+          </div>
+
+          <div className="space-y-8 flex flex-wrap gap-4">
+            <Chip
+              status={chip1 ? "selected" : "default"}
+              size="small"
+              onClick={() => setChip1(!chip1)}
+            >
+              태그
+            </Chip>
+
+            <Chip
+              status={chip2 ? "selected" : "default"}
+              size="small"
+              onClick={() => setChip2(!chip2)}
+            >
+              선택됨
+            </Chip>
+
+            <Chip
+              status={chip3 ? "selected" : "default"}
+              size="small"
+              leadingIcon={<ArrowRight size={12} />}
+              onClick={() => setChip3(!chip3)}
+            >
+              아이콘 태그
+            </Chip>
+
+            <Chip
+              status={chip4 ? "selected" : "default"}
+              size="small"
+              trailingIcon={<ArrowRight size={12} />}
+              onClick={() => setChip4(!chip4)}
+            >
+              태그 아이콘
+            </Chip>
+
+            <Chip
+              status={chip5 ? "selected" : "default"}
+              size="large"
+              onClick={() => setChip5(!chip5)}
+            >
+              큰 태그
+            </Chip>
+
+            <Chip
+              status={chip6 ? "selected" : "default"}
+              size="large"
+              onClick={() => setChip6(!chip6)}
+            >
+              큰 선택된 태그
+            </Chip>
           </div>
         </div>
       </div>
