@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import ChevronUp from "@/shared/ui/icons/ChevronUp";
 
 export default function SubHeader() {
@@ -21,8 +22,8 @@ export default function SubHeader() {
           gap: "var(--spacing-20)",
         }}
       >
-        <a
-          href="/latest"
+        <Link
+          to="/newscolar"
           style={{
             color: "var(--color-text-default)",
             fontFamily: "Pretendard",
@@ -33,7 +34,7 @@ export default function SubHeader() {
           }}
         >
           최신연구
-        </a>
+        </Link>
         <a
           href="/computer-science"
           style={{
