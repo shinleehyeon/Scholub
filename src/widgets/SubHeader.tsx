@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { Typography } from "@/shared/ui";
 
 export default function SubHeader() {
   return (
@@ -24,54 +25,43 @@ export default function SubHeader() {
         <Link
           to="/newscolar"
           style={{
-            color: "var(--color-text-default)",
-            fontFamily: "Pretendard",
-            fontSize: "14px",
-            fontWeight: 500,
-            lineHeight: "var(--spacing-20)",
             textDecoration: "none",
           }}
         >
-          최신연구
+          <Typography.Subtext color="default">최신연구</Typography.Subtext>
         </Link>
+        <div
+          style={{
+            background: "var(--color-border-default)",
+            width: "1px",
+            height: "var(--spacing-12)",
+          }}
+        />
         <a
           href="/computer-science"
           style={{
-            color: "var(--color-text-default)",
-            fontFamily: "Pretendard",
-            fontSize: "14px",
-            fontWeight: 500,
-            lineHeight: "var(--spacing-20)",
             textDecoration: "none",
           }}
         >
-          컴퓨터과학
+          <Typography.Subtext color="default">컴퓨터과학</Typography.Subtext>
         </a>
         <a
           href="/network"
           style={{
-            color: "var(--color-text-default)",
-            fontFamily: "Pretendard",
-            fontSize: "14px",
-            fontWeight: 500,
-            lineHeight: "var(--spacing-20)",
             textDecoration: "none",
           }}
         >
-          네트워크 및 통신
+          <Typography.Subtext color="default">
+            네트워크 및 통신
+          </Typography.Subtext>
         </a>
         <a
           href="/ai"
           style={{
-            color: "var(--color-text-default)",
-            fontFamily: "Pretendard",
-            fontSize: "14px",
-            fontWeight: 500,
-            lineHeight: "var(--spacing-20)",
             textDecoration: "none",
           }}
         >
-          인공지능
+          <Typography.Subtext color="default">인공지능</Typography.Subtext>
         </a>
       </div>
     </div>

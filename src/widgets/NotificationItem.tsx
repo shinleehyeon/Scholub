@@ -1,3 +1,5 @@
+import { Typography } from "@/shared/ui";
+
 interface NotificationItemProps {
   imageUrl: string;
   message: string;
@@ -37,31 +39,10 @@ export default function NotificationItem({
           width: "225px",
         }}
       >
-        <p
-          style={{
-            color: "var(--color-text-default)",
-            fontFamily: "Pretendard",
-            fontSize: "12px",
-            fontStyle: "normal",
-            fontWeight: 600,
-            lineHeight: "16px",
-            margin: 0,
-          }}
-        >
+        <Typography.Caption color="default" className="font-semibold">
           {message}
-        </p>
-        <span
-          style={{
-            color: "var(--color-text-subtle)",
-            fontFamily: "Pretendard",
-            fontSize: "12px",
-            fontStyle: "normal",
-            fontWeight: 500,
-            lineHeight: "16px",
-          }}
-        >
-          {timestamp}
-        </span>
+        </Typography.Caption>
+        <Typography.Caption color="subtle">{timestamp}</Typography.Caption>
       </div>
     </div>
   );

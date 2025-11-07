@@ -1,8 +1,10 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Header from "@/widgets/Header";
 import SubHeader from "@/widgets/SubHeader";
 import { Chip } from "@/shared/ui";
 import { Button } from "@/shared/ui";
+import { Typography } from "@/shared/ui";
 import { Check } from "lucide-react";
 
 const interestAreas = [
@@ -23,12 +25,17 @@ const interestAreas = [
 ];
 
 export default function InterestAreas() {
+  const navigate = useNavigate();
   const [selectedAreas, setSelectedAreas] = useState<string[]>([]);
 
   const toggleArea = (area: string) => {
     setSelectedAreas((prev) =>
       prev.includes(area) ? prev.filter((a) => a !== area) : [...prev, area]
     );
+  };
+
+  const handleComplete = () => {
+    navigate("/");
   };
 
   return (
@@ -66,36 +73,15 @@ export default function InterestAreas() {
               gap: "var(--spacing-10)",
             }}
           >
-            <h1
-              style={{
-                color: "var(--color-text-default)",
-                fontFamily: "Pretendard",
-                fontSize: "24px",
-                fontStyle: "normal",
-                fontWeight: 500,
-                lineHeight: "30px",
-                margin: 0,
-              }}
-            >
+            <Typography.Headline color="default" as="h1">
               관심 분야
-            </h1>
+            </Typography.Headline>
 
-            <p
-              style={{
-                color: "var(--color-text-subtle)",
-                textAlign: "center",
-                fontFamily: "Pretendard",
-                fontSize: "17px",
-                fontStyle: "normal",
-                fontWeight: 500,
-                lineHeight: "24px",
-                margin: 0,
-              }}
-            >
+            <Typography.Body color="subtle" className="text-center">
               관심있는 논문을 추천드리기 위해
               <br />
               아래에서 관심 분야를 선택해주세요.
-            </p>
+            </Typography.Body>
           </div>
 
           <div
@@ -130,7 +116,12 @@ export default function InterestAreas() {
             })}
           </div>
 
-          <Button variant="primary" size="large" fullWidth>
+          <Button
+            variant="primary"
+            size="large"
+            fullWidth
+            onClick={handleComplete}
+          >
             완료
           </Button>
         </div>

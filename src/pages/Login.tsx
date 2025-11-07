@@ -3,8 +3,15 @@ import Header from "@/widgets/Header";
 import SubHeader from "@/widgets/SubHeader";
 import { Input } from "@/shared/ui/Input";
 import { Button } from "@/shared/ui/Button";
+import { Typography } from "@/shared/ui";
+import { useNavigate } from "react-router-dom";
 
 export default function Login() {
+  const navigate = useNavigate();
+
+  const handleLogin = () => {
+    navigate("/");
+  };
   return (
     <div className="min-h-screen bg-white">
       <Header />
@@ -39,33 +46,13 @@ export default function Login() {
               gap: "var(--spacing-10)",
             }}
           >
-            <h1
-              style={{
-                color: "var(--color-text-default)",
-                fontFamily: "Pretendard",
-                fontSize: "24px",
-                fontStyle: "normal",
-                fontWeight: 500,
-                lineHeight: "30px",
-                margin: 0,
-              }}
-            >
+            <Typography.Headline color="default" as="h1">
               로그인
-            </h1>
+            </Typography.Headline>
 
-            <p
-              style={{
-                color: "var(--color-text-subtle)",
-                fontFamily: "Pretendard",
-                fontSize: "17px",
-                fontStyle: "normal",
-                fontWeight: 500,
-                lineHeight: "24px",
-                margin: 0,
-              }}
-            >
+            <Typography.Body color="subtle">
               로그인하여 Scholub 커뮤니티를 이용하세요!
-            </p>
+            </Typography.Body>
           </div>
 
           <div
@@ -94,7 +81,12 @@ export default function Login() {
               size="large"
             />
 
-            <Button variant="primary" size="large" fullWidth>
+            <Button
+              variant="primary"
+              size="large"
+              fullWidth
+              onClick={handleLogin}
+            >
               로그인
             </Button>
           </div>
@@ -106,38 +98,19 @@ export default function Login() {
               gap: "var(--spacing-4)",
             }}
           >
-            <span
-              style={{
-                color: "var(--color-text-default)",
-                fontFamily: "Pretendard",
-                fontSize: "14px",
-                fontStyle: "normal",
-                fontWeight: 500,
-                lineHeight: "20px",
-              }}
-            >
+            <Typography.Subtext color="default">
               계정이 없나요?{" "}
               <Link
                 to="/register"
                 style={{
                   color: "var(--color-text-brand-default)",
-                  fontFamily: "Pretendard",
-                  fontSize: "14px",
-                  fontStyle: "normal",
-                  fontWeight: 500,
-                  lineHeight: "20px",
                   textDecorationLine: "underline",
-                  textDecorationStyle: "solid",
-                  textDecorationSkipInk: "auto",
-                  textDecorationThickness: "auto",
-                  textUnderlineOffset: "auto",
-                  textUnderlinePosition: "from-font",
                 }}
               >
                 회원가입
               </Link>{" "}
               하기
-            </span>
+            </Typography.Subtext>
           </div>
         </div>
       </div>

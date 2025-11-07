@@ -1,5 +1,6 @@
 import NotificationItem from "./NotificationItem";
 import XIcon from "@/shared/ui/icons/X";
+import { Typography } from "@/shared/ui";
 
 export interface NotificationItemData {
   id: string;
@@ -58,14 +59,14 @@ export default function NotificationPopover({
     <div
       style={{
         position: "absolute",
-        right: "80px",
-        top: "71px",
+        right: "0",
+        top: "45px",
         display: "flex",
         width: "320px",
         padding: "var(--spacing-14) 0",
         flexDirection: "column",
         alignItems: "flex-start",
-        gap: "10px",
+        gap: "var(--spacing-10)",
         background: "var(--color-surface-default)",
         borderRadius: "var(--radius-16)",
         border: "1px solid var(--color-border-default)",
@@ -82,19 +83,9 @@ export default function NotificationPopover({
           padding: "0 var(--spacing-16)",
         }}
       >
-        <h3
-          style={{
-            color: "var(--color-text-default)",
-            fontFamily: "Pretendard",
-            fontSize: "17px",
-            fontStyle: "normal",
-            fontWeight: 500,
-            lineHeight: "24px",
-            margin: 0,
-          }}
-        >
+        <Typography.Body color="default" as="h3">
           Scholub 알림
-        </h3>
+        </Typography.Body>
         <button
           type="button"
           onClick={onClose}
@@ -120,7 +111,7 @@ export default function NotificationPopover({
           display: "flex",
           flexDirection: "column",
           width: "100%",
-          gap: "10px",
+          gap: "var(--spacing-10)",
         }}
       >
         {notifications.map((notification) => (

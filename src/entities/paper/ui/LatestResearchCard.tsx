@@ -1,5 +1,6 @@
 import Heart from "@/shared/ui/icons/Heart";
 import Message from "@/shared/ui/icons/Message";
+import { Typography } from "@/shared/ui";
 
 interface LatestResearchCardProps {
   imageUrl: string;
@@ -34,51 +35,26 @@ export default function LatestResearchCard({
           flex: 1,
         }}
       >
-        <span
-          style={{
-            color: "var(--color-text-brand-default)",
-            fontFamily: "Pretendard",
-            fontSize: "14px",
-            fontWeight: 500,
-            lineHeight: "20px",
-            marginBottom: "var(--spacing-4)",
-          }}
+        <Typography.Subtext
+          color="brand"
+          className="mb-[var(--spacing-4)]"
         >
           {category}
-        </span>
+        </Typography.Subtext>
 
-        <h3
-          style={{
-            color: "var(--color-text-default)",
-            fontFamily: "Pretendard",
-            fontSize: "18px",
-            fontWeight: 600,
-            lineHeight: "26px",
-            margin: 0,
-            marginBottom: "var(--spacing-4)",
-          }}
+        <Typography.BodyLarge
+          color="default"
+          className="mb-[var(--spacing-4)] font-semibold leading-[26px]"
         >
           {title}
-        </h3>
+        </Typography.BodyLarge>
 
-        <p
-          style={{
-            color: "var(--color-text-subtle)",
-            fontFamily: "Pretendard",
-            fontSize: "14px",
-            fontWeight: 500,
-            lineHeight: "20px",
-            margin: 0,
-            marginBottom: "var(--spacing-12)",
-            display: "-webkit-box",
-            WebkitBoxOrient: "vertical",
-            WebkitLineClamp: 2,
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-          }}
+        <Typography.Subtext
+          color="subtle"
+          className="mb-[var(--spacing-12)] line-clamp-2"
         >
           {description}
-        </p>
+        </Typography.Subtext>
 
         <div
           style={{
@@ -92,11 +68,6 @@ export default function LatestResearchCard({
               display: "flex",
               alignItems: "center",
               gap: "var(--spacing-4)",
-              color: "var(--color-text-subtle)",
-              fontFamily: "Pretendard",
-              fontSize: "14px",
-              fontWeight: 500,
-              lineHeight: "20px",
               background: "transparent",
               border: "none",
               cursor: "pointer",
@@ -104,7 +75,9 @@ export default function LatestResearchCard({
             }}
           >
             <Heart size={14} />
-            <span>{likes}</span>
+            <Typography.Subtext color="subtle">
+              {likes}
+            </Typography.Subtext>
           </button>
 
           <button
@@ -112,11 +85,6 @@ export default function LatestResearchCard({
               display: "flex",
               alignItems: "center",
               gap: "var(--spacing-4)",
-              color: "var(--color-text-subtle)",
-              fontFamily: "Pretendard",
-              fontSize: "14px",
-              fontWeight: 500,
-              lineHeight: "20px",
               background: "transparent",
               border: "none",
               cursor: "pointer",
@@ -124,7 +92,9 @@ export default function LatestResearchCard({
             }}
           >
             <Message size={14} />
-            <span>{comments}</span>
+            <Typography.Subtext color="subtle">
+              {comments}
+            </Typography.Subtext>
           </button>
         </div>
       </div>

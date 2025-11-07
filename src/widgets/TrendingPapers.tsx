@@ -1,3 +1,5 @@
+import { Typography } from "@/shared/ui";
+
 interface TrendingPaperItem {
   id: number;
   title: string;
@@ -80,10 +82,14 @@ export default function TrendingPapers({ papers }: TrendingPapersProps) {
   };
 
   return (
-    <div className="flex w-[286px] p-[var(--spacing-14)] px-[var(--spacing-16)] flex-col items-start gap-[10px] rounded-[var(--radius-16)] border border-[var(--color-border-default)] bg-[var(--color-surface-default)]">
-      <h3 className="text-[var(--color-text-default)] font-[Pretendard] text-[18px] font-semibold leading-[26px]">
+    <div className="flex w-[286px] p-[var(--spacing-14)] px-[var(--spacing-16)] flex-col items-start gap-[var(--spacing-10)] rounded-[var(--radius-16)] border border-[var(--color-border-default)] bg-[var(--color-surface-default)]">
+      <Typography.BodyLarge
+        color="default"
+        className="font-semibold leading-[26px]"
+        as="h3"
+      >
         실시간 인기 논문
-      </h3>
+      </Typography.BodyLarge>
 
       <div className="flex flex-col items-start gap-[var(--spacing-12)] self-stretch">
         {papers.map((paper) => (
@@ -92,19 +98,18 @@ export default function TrendingPapers({ papers }: TrendingPapersProps) {
             className="flex items-center justify-between self-stretch cursor-pointer hover:opacity-70 transition-opacity"
           >
             <div className="flex items-center gap-[var(--spacing-8)] flex-1 overflow-hidden">
-              <span className="text-[var(--color-text-subtle)] font-[Pretendard] text-[14px] font-medium leading-[20px] w-[10px] flex-shrink-0">
+              <Typography.Subtext
+                color="subtle"
+                className="w-[10px] flex-shrink-0"
+              >
                 {paper.id}
-              </span>
-              <span
-                className="text-[var(--color-text-default)] font-[Pretendard] text-[14px] font-medium leading-[20px] flex-1 overflow-hidden text-ellipsis"
-                style={{
-                  display: "-webkit-box",
-                  WebkitBoxOrient: "vertical",
-                  WebkitLineClamp: 1,
-                }}
+              </Typography.Subtext>
+              <Typography.Subtext
+                color="default"
+                className="flex-1 line-clamp-1"
               >
                 {paper.title}
-              </span>
+              </Typography.Subtext>
             </div>
             <div className="flex items-center gap-[var(--spacing-4)] flex-shrink-0">
               {getTrendIcon(paper.trendType)}

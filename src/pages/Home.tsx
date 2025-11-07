@@ -6,6 +6,7 @@ import LatestResearchCard from "@/entities/paper/ui/LatestResearchCard";
 import ChevronLeft from "@/shared/ui/icons/ChevronLeft";
 import ChevronRight from "@/shared/ui/icons/ChevronRight";
 import Sparkles from "@/shared/ui/icons/Sparkles";
+import { Typography } from "@/shared/ui";
 
 interface CarouselItem {
   id: number;
@@ -116,13 +117,13 @@ export default function Home() {
             zIndex: 1,
           }}
         >
-          <h1 className="text-white font-[Pretendard] text-[32px] font-bold leading-[140%] text-center">
+          <Typography.Display color="white" className="text-center">
             {currentItem.title}
-          </h1>
+          </Typography.Display>
 
-          <p className="text-white font-[Pretendard] text-[18px] font-medium leading-[26px] text-center">
+          <Typography.BodyLarge color="white" className="text-center">
             {currentItem.authors}
-          </p>
+          </Typography.BodyLarge>
         </div>
 
         <button
@@ -179,19 +180,9 @@ export default function Home() {
           marginTop: "var(--spacing-48)",
         }}
       >
-        <h2
-          style={{
-            color: "var(--color-text-default)",
-            fontFamily: "Pretendard",
-            fontSize: "24px",
-            fontStyle: "normal",
-            fontWeight: 700,
-            lineHeight: "30px",
-            margin: 0,
-          }}
-        >
+        <Typography.Headline color="default">
           오늘의 인기 논문
-        </h2>
+        </Typography.Headline>
 
         <div
           style={{
@@ -270,19 +261,7 @@ export default function Home() {
             flex: 1,
           }}
         >
-          <h2
-            style={{
-              color: "var(--color-text-default)",
-              fontFamily: "Pretendard",
-              fontSize: "24px",
-              fontStyle: "normal",
-              fontWeight: 700,
-              lineHeight: "30px",
-              margin: 0,
-            }}
-          >
-            최신 연구
-          </h2>
+          <Typography.Headline color="default">최신 연구</Typography.Headline>
 
           <div
             style={{
@@ -344,33 +323,12 @@ export default function Home() {
               }}
             >
               <Sparkles size={13} />
-              <span
-                style={{
-                  color: "var(--color-text-subtle)",
-                  fontFamily: "Pretendard",
-                  fontSize: "14px",
-                  fontStyle: "normal",
-                  fontWeight: 500,
-                  lineHeight: "20px",
-                }}
-              >
+              <Typography.Subtext color="subtle">
                 최근 Deaminative 논문을 확인해서
-              </span>
+              </Typography.Subtext>
             </div>
 
-            <h2
-              style={{
-                color: "var(--color-text-default)",
-                fontFamily: "Pretendard",
-                fontSize: "24px",
-                fontStyle: "normal",
-                fontWeight: 700,
-                lineHeight: "30px",
-                margin: 0,
-              }}
-            >
-              인공지능
-            </h2>
+            <Typography.Headline color="default">인공지능</Typography.Headline>
           </div>
 
           <div

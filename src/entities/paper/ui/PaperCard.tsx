@@ -1,6 +1,7 @@
 import Heart from "@/shared/ui/icons/Heart";
 import Message from "@/shared/ui/icons/Message";
 import Share from "@/shared/ui/icons/Share";
+import { Typography } from "@/shared/ui";
 
 interface PaperCardProps {
   imageUrl: string;
@@ -22,44 +23,49 @@ export default function PaperCard({
   return (
     <div className="flex items-start gap-[var(--spacing-24)]">
       <div className="flex flex-col items-start gap-[var(--spacing-12)]">
-        <h3 className="w-[469px] text-[var(--color-text-default)] font-[Pretendard] text-[18px] font-semibold leading-[26px]">
+        <Typography.BodyLarge
+          color="default"
+          className="w-[469px] font-semibold leading-[26px]"
+        >
           {title}
-        </h3>
+        </Typography.BodyLarge>
 
-        <p
-          className="w-[399px] overflow-hidden text-ellipsis text-[var(--color-text-subtle)] font-[Pretendard] text-[14px] font-medium leading-[20px]"
-          style={{
-            display: "-webkit-box",
-            WebkitBoxOrient: "vertical",
-            WebkitLineClamp: 2,
-          }}
+        <Typography.Subtext
+          color="subtle"
+          className="w-[399px] line-clamp-2"
         >
           {description}
-        </p>
+        </Typography.Subtext>
 
         <div className="flex items-center gap-[var(--spacing-12)]">
           <button
             onClick={onHeartClick}
-            className="flex items-center gap-[var(--spacing-4)] text-[var(--color-text-default)] font-[Pretendard] text-[14px] font-medium leading-[20px] hover:opacity-70 transition-opacity"
+            className="flex items-center gap-[var(--spacing-4)] hover:opacity-70 transition-opacity"
           >
             <Heart size={14} />
-            <span>32</span>
+            <Typography.Subtext color="default">
+              32
+            </Typography.Subtext>
           </button>
 
           <button
             onClick={onMessageClick}
-            className="flex items-center gap-[var(--spacing-4)] text-[var(--color-text-default)] font-[Pretendard] text-[14px] font-medium leading-[20px] hover:opacity-70 transition-opacity"
+            className="flex items-center gap-[var(--spacing-4)] hover:opacity-70 transition-opacity"
           >
             <Message size={14} />
-            <span>32</span>
+            <Typography.Subtext color="default">
+              32
+            </Typography.Subtext>
           </button>
 
           <button
             onClick={onShareClick}
-            className="flex items-center gap-[var(--spacing-4)] text-[var(--color-text-default)] font-[Pretendard] text-[14px] font-medium leading-[20px] hover:opacity-70 transition-opacity"
+            className="flex items-center gap-[var(--spacing-4)] hover:opacity-70 transition-opacity"
           >
             <Share size={14} />
-            <span>32</span>
+            <Typography.Subtext color="default">
+              32
+            </Typography.Subtext>
           </button>
         </div>
       </div>

@@ -1,6 +1,7 @@
 import Header from "@/widgets/Header";
 import SubHeader from "@/widgets/SubHeader";
 import LatestResearchCard from "@/entities/paper/ui/LatestResearchCard";
+import { Typography } from "@/shared/ui";
 
 export default function Newscolar() {
   return (
@@ -29,19 +30,9 @@ export default function Newscolar() {
             gap: "var(--spacing-24)",
           }}
         >
-          <h2
-            style={{
-              color: "var(--color-text-default)",
-              fontFamily: "Pretendard",
-              fontSize: "24px",
-              fontStyle: "normal",
-              fontWeight: 700,
-              lineHeight: "30px",
-              margin: 0,
-            }}
-          >
+          <Typography.Headline color="default" as="h2">
             최신 연구
-          </h2>
+          </Typography.Headline>
 
           <div
             style={{
