@@ -1,6 +1,6 @@
 import { Header } from "@/widgets/header";
 import { SubHeader } from "@/widgets/sub-header";
-import { Avatar, Button } from "@/shared/ui";
+import { Avatar, Button, Typography } from "@/shared/ui";
 import LatestResearchCard from "@/entities/paper/ui/LatestResearchCard";
 
 export default function ProfilePage() {
@@ -33,18 +33,14 @@ export default function ProfilePage() {
             gap: "var(--spacing-32)",
           }}
         >
-          <div
+          <Typography.Headline
+            color="default"
             style={{
-              color: "var(--color-text-default)",
-              fontFamily: "Pretendard",
-              fontSize: "24px",
-              fontStyle: "normal",
               fontWeight: 700,
-              lineHeight: "30px",
             }}
           >
             프로필
-          </div>
+          </Typography.Headline>
 
           <div
             style={{
@@ -74,30 +70,12 @@ export default function ProfilePage() {
                   gap: "var(--spacing-6)",
                 }}
               >
-                <div
-                  style={{
-                    color: "var(--color-text-default)",
-                    fontFamily: "Pretendard",
-                    fontSize: "24px",
-                    fontStyle: "normal",
-                    fontWeight: 500,
-                    lineHeight: "30px",
-                  }}
-                >
+                <Typography.Headline color="default">
                   환경 피로
-                </div>
-                <div
-                  style={{
-                    color: "var(--color-text-subtle)",
-                    fontFamily: "Pretendard",
-                    fontSize: "18px",
-                    fontStyle: "normal",
-                    fontWeight: 500,
-                    lineHeight: "24px",
-                  }}
-                >
+                </Typography.Headline>
+                <Typography.BodyLarge color="subtle">
                   fire.extinguisher@gmail.com
-                </div>
+                </Typography.BodyLarge>
               </div>
             </div>
 
@@ -122,30 +100,15 @@ export default function ProfilePage() {
                 gap: "var(--spacing-4)",
               }}
             >
-              <div
+              <Typography.Subtext
+                color="subtle"
                 style={{
-                  color: "var(--color-text-subtle)",
-                  fontFamily: "Pretendard",
-                  fontSize: "14px",
-                  fontStyle: "normal",
-                  fontWeight: 500,
                   lineHeight: "140%",
                 }}
               >
                 논문 반응
-              </div>
-              <div
-                style={{
-                  color: "var(--color-text-default)",
-                  fontFamily: "Pretendard",
-                  fontSize: "24px",
-                  fontStyle: "normal",
-                  fontWeight: 500,
-                  lineHeight: "30px",
-                }}
-              >
-                32개
-              </div>
+              </Typography.Subtext>
+              <Typography.Headline color="default">32개</Typography.Headline>
             </div>
 
             <div
@@ -164,30 +127,15 @@ export default function ProfilePage() {
                 gap: "var(--spacing-4)",
               }}
             >
-              <div
+              <Typography.Subtext
+                color="subtle"
                 style={{
-                  color: "var(--color-text-subtle)",
-                  fontFamily: "Pretendard",
-                  fontSize: "14px",
-                  fontStyle: "normal",
-                  fontWeight: 500,
                   lineHeight: "140%",
                 }}
               >
                 댓글
-              </div>
-              <div
-                style={{
-                  color: "var(--color-text-default)",
-                  fontFamily: "Pretendard",
-                  fontSize: "24px",
-                  fontStyle: "normal",
-                  fontWeight: 500,
-                  lineHeight: "30px",
-                }}
-              >
-                12개
-              </div>
+              </Typography.Subtext>
+              <Typography.Headline color="default">12개</Typography.Headline>
             </div>
           </div>
 
@@ -199,20 +147,15 @@ export default function ProfilePage() {
               alignSelf: "stretch",
             }}
           >
-            <div
+            <Typography.BodyLarge
+              color="default"
               style={{
-                color: "var(--color-text-default)",
-                fontFamily: "Pretendard",
-                fontSize: "18px",
-                fontStyle: "normal",
-                fontWeight: 500,
-                lineHeight: "24px",
                 alignSelf: "stretch",
                 textAlign: "left",
               }}
             >
               내가 반응한 논문
-            </div>
+            </Typography.BodyLarge>
 
             <div
               style={{
@@ -258,20 +201,15 @@ export default function ProfilePage() {
               alignSelf: "stretch",
             }}
           >
-            <div
+            <Typography.BodyLarge
+              color="default"
               style={{
-                color: "var(--color-text-default)",
-                fontFamily: "Pretendard",
-                fontSize: "18px",
-                fontStyle: "normal",
-                fontWeight: 500,
-                lineHeight: "24px",
                 alignSelf: "stretch",
                 textAlign: "left",
               }}
             >
               내가 댓글 작성한 논문
-            </div>
+            </Typography.BodyLarge>
 
             <div
               style={{
