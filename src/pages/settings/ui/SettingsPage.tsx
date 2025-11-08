@@ -10,7 +10,7 @@ export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState<"general" | "notification">(
     "general"
   );
-  const [journals, setJournals] = useState<string[]>([]);
+  const [journals, setJournals] = useState<string[]>(["DBPia"]);
   const [journalInput, setJournalInput] = useState("");
   const [minYear, setMinYear] = useState("");
   const [excludedFields] = useState<string[]>([
@@ -266,7 +266,6 @@ export default function SettingsPage() {
                         ) : undefined
                       }
                       onClick={() => handleToggleField(field)}
-                      className="min-w-[120px] justify-center"
                     >
                       {field}
                     </Chip>

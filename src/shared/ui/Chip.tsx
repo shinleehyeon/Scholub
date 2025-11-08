@@ -13,9 +13,9 @@ const chipVariants = cva(
       },
       size: {
         small:
-          "px-[var(--spacing-12)] py-[var(--spacing-8)] gap-[var(--spacing-4)] text-[12px] font-medium leading-[16px]",
+          "py-[var(--spacing-8)] gap-[var(--spacing-4)] text-[12px] font-medium leading-[16px]",
         large:
-          "px-[var(--spacing-14)] py-[var(--spacing-10)] gap-[var(--spacing-6)] text-[17px] font-medium leading-[24px]",
+          "py-[var(--spacing-10)] gap-[var(--spacing-6)] text-[17px] font-medium leading-[24px]",
       },
     },
     defaultVariants: {
@@ -54,9 +54,15 @@ export default function Chip({
     return icon;
   };
 
+  const paddingX = size === "large" ? "var(--spacing-14)" : "var(--spacing-12)";
+
   return (
     <span
       onClick={onClick}
+      style={{
+        paddingLeft: paddingX,
+        paddingRight: paddingX,
+      }}
       className={cn(
         chipVariants({ status, size }),
         status === "default"

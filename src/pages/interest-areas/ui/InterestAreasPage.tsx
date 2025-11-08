@@ -108,7 +108,6 @@ export default function InterestAreas() {
                     )
                   }
                   onClick={() => toggleArea(area)}
-                  className="min-w-[120px] justify-center"
                 >
                   {area}
                 </Chip>
