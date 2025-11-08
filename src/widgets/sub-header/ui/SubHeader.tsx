@@ -37,16 +37,16 @@ export default function SubHeader() {
             height: "var(--spacing-12)",
           }}
         />
-        <a
-          href="/computer-science"
+        <Link
+          to="/category/computer-science"
           style={{
             textDecoration: "none",
           }}
         >
           <Typography.Subtext color="default">컴퓨터과학</Typography.Subtext>
-        </a>
-        <a
-          href="/network"
+        </Link>
+        <Link
+          to="/category/network"
           style={{
             textDecoration: "none",
           }}
@@ -54,15 +54,15 @@ export default function SubHeader() {
           <Typography.Subtext color="default">
             네트워크 및 통신
           </Typography.Subtext>
-        </a>
-        <a
-          href="/ai"
+        </Link>
+        <Link
+          to="/category/ai"
           style={{
             textDecoration: "none",
           }}
         >
           <Typography.Subtext color="default">인공지능</Typography.Subtext>
-        </a>
+        </Link>
       </div>
     </div>
   );

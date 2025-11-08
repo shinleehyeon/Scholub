@@ -5,6 +5,7 @@ import { LoginPage } from "@/pages/login";
 import { RegisterPage } from "@/pages/register";
 import ComponentTest from "@/pages/ComponentTest";
 import { InterestAreasPage } from "@/pages/interest-areas";
+import { CategoryPage } from "@/pages/category";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/interest-areas" element={<InterestAreasPage />} />
         <Route path="/component-test" element={<ComponentTest />} />
+        <Route path="/category/:categoryId" element={<CategoryPage />} />
       </Routes>
     </BrowserRouter>
   );
