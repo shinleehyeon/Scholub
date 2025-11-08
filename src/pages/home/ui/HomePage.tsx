@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import Header from "@/widgets/Header";
-import SubHeader from "@/widgets/SubHeader";
+import { Header } from "@/widgets/header";
+import { SubHeader } from "@/widgets/sub-header";
 import PopularPaperCard from "@/entities/paper/ui/PopularPaperCard";
 import LatestResearchCard from "@/entities/paper/ui/LatestResearchCard";
 import ChevronLeft from "@/shared/ui/icons/ChevronLeft";

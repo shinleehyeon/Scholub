@@ -119,3 +119,4 @@ export default function TrendingPapers({ papers }: TrendingPapersProps) {
     </div>
   );
 }
+

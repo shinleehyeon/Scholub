@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
-import Header from "@/widgets/Header";
-import SubHeader from "@/widgets/SubHeader";
+import { Header } from "@/widgets/header";
+import { SubHeader } from "@/widgets/sub-header";
 import { Input } from "@/shared/ui";
 import { Button } from "@/shared/ui";
 import { Typography } from "@/shared/ui";

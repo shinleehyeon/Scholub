@@ -4,8 +4,8 @@ import { Logo } from "@/shared/ui";
 import SearchIcon from "@/shared/ui/icons/Search";
 import Bell from "@/shared/ui/icons/Bell";
 import NotificationBadge from "@/shared/ui/icons/NotificationBadge";
-import NotificationPopover from "./NotificationPopover";
-import UserMenuPopover from "./UserMenuPopover";
+import { NotificationPopover } from "@/widgets/notification-popover";
+import { UserMenuPopover } from "@/widgets/user-menu-popover";
 import { Typography } from "@/shared/ui";
 
 interface HeaderProps {
