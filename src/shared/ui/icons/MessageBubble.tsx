@@ -45,4 +45,3 @@ const MessageBubble = ({
 };
 
 export default MessageBubble;
-

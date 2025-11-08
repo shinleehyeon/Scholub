@@ -32,4 +32,3 @@ const Bell = ({ size = 24, className = "", ...props }: BellProps) => {
 };
 
 export default Bell;
-

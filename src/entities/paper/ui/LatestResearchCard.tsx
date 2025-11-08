@@ -35,17 +35,11 @@ export default function LatestResearchCard({
           flex: 1,
         }}
       >
-        <Typography.Subtext
-          color="brand"
-          className="mb-[var(--spacing-4)]"
-        >
+        <Typography.Subtext color="brand" className="mb-[var(--spacing-4)]">
           {category}
         </Typography.Subtext>
 
-        <Typography.BodyLarge
-          color="default"
-          className="mb-[var(--spacing-4)]"
-        >
+        <Typography.BodyLarge color="default" className="mb-[var(--spacing-4)]">
           {title}
         </Typography.BodyLarge>
 
@@ -75,9 +69,7 @@ export default function LatestResearchCard({
             }}
           >
             <Heart size={14} />
-            <Typography.Subtext color="subtle">
-              {likes}
-            </Typography.Subtext>
+            <Typography.Subtext color="subtle">{likes}</Typography.Subtext>
           </button>
 
           <button
@@ -92,9 +84,7 @@ export default function LatestResearchCard({
             }}
           >
             <Message size={14} />
-            <Typography.Subtext color="subtle">
-              {comments}
-            </Typography.Subtext>
+            <Typography.Subtext color="subtle">{comments}</Typography.Subtext>
           </button>
         </div>
       </div>
@@ -111,4 +101,3 @@ export default function LatestResearchCard({
     </div>
   );
 }
-

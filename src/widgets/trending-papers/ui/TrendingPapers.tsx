@@ -83,10 +83,7 @@ export default function TrendingPapers({ papers }: TrendingPapersProps) {
 
   return (
     <div className="flex w-[286px] p-[var(--spacing-14)] px-[var(--spacing-16)] flex-col items-start gap-[var(--spacing-10)] rounded-[var(--radius-16)] border border-[var(--color-border-default)] bg-[var(--color-surface-default)]">
-      <Typography.BodyLarge
-        color="default"
-        as="h3"
-      >
+      <Typography.BodyLarge color="default" as="h3">
         실시간 인기 논문
       </Typography.BodyLarge>
 
@@ -119,4 +116,3 @@ export default function TrendingPapers({ papers }: TrendingPapersProps) {
     </div>
   );
 }
-

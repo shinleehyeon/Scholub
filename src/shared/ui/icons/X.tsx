@@ -32,4 +32,3 @@ const X = ({ size = 20, className = "", ...props }: XProps) => {
 };
 
 export default X;
-
