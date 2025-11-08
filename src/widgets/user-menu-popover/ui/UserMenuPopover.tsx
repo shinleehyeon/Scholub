@@ -32,6 +32,11 @@ export default function UserMenuPopover({
     navigate("/profile");
   };
 
+  const handleSettingsClick = () => {
+    onClose();
+    navigate("/settings");
+  };
+
   return (
     <div
       style={{
@@ -122,7 +127,7 @@ export default function UserMenuPopover({
 
         <button
           type="button"
-          onClick={onClose}
+          onClick={handleSettingsClick}
           style={{
             display: "flex",
             width: "174px",
