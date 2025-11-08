@@ -1,6 +1,7 @@
 import Header from "@/widgets/Header";
 import SubHeader from "@/widgets/SubHeader";
 import LatestResearchCard from "@/entities/paper/ui/LatestResearchCard";
+import { AIAnswerSection } from "@/widgets/AIAnswerSection";
 
 export default function Newscolar() {
   return (
@@ -13,20 +14,24 @@ export default function Newscolar() {
       <div
         style={{
           display: "flex",
+          width: "1440px",
           padding: "var(--spacing-40) var(--spacing-24)",
-          flexDirection: "column",
-          alignItems: "center",
+          justifyContent: "center",
+          alignItems: "flex-start",
           gap: "var(--spacing-32)",
           alignSelf: "stretch",
+          margin: "0 auto",
         }}
       >
+        {/* Left Column - Latest Research */}
         <div
           style={{
             display: "flex",
-            width: "721px",
             flexDirection: "column",
             alignItems: "flex-start",
             gap: "var(--spacing-24)",
+            flex: 1,
+            minWidth: 0,
           }}
         >
           <h2 className="text-[var(--color-text-default)] font-[Pretendard] text-[24px] font-bold leading-[30px] m-0">
@@ -53,6 +58,18 @@ export default function Newscolar() {
               />
             ))}
           </div>
+        </div>
+
+        {/* Right Column - AI Answer Section */}
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "flex-start",
+            flexShrink: 0,
+          }}
+        >
+          <AIAnswerSection />
         </div>
       </div>
     </div>
