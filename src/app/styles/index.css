@@ -48,6 +48,10 @@
   --color-text-subtle: #7d7d7d;
   --color-text-white: #ffffff;
   --color-text-success: #0acf00;
+  --color-text-error: #ffffff;
+
+  /* Surface Error Colors */
+  --color-surface-error: #ff4040;
 
   /* Text Brand Colors */
   --color-text-brand-default: #f7971d;

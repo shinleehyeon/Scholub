@@ -4,14 +4,14 @@ import { cn } from "@/shared/lib/utils";
 import Asterisk from "../icons/Asterisk";
 
 const inputWrapperVariants = cva(
-  "inline-flex border transition-all duration-200 ease-in-out relative overflow-hidden bg-[var(--color-surface-default)] border-gray-300 focus-within:outline-none hover:border-gray-400",
+  "inline-flex border transition-all duration-200 ease-in-out relative overflow-hidden bg-[var(--color-surface-default)] border-gray-300 focus-within:outline-none hover:border-gray-400 w-[267px]",
   {
     variants: {
       size: {
         small:
-          "w-56 items-center py-[var(--spacing-10)] px-[var(--spacing-12)] gap-[var(--spacing-8)] rounded-[var(--radius-12)]",
+          "items-center py-[var(--spacing-10)] px-[var(--spacing-12)] gap-[var(--spacing-8)] rounded-[var(--radius-12)]",
         large:
-          "w-56 items-start p-[var(--spacing-14)] gap-[var(--spacing-8)] rounded-[var(--radius-14)]",
+          "items-start p-[var(--spacing-14)] gap-[var(--spacing-8)] rounded-[var(--radius-14)]",
       },
       variant: {
         primary:
