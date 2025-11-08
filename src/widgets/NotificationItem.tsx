@@ -39,9 +39,7 @@ export default function NotificationItem({
           width: "225px",
         }}
       >
-        <Typography.Caption color="default" className="font-semibold">
-          {message}
-        </Typography.Caption>
+        <Typography.Caption color="default">{message}</Typography.Caption>
         <Typography.Caption color="subtle">{timestamp}</Typography.Caption>
       </div>
     </div>

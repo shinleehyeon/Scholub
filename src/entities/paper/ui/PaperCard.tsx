@@ -23,17 +23,11 @@ export default function PaperCard({
   return (
     <div className="flex items-start gap-[var(--spacing-24)]">
       <div className="flex flex-col items-start gap-[var(--spacing-12)]">
-        <Typography.BodyLarge
-          color="default"
-          className="w-[469px] font-semibold leading-[26px]"
-        >
+        <Typography.BodyLarge color="default" className="w-[469px]">
           {title}
         </Typography.BodyLarge>
 
-        <Typography.Subtext
-          color="subtle"
-          className="w-[399px] line-clamp-2"
-        >
+        <Typography.Subtext color="subtle" className="w-[399px] line-clamp-2">
           {description}
         </Typography.Subtext>
 
@@ -43,9 +37,7 @@ export default function PaperCard({
             className="flex items-center gap-[var(--spacing-4)] hover:opacity-70 transition-opacity"
           >
             <Heart size={14} />
-            <Typography.Subtext color="default">
-              32
-            </Typography.Subtext>
+            <Typography.Subtext color="default">32</Typography.Subtext>
           </button>
 
           <button
@@ -53,9 +45,7 @@ export default function PaperCard({
             className="flex items-center gap-[var(--spacing-4)] hover:opacity-70 transition-opacity"
           >
             <Message size={14} />
-            <Typography.Subtext color="default">
-              32
-            </Typography.Subtext>
+            <Typography.Subtext color="default">32</Typography.Subtext>
           </button>
 
           <button
@@ -63,9 +53,7 @@ export default function PaperCard({
             className="flex items-center gap-[var(--spacing-4)] hover:opacity-70 transition-opacity"
           >
             <Share size={14} />
-            <Typography.Subtext color="default">
-              32
-            </Typography.Subtext>
+            <Typography.Subtext color="default">32</Typography.Subtext>
           </button>
         </div>
       </div>
@@ -80,4 +68,3 @@ export default function PaperCard({
     </div>
   );
 }
-

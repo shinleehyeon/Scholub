@@ -44,7 +44,7 @@ export default function LatestResearchCard({
 
         <Typography.BodyLarge
           color="default"
-          className="mb-[var(--spacing-4)] font-semibold leading-[26px]"
+          className="mb-[var(--spacing-4)]"
         >
           {title}
         </Typography.BodyLarge>

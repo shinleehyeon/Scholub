@@ -128,7 +128,9 @@ export default function UserMenuPopover({
           }}
         >
           <Settings size={16} />
-          <Typography.Subtext color="default">설정</Typography.Subtext>
+          <span className="text-[var(--color-text-default)] font-[Pretendard] text-[24px] font-bold leading-[30px]">
+            설정
+          </span>
         </button>
 
         <div

@@ -117,9 +117,9 @@ export default function Home() {
             zIndex: 1,
           }}
         >
-          <Typography.Display color="white" className="text-center">
+          <h1 className="text-white font-[Pretendard] text-[32px] font-bold leading-[44.8px] text-center m-0">
             {currentItem.title}
-          </Typography.Display>
+          </h1>
 
           <Typography.BodyLarge color="white" className="text-center">
             {currentItem.authors}
@@ -180,9 +180,9 @@ export default function Home() {
           marginTop: "var(--spacing-48)",
         }}
       >
-        <Typography.Headline color="default">
+        <h2 className="text-[var(--color-text-default)] font-[Pretendard] text-[24px] font-bold leading-[30px] m-0">
           오늘의 인기 논문
-        </Typography.Headline>
+        </h2>
 
         <div
           style={{
@@ -261,7 +261,9 @@ export default function Home() {
             flex: 1,
           }}
         >
-          <Typography.Headline color="default">최신 연구</Typography.Headline>
+          <h2 className="text-[var(--color-text-default)] font-[Pretendard] text-[24px] font-bold leading-[30px] m-0">
+            최신 연구
+          </h2>
 
           <div
             style={{
@@ -328,7 +330,9 @@ export default function Home() {
               </Typography.Subtext>
             </div>
 
-            <Typography.Headline color="default">인공지능</Typography.Headline>
+            <h2 className="text-[var(--color-text-default)] font-[Pretendard] text-[24px] font-bold leading-[30px] m-0">
+              인공지능
+            </h2>
           </div>
 
           <div

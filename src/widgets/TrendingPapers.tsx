@@ -85,7 +85,6 @@ export default function TrendingPapers({ papers }: TrendingPapersProps) {
     <div className="flex w-[286px] p-[var(--spacing-14)] px-[var(--spacing-16)] flex-col items-start gap-[var(--spacing-10)] rounded-[var(--radius-16)] border border-[var(--color-border-default)] bg-[var(--color-surface-default)]">
       <Typography.BodyLarge
         color="default"
-        className="font-semibold leading-[26px]"
         as="h3"
       >
         실시간 인기 논문
