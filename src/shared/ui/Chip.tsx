@@ -9,8 +9,7 @@ const chipVariants = cva(
       status: {
         default:
           "border border-[var(--color-border-default)] bg-[var(--color-surface-default)]",
-        selected:
-          "bg-[var(--color-surface-brand-default)] border-none",
+        selected: "bg-[var(--color-surface-brand-default)] border-none",
       },
       size: {
         small:
@@ -26,8 +25,7 @@ const chipVariants = cva(
   }
 );
 
-export interface ChipProps
-  extends VariantProps<typeof chipVariants> {
+export interface ChipProps extends VariantProps<typeof chipVariants> {
   children: ReactNode;
   leadingIcon?: ReactNode;
   trailingIcon?: ReactNode;
@@ -61,4 +59,3 @@ export default function Chip({
     </span>
   );
 }
-
