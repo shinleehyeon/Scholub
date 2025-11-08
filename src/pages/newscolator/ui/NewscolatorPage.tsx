@@ -1,9 +1,9 @@
 import Header from "@/widgets/Header";
 import SubHeader from "@/widgets/SubHeader";
 import LatestResearchCard from "@/entities/paper/ui/LatestResearchCard";
-import { AIAnswerSection } from "@/widgets/AIAnswerSection";
+import { AIAnswerSection } from "@/widgets/ai-answer-section";
 
-export default function Newscolar() {
+export default function NewscolatorPage() {
   return (
     <div className="min-h-screen bg-white">
       <Header />

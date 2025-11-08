@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import Logo from "@/shared/ui/Logo";
+import { Logo } from "@/shared/ui";
 import SearchIcon from "@/shared/ui/icons/Search";
 import Bell from "@/shared/ui/icons/Bell";
 import NotificationBadge from "@/shared/ui/icons/NotificationBadge";

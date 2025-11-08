@@ -1,8 +1,11 @@
 import { Input, Checkbox, Button, Search, Chip } from "@/shared/ui";
 import { useState } from "react";
 import { ArrowRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import MessageBubble from "@/shared/ui/icons/MessageBubble";
 
 export default function ComponentTest() {
+  const navigate = useNavigate();
   const [checked2, setChecked2] = useState(false);
   const [checked3, setChecked3] = useState(false);
   const [checked4, setChecked4] = useState(false);
@@ -32,6 +35,34 @@ export default function ComponentTest() {
               trailingIcon={<ArrowRight />}
             >
               텍스트
+            </Button>
+
+            <Button
+              variant="secondary"
+              size="medium"
+              leadingIcon={<MessageBubble color="var(--color-text-subtle)" />}
+              onClick={() => navigate("/newscolar")}
+            >
+              AI 탭으로 이동
+            </Button>
+
+            <Button
+              variant="secondary"
+              size="medium"
+              leadingIcon={<MessageBubble color="var(--color-text-subtle)" />}
+              trailingIcon={<ArrowRight />}
+              onClick={() => navigate("/")}
+            >
+              홈으로 이동
+            </Button>
+
+            <Button
+              variant="tertiary"
+              size="large"
+              leadingIcon={<ArrowRight />}
+              onClick={() => navigate("/login")}
+            >
+              로그인 페이지로 이동
             </Button>
           </div>
         </div>

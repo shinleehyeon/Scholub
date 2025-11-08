@@ -1,8 +1,8 @@
 import { Link, useNavigate } from "react-router-dom";
 import Header from "@/widgets/Header";
 import SubHeader from "@/widgets/SubHeader";
-import { Input } from "@/shared/ui/Input";
-import { Button } from "@/shared/ui/Button";
+import { Input } from "@/shared/ui";
+import { Button } from "@/shared/ui";
 import { Typography } from "@/shared/ui";
 
 export default function Register() {

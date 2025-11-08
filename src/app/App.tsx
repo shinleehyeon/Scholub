@@ -1,20 +1,20 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Home from "@/pages/Home";
-import Newscolar from "@/pages/Newscolar";
-import Login from "@/pages/Login";
-import Register from "@/pages/Register";
+import { HomePage } from "@/pages/home";
+import { NewscolatorPage } from "@/pages/newscolator";
+import { LoginPage } from "@/pages/login";
+import { RegisterPage } from "@/pages/register";
 import ComponentTest from "@/pages/ComponentTest";
-import InterestAreas from "@/pages/InterestAreas";
+import { InterestAreasPage } from "@/pages/interest-areas";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/newscolar" element={<Newscolar />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/interest-areas" element={<InterestAreas />} />
+        <Route path="/" element={<HomePage />} />
+        <Route path="/newscolar" element={<NewscolatorPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/interest-areas" element={<InterestAreasPage />} />
         <Route path="/component-test" element={<ComponentTest />} />
       </Routes>
     </BrowserRouter>

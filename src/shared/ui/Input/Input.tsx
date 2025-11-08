@@ -1,7 +1,7 @@
 import { forwardRef, type InputHTMLAttributes, type ReactNode } from "react";
 import { cva } from "class-variance-authority";
 import { cn } from "@/shared/lib/utils";
-import Asterisk from "./icons/Asterisk";
+import Asterisk from "../icons/Asterisk";
 
 const inputWrapperVariants = cva(
   "inline-flex border transition-all duration-200 ease-in-out relative overflow-hidden bg-[var(--color-surface-default)] border-gray-300 focus-within:outline-none hover:border-gray-400",
@@ -162,36 +162,3 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
 Input.displayName = "Input";
 
 export { Input };
-
-/**
- * 사용법 예제:
- *
- * // 기본 사용
- * <Input placeholder="입력하세요" />
- *
- * // 라벨과 함께
- * <Input label="이메일" placeholder="email@example.com" />
- *
- * // 필수 항목
- * <Input label="비밀번호" type="password" required />
- *
- * // Size 및 Variant
- * <Input size="small" variant="primary" />
- * <Input size="large" variant="secondary" />
- *
- * // 아이콘 포함
- * <Input leftIcon={<MailIcon />} placeholder="이메일" />
- * <Input rightIcon={<SearchIcon />} placeholder="검색" />
- *
- * // 에러 상태
- * <Input
- *   label="이메일"
- *   error="올바른 이메일 형식이 아닙니다"
- * />
- *
- * // 전체 너비
- * <Input fullWidth placeholder="전체 너비" />
- *
- * // 비활성화
- * <Input disabled placeholder="비활성화" />
- */
