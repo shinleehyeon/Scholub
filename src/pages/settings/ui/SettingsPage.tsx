@@ -2,7 +2,7 @@ import { useState } from "react";
 import type { KeyboardEvent } from "react";
 import { Header } from "@/widgets/header";
 import { SubHeader } from "@/widgets/sub-header";
-import { Typography, Input, Chip, Button } from "@/shared/ui";
+import { Typography, Input, Chip, Button, Checkbox } from "@/shared/ui";
 import X from "@/shared/ui/icons/X";
 import { Check } from "lucide-react";
 
@@ -32,6 +32,14 @@ export default function SettingsPage() {
   const [selectedFields, setSelectedFields] = useState<Set<string>>(
     new Set(["머신러닝"])
   );
+  const [recommendedPaperNotification, setRecommendedPaperNotification] =
+    useState(true);
+  const [similarPaperNotification, setSimilarPaperNotification] =
+    useState(true);
+  const [
+    counterArgumentPaperNotification,
+    setCounterArgumentPaperNotification,
+  ] = useState(true);
 
   const handleAddJournal = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && journalInput.trim()) {
@@ -269,6 +277,51 @@ export default function SettingsPage() {
               <Button variant="primary" size="large">
                 눌러서 저장하기
               </Button>
+            </div>
+          )}
+
+          {activeTab === "notification" && (
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "flex-start",
+                gap: "var(--spacing-20)",
+                alignSelf: "stretch",
+              }}
+            >
+              <Checkbox
+                checked={recommendedPaperNotification}
+                onCheckedChange={setRecommendedPaperNotification}
+                label={
+                  <Typography.Body color="default">
+                    추천 논문 알림 활성화
+                  </Typography.Body>
+                }
+                size="lg"
+              />
+
+              <Checkbox
+                checked={similarPaperNotification}
+                onCheckedChange={setSimilarPaperNotification}
+                label={
+                  <Typography.Body color="default">
+                    비슷한 논문 알림 활성화
+                  </Typography.Body>
+                }
+                size="lg"
+              />
+
+              <Checkbox
+                checked={counterArgumentPaperNotification}
+                onCheckedChange={setCounterArgumentPaperNotification}
+                label={
+                  <Typography.Body color="default">
+                    반대 주장 논문 알림 활성화
+                  </Typography.Body>
+                }
+                size="lg"
+              />
             </div>
           )}
         </div>
