@@ -30,12 +30,12 @@ export default function ProfilePage() {
             width: "721px",
             flexDirection: "column",
             alignItems: "flex-start",
-            gap: "var(--Spacing-32, 32px)",
+            gap: "var(--spacing-32)",
           }}
         >
           <div
             style={{
-              color: "#000",
+              color: "var(--color-text-default)",
               fontFamily: "Pretendard",
               fontSize: "24px",
               fontStyle: "normal",
@@ -58,7 +58,7 @@ export default function ProfilePage() {
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: "var(--Spacing-20, 20px)",
+                gap: "var(--spacing-20)",
               }}
             >
               <Avatar
@@ -71,12 +71,12 @@ export default function ProfilePage() {
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "flex-start",
-                  gap: "var(--Spacing-6, 6px)",
+                  gap: "var(--spacing-6)",
                 }}
               >
                 <div
                   style={{
-                    color: "#000",
+                    color: "var(--color-text-default)",
                     fontFamily: "Pretendard",
                     fontSize: "24px",
                     fontStyle: "normal",
@@ -88,7 +88,7 @@ export default function ProfilePage() {
                 </div>
                 <div
                   style={{
-                    color: "var(--Text-subtle, #7D7D7D)",
+                    color: "var(--color-text-subtle)",
                     fontFamily: "Pretendard",
                     fontSize: "18px",
                     fontStyle: "normal",
@@ -96,7 +96,7 @@ export default function ProfilePage() {
                     lineHeight: "24px",
                   }}
                 >
-                  지메일
+                  fire.extinguisher@gmail.com
                 </div>
               </div>
             </div>
@@ -110,7 +110,7 @@ export default function ProfilePage() {
             style={{
               display: "flex",
               alignItems: "center",
-              gap: "var(--Spacing-24, 24px)",
+              gap: "var(--spacing-24)",
               alignSelf: "stretch",
             }}
           >
@@ -124,7 +124,7 @@ export default function ProfilePage() {
             >
               <div
                 style={{
-                  color: "var(--Text-subtle, #7D7D7D)",
+                  color: "var(--color-text-subtle)",
                   fontFamily: "Pretendard",
                   fontSize: "14px",
                   fontStyle: "normal",
@@ -136,7 +136,7 @@ export default function ProfilePage() {
               </div>
               <div
                 style={{
-                  color: "#000",
+                  color: "var(--color-text-default)",
                   fontFamily: "Pretendard",
                   fontSize: "24px",
                   fontStyle: "normal",
@@ -166,7 +166,7 @@ export default function ProfilePage() {
             >
               <div
                 style={{
-                  color: "var(--Text-subtle, #7D7D7D)",
+                  color: "var(--color-text-subtle)",
                   fontFamily: "Pretendard",
                   fontSize: "14px",
                   fontStyle: "normal",
@@ -178,7 +178,7 @@ export default function ProfilePage() {
               </div>
               <div
                 style={{
-                  color: "#000",
+                  color: "var(--color-text-default)",
                   fontFamily: "Pretendard",
                   fontSize: "24px",
                   fontStyle: "normal",
@@ -201,7 +201,7 @@ export default function ProfilePage() {
           >
             <div
               style={{
-                color: "#000",
+                color: "var(--color-text-default)",
                 fontFamily: "Pretendard",
                 fontSize: "18px",
                 fontStyle: "normal",
@@ -220,7 +220,7 @@ export default function ProfilePage() {
                 flexDirection: "column",
                 gap: "var(--spacing-24)",
                 width: "100%",
-                marginTop: "12px",
+                marginTop: "var(--spacing-12)",
               }}
             >
               {Array.from({ length: 3 }, (_, index) => (
@@ -241,7 +241,7 @@ export default function ProfilePage() {
                 display: "flex",
                 justifyContent: "center",
                 width: "100%",
-                marginTop: "var(--Spacing-24, 24px)",
+                marginTop: "var(--spacing-24)",
               }}
             >
               <Button variant="secondary" size="medium">
@@ -260,7 +260,7 @@ export default function ProfilePage() {
           >
             <div
               style={{
-                color: "#000",
+                color: "var(--color-text-default)",
                 fontFamily: "Pretendard",
                 fontSize: "18px",
                 fontStyle: "normal",
@@ -279,7 +279,7 @@ export default function ProfilePage() {
                 flexDirection: "column",
                 gap: "var(--spacing-24)",
                 width: "100%",
-                marginTop: "12px",
+                marginTop: "var(--spacing-12)",
               }}
             >
               {Array.from({ length: 3 }, (_, index) => (
@@ -300,7 +300,7 @@ export default function ProfilePage() {
                 display: "flex",
                 justifyContent: "center",
                 width: "100%",
-                marginTop: "var(--Spacing-24, 24px)",
+                marginTop: "var(--spacing-24)",
               }}
             >
               <Button variant="secondary" size="medium">

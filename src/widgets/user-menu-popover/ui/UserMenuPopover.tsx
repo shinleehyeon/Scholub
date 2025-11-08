@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import User from "@/shared/ui/icons/User";
 import Settings from "@/shared/ui/icons/Settings";
 import LogoutIcon from "@/shared/ui/icons/LogoutIcon";
@@ -20,9 +21,16 @@ export default function UserMenuPopover({
   userEmail = "hello@example.com",
   avatarUrl = "https://picsum.photos/33/33?random=avatar",
 }: UserMenuPopoverProps) {
+  const navigate = useNavigate();
+
   if (!isOpen) {
     return null;
   }
+
+  const handleProfileClick = () => {
+    onClose();
+    navigate("/profile");
+  };
 
   return (
     <div
@@ -95,7 +103,7 @@ export default function UserMenuPopover({
       >
         <button
           type="button"
-          onClick={onClose}
+          onClick={handleProfileClick}
           style={{
             display: "flex",
             width: "174px",
