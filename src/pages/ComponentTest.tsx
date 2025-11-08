@@ -64,6 +64,34 @@ export default function ComponentTest() {
             >
               로그인 페이지로 이동
             </Button>
+
+            <Button
+              variant="primary"
+              size="large"
+              leadingIcon={<MessageBubble color="var(--color-text-white)" />}
+              onClick={() => navigate("/newscolar")}
+            >
+              AI 답변 보기
+            </Button>
+
+            <Button
+              variant="secondary"
+              size="large"
+              leadingIcon={<MessageBubble color="var(--color-text-subtle)" />}
+              trailingIcon={<ArrowRight />}
+              onClick={() => navigate("/")}
+            >
+              홈으로 이동
+            </Button>
+
+            <Button
+              variant="primary"
+              size="large"
+              trailingIcon={<MessageBubble />}
+              onClick={() => navigate("/register")}
+            >
+              회원가입
+            </Button>
           </div>
         </div>
 

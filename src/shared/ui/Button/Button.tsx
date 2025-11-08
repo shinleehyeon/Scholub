@@ -1,4 +1,4 @@
-import { forwardRef } from "react";
+import { forwardRef, cloneElement, isValidElement } from "react";
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/shared/lib/utils";
@@ -35,22 +35,7 @@ const buttonVariants = cva(
   }
 );
 
-const iconVariants = cva(
-  "flex items-center justify-center flex-shrink-0 overflow-hidden",
-  {
-    variants: {
-      size: {
-        medium:
-          "!w-4 !h-4 [&>svg]:!w-4 [&>svg]:!h-4 [&>svg]:!min-w-[16px] [&>svg]:!min-h-[16px] [&>svg]:!max-w-[16px] [&>svg]:!max-h-[16px]",
-        large:
-          "!w-5 !h-5 [&>svg]:!w-5 [&>svg]:!h-5 [&>svg]:!min-w-[20px] [&>svg]:!min-h-[20px] [&>svg]:!max-w-[20px] [&>svg]:!max-h-[20px]",
-      },
-    },
-    defaultVariants: {
-      size: "medium",
-    },
-  }
-);
+const iconContainerClass = "flex items-center justify-center flex-shrink-0";
 
 export interface ButtonProps
   extends ButtonHTMLAttributes<HTMLButtonElement>,
@@ -85,6 +70,28 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       return { ...baseStyle, ...props.style };
     };
 
+    const iconSize = size === "large" ? 20 : 16;
+
+    const renderIcon = (icon: ReactNode) => {
+      if (!icon) return null;
+      if (isValidElement(icon) && typeof icon.type !== "string") {
+        const existingStyle =
+          (icon as React.ReactElement<any>).props?.style || {};
+        const restStyle = { ...existingStyle };
+        delete restStyle.width;
+        delete restStyle.height;
+        return cloneElement(icon as React.ReactElement<any>, {
+          size: iconSize,
+          style: {
+            ...restStyle,
+            width: `${iconSize}px`,
+            height: `${iconSize}px`,
+          },
+        });
+      }
+      return icon;
+    };
+
     return (
       <button
         className={cn(
@@ -108,11 +115,27 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           className={cn("flex items-center gap-[8px]", pending && "opacity-0")}
         >
           {leadingIcon && (
-            <span className={cn(iconVariants({ size }))}>{leadingIcon}</span>
+            <span
+              className={iconContainerClass}
+              style={{
+                width: `${iconSize}px`,
+                height: `${iconSize}px`,
+              }}
+            >
+              {renderIcon(leadingIcon)}
+            </span>
           )}
           <span className="flex-1">{children}</span>
           {trailingIcon && (
-            <span className={cn(iconVariants({ size }))}>{trailingIcon}</span>
+            <span
+              className={iconContainerClass}
+              style={{
+                width: `${iconSize}px`,
+                height: `${iconSize}px`,
+              }}
+            >
+              {renderIcon(trailingIcon)}
+            </span>
           )}
         </div>
       </button>
