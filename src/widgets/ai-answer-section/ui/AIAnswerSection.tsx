@@ -21,7 +21,6 @@ export default function AIAnswerSection({ className }: AIAnswerSectionProps) {
         width: "359px",
       }}
     >
-      {/* Header with Sparkles icon */}
       <div
         style={{
           display: "flex",
@@ -54,7 +53,6 @@ export default function AIAnswerSection({ className }: AIAnswerSectionProps) {
         </Typography.Body>
       </div>
 
-      {/* Content */}
       <div
         style={{
           display: "flex",
@@ -86,14 +84,11 @@ export default function AIAnswerSection({ className }: AIAnswerSectionProps) {
         </div>
       </div>
 
-      {/* Footer Button */}
       <Button
         variant="secondary"
         size="medium"
         leadingIcon={<MessageBubble color="var(--color-text-subtle)" />}
-        onClick={() => {
-          // TODO: AI 탭으로 이동 로직 구현
-        }}
+        onClick={() => {}}
         style={{
           marginTop: "var(--spacing-8)",
         }}

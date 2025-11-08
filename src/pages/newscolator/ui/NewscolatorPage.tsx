@@ -23,7 +23,6 @@ export default function NewscolatorPage() {
           margin: "0 auto",
         }}
       >
-        {/* Left Column - Latest Research */}
         <div
           style={{
             display: "flex",
@@ -60,7 +59,6 @@ export default function NewscolatorPage() {
           </div>
         </div>
 
-        {/* Right Column - AI Answer Section */}
         <div
           style={{
             display: "flex",
