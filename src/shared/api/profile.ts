@@ -5,9 +5,9 @@ export interface UserProfile {
   name: string;
   email: string;
   profileImageUrl?: string;
-  avatarUrl?: string;
-  reactionCount: number;
-  commentCount: number;
+  status?: string;
+  createdAt?: string;
+  updatedAt?: string;
   interestedCategories?: string[];
 }
 

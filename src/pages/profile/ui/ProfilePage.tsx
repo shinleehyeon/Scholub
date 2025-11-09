@@ -4,39 +4,63 @@ import { SubHeader } from "@/widgets/sub-header";
 import { Avatar, Button, Typography } from "@/shared/ui";
 import LatestResearchCard from "@/entities/paper/ui/LatestResearchCard";
 import { profileApi, type UserProfile, type Paper } from "@/shared/api/profile";
+import { useToast } from "@/shared/ui/Toast";
 
 export default function ProfilePage() {
+  const { showToast } = useToast();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [reactionPapers, setReactionPapers] = useState<Paper[]>([]);
   const [commentPapers, setCommentPapers] = useState<Paper[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [loadingProfile, setLoadingProfile] = useState(true);
+  const [loadingReactions, setLoadingReactions] = useState(true);
+  const [loadingComments, setLoadingComments] = useState(true);
 
   useEffect(() => {
     const fetchProfileData = async () => {
+      // 프로필 정보는 반드시 로드
       try {
-        setLoading(true);
-        const [profileData, reactions, comments] = await Promise.all([
-          profileApi.getProfile(),
-          profileApi.getReactionPapers(),
-          profileApi.getCommentPapers(),
-        ]);
+        setLoadingProfile(true);
+        const profileData = await profileApi.getProfile();
         setProfile(profileData);
-        setReactionPapers(reactions);
-        setCommentPapers(comments);
       } catch (err) {
-        setError(
+        const errorMessage =
           err instanceof Error
             ? err.message
-            : "프로필을 불러오는데 실패했습니다."
-        );
+            : "프로필을 불러오는데 실패했습니다.";
+        showToast(errorMessage, "error");
       } finally {
-        setLoading(false);
+        setLoadingProfile(false);
+      }
+
+      // 반응한 논문 목록 (실패해도 계속 진행)
+      try {
+        setLoadingReactions(true);
+        const reactions = await profileApi.getReactionPapers();
+        setReactionPapers(reactions);
+      } catch (err) {
+        console.error("반응한 논문 로드 실패:", err);
+        setReactionPapers([]);
+        // 에러는 조용히 처리 (프로필은 표시되어야 함)
+      } finally {
+        setLoadingReactions(false);
+      }
+
+      // 댓글 작성한 논문 목록 (실패해도 계속 진행)
+      try {
+        setLoadingComments(true);
+        const comments = await profileApi.getCommentPapers();
+        setCommentPapers(comments);
+      } catch (err) {
+        console.error("댓글 작성한 논문 로드 실패:", err);
+        setCommentPapers([]);
+        // 에러는 조용히 처리 (프로필은 표시되어야 함)
+      } finally {
+        setLoadingComments(false);
       }
     };
 
     fetchProfileData();
-  }, []);
+  }, [showToast]);
   return (
     <div className="min-h-screen bg-white">
       <Header />
@@ -91,10 +115,7 @@ export default function ProfilePage() {
               }}
             >
               <Avatar
-                src={
-                  profile?.profileImageUrl ||
-                  "https://picsum.photos/100/100?random=profile"
-                }
+                src={profile?.profileImageUrl || ""}
                 alt="프로필 이미지"
                 size={100}
               />
@@ -107,7 +128,7 @@ export default function ProfilePage() {
                 }}
               >
                 <Typography.Headline color="default">
-                  {profile?.name || "로딩 중..."}
+                  {loadingProfile ? "로딩 중..." : profile?.name || ""}
                 </Typography.Headline>
                 <Typography.BodyLarge color="subtle">
                   {profile?.email || ""}
@@ -145,7 +166,7 @@ export default function ProfilePage() {
                 논문 반응
               </Typography.Subtext>
               <Typography.Headline color="default">
-                {profile?.reactionCount || 0}개
+                {reactionPapers.length}개
               </Typography.Headline>
             </div>
 
@@ -174,7 +195,7 @@ export default function ProfilePage() {
                 댓글
               </Typography.Subtext>
               <Typography.Headline color="default">
-                {profile?.commentCount || 0}개
+                {commentPapers.length}개
               </Typography.Headline>
             </div>
           </div>
@@ -206,10 +227,8 @@ export default function ProfilePage() {
                 marginTop: "var(--spacing-12)",
               }}
             >
-              {loading ? (
+              {loadingReactions ? (
                 <Typography.Body color="subtle">로딩 중...</Typography.Body>
-              ) : error ? (
-                <Typography.Body color="subtle">{error}</Typography.Body>
               ) : reactionPapers.length > 0 ? (
                 reactionPapers.map((paper) => (
                   <LatestResearchCard
@@ -270,10 +289,8 @@ export default function ProfilePage() {
                 marginTop: "var(--spacing-12)",
               }}
             >
-              {loading ? (
+              {loadingComments ? (
                 <Typography.Body color="subtle">로딩 중...</Typography.Body>
-              ) : error ? (
-                <Typography.Body color="subtle">{error}</Typography.Body>
               ) : commentPapers.length > 0 ? (
                 commentPapers.map((paper) => (
                   <LatestResearchCard
