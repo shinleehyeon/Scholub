@@ -13,6 +13,7 @@ export interface NotificationItemData {
   imageUrl: string;
   message: string;
   timestamp: string;
+  isRead: boolean;
 }
 
 interface NotificationPopoverProps {
@@ -71,13 +72,32 @@ export default function NotificationPopover({
     fetchNotifications();
   }, [isOpen, showToast]);
 
-  // 알림 데이터를 NotificationItemData 형식으로 변환
+  const handleMarkAllAsRead = async () => {
+    try {
+      await notificationsApi.markAllAsRead();
+      const updatedNotifications = notifications.map((notif) => ({
+        ...notif,
+        isRead: true,
+      }));
+      setNotifications(updatedNotifications);
+      showToast("모든 알림이 읽음으로 표시되었습니다.", "success");
+    } catch (error) {
+      console.error("모두 읽기 실패:", error);
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "알림을 읽음으로 표시하는데 실패했습니다.";
+      showToast(errorMessage, "error");
+    }
+  };
+
   const notificationItems: NotificationItemData[] = notifications.map(
     (notif) => ({
       id: notif.id,
       imageUrl: "https://via.placeholder.com/50x50/CCCCCC/666666?text=N",
       message: notif.message,
       timestamp: formatTimestamp(notif.createdAt),
+      isRead: notif.isRead,
     })
   );
 
@@ -136,6 +156,35 @@ export default function NotificationPopover({
         </button>
       </div>
 
+      {notificationItems.length > 0 && (
+        <div
+          style={{
+            padding: "0 var(--spacing-16)",
+            width: "100%",
+          }}
+        >
+          <button
+            type="button"
+            onClick={handleMarkAllAsRead}
+            style={{
+              width: "100%",
+              padding: "var(--spacing-10) var(--spacing-16)",
+              borderRadius: "var(--radius-8)",
+              background: "var(--color-brand-default)",
+              color: "var(--color-text-white)",
+              border: "none",
+              cursor: "pointer",
+              fontFamily: "Pretendard",
+              fontSize: "14px",
+              fontWeight: 500,
+              lineHeight: "20px",
+            }}
+          >
+            읽은 것으로 표시
+          </button>
+        </div>
+      )}
+
       <div
         style={{
           display: "flex",
@@ -161,6 +210,7 @@ export default function NotificationPopover({
               imageUrl={notification.imageUrl}
               message={notification.message}
               timestamp={notification.timestamp}
+              isRead={notification.isRead}
             />
           ))
         ) : (

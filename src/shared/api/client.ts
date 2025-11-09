@@ -3,7 +3,7 @@ import { authStorage } from "@/shared/lib/auth";
 
 const API_BASE_URL = import.meta.env.DEV
   ? "/api"
-  : "https://plaza-distances-identical-warning.trycloudflare.com/api";
+  : "https://the-utc-operational-unity.trycloudflare.com/api";
 
 export class ApiClient {
   private baseUrl: string;

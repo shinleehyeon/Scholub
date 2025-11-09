@@ -12,7 +12,7 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: "https://plaza-distances-identical-warning.trycloudflare.com",
+        target: "https://the-utc-operational-unity.trycloudflare.com/",
         changeOrigin: true,
         secure: true,
         rewrite: (path) => path.replace(/^\/api/, "/api"),

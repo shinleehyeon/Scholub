@@ -21,7 +21,6 @@ export default function SettingsPage() {
   const [saving, setSaving] = useState(false);
   const [loadingCategories, setLoadingCategories] = useState(false);
 
-  // 카테고리 목록 로드
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -30,7 +29,6 @@ export default function SettingsPage() {
         setExcludedFields(categories.map((cat) => cat.category));
       } catch (error) {
         console.error("카테고리 로드 실패:", error);
-        // 에러 발생 시에도 계속 진행 (빈 배열 사용)
         setExcludedFields([]);
       } finally {
         setLoadingCategories(false);
@@ -40,7 +38,6 @@ export default function SettingsPage() {
     fetchCategories();
   }, []);
 
-  // 설정 데이터 로드
   useEffect(() => {
     const fetchPreferences = async () => {
       try {

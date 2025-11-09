@@ -79,7 +79,6 @@ export default function Switch({
           }
         }}
       >
-        {/* 토글 컨테이너 */}
         <div
           className={cn(
             "w-[50px] h-7 rounded-[30px] transition-all duration-500 ease-in-out",
@@ -88,7 +87,6 @@ export default function Switch({
               : "bg-[rgb(233,233,234)]"
           )}
         />
-        {/* 토글 원 */}
         <div
           className={cn(
             "absolute top-[3px] w-[22px] h-[22px] rounded-full bg-white transition-all duration-500 ease-in-out",
