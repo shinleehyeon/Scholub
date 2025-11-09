@@ -30,13 +30,11 @@ export default function Login() {
         password,
       });
 
-      // 토큰 저장
       authStorage.setTokens(
         response.data.accessToken,
         response.data.refreshToken
       );
 
-      // 홈으로 이동
       navigate("/");
     } catch (err) {
       if (err instanceof Error) {

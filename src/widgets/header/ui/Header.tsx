@@ -21,7 +21,6 @@ export default function Header({
   onStatusChange,
 }: HeaderProps) {
   const navigate = useNavigate();
-  // 초기 상태는 토큰 존재 여부에 따라 결정
   const [status, setStatus] = useState<"logined" | "default">(() => {
     if (initialStatus !== undefined) {
       return initialStatus;
@@ -33,7 +32,6 @@ export default function Header({
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const hasNotifications = true;
 
-  // 토큰 상태 감지 및 헤더 상태 업데이트
   useEffect(() => {
     const checkAuthStatus = () => {
       const isAuthenticated = authStorage.isAuthenticated();
@@ -45,16 +43,13 @@ export default function Header({
       }
     };
 
-    // 초기 체크
     checkAuthStatus();
 
-    // 주기적으로 토큰 상태 확인 (다른 탭에서 로그아웃한 경우 대비)
     const interval = setInterval(checkAuthStatus, 1000);
 
     return () => clearInterval(interval);
   }, [status, onStatusChange]);
 
-  // 사용자 프로필 데이터 불러오기
   useEffect(() => {
     const fetchUserProfile = async () => {
       if (status === "logined" && authStorage.isAuthenticated()) {
@@ -63,7 +58,6 @@ export default function Header({
           setUserProfile(profile);
         } catch (err) {
           console.error("Failed to fetch user profile:", err);
-          // 프로필 불러오기 실패 시 로그아웃 처리
           authStorage.clearTokens();
           setStatus("default");
           onStatusChange?.("default");
@@ -78,32 +72,25 @@ export default function Header({
 
   const handleLogout = async () => {
     try {
-      // refreshToken 가져오기
       const refreshToken = authStorage.getRefreshToken();
 
       if (refreshToken) {
-        // 로그아웃 API 호출
         await authApi.logout(refreshToken);
       }
     } catch (err) {
-      // API 호출 실패해도 로컬 토큰은 삭제
       console.error("Logout API error:", err);
     } finally {
-      // 토큰 삭제
       authStorage.clearTokens();
 
-      // 상태 업데이트
       setStatus("default");
       onStatusChange?.("default");
 
-      // 로그인 페이지로 이동
       navigate("/login");
     }
   };
   const notificationRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
-  // initialStatus prop이 변경되면 상태 업데이트
   useEffect(() => {
     if (initialStatus !== undefined) {
       setStatus(initialStatus);

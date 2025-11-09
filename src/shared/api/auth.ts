@@ -86,7 +86,6 @@ export const authApi = {
       console.log("No profile picture provided");
     }
 
-    // FormData 내용 확인 (디버깅용)
     console.log("Register FormData contents:");
     for (const [key, value] of formData.entries()) {
       if (value instanceof File) {

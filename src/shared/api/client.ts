@@ -21,7 +21,6 @@ export class ApiClient {
       headers["Content-Type"] = "application/json";
     }
 
-    // 인증 토큰 자동 추가
     const accessToken = localStorage.getItem("accessToken");
     if (accessToken && !headers["Authorization"]) {
       headers["Authorization"] = `Bearer ${accessToken}`;
