@@ -5,6 +5,7 @@ export interface RegisterRequest {
   password: string;
   name: string;
   profilePicture?: File;
+  interestedCategories?: string[];
 }
 
 export interface RegisterResponse {
@@ -84,6 +85,18 @@ export const authApi = {
       });
     } else {
       console.log("No profile picture provided");
+    }
+
+    if (data.interestedCategories && data.interestedCategories.length > 0) {
+      data.interestedCategories.forEach((category) => {
+        formData.append("interestedCategories", category);
+      });
+      console.log(
+        "Interested categories added to FormData:",
+        data.interestedCategories
+      );
+    } else {
+      console.log("No interested categories provided");
     }
 
     console.log("Register FormData contents:");

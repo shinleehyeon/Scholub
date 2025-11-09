@@ -5,11 +5,13 @@ import { SubHeader } from "@/widgets/sub-header";
 import { Input } from "@/shared/ui";
 import { Button } from "@/shared/ui";
 import { Typography } from "@/shared/ui";
+import { useToast } from "@/shared/ui/Toast";
 import { authApi } from "@/shared/api/auth";
 import { authStorage } from "@/shared/lib/auth";
 
 export default function Login() {
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -17,7 +19,9 @@ export default function Login() {
 
   const handleLogin = async () => {
     if (!email || !password) {
-      setError("이메일과 비밀번호를 입력해주세요.");
+      const errorMsg = "이메일과 비밀번호를 입력해주세요.";
+      setError(errorMsg);
+      showToast(errorMsg, "error");
       return;
     }
 
@@ -35,13 +39,15 @@ export default function Login() {
         response.data.refreshToken
       );
 
+      showToast("로그인에 성공했습니다!", "success");
       navigate("/");
     } catch (err) {
+      let errorMessage = "로그인에 실패했습니다. 다시 시도해주세요.";
       if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError("로그인에 실패했습니다. 다시 시도해주세요.");
+        errorMessage = err.message;
       }
+      setError(errorMessage);
+      showToast(errorMessage, "error");
     } finally {
       setLoading(false);
     }

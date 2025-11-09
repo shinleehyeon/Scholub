@@ -128,6 +128,26 @@ export class ApiClient {
   async delete<T>(endpoint: string, options?: RequestInit): Promise<T> {
     return this.request<T>(endpoint, { ...options, method: "DELETE" });
   }
+
+  async patch<T>(
+    endpoint: string,
+    data?: unknown,
+    options?: RequestInit
+  ): Promise<T> {
+    let body: BodyInit | undefined;
+
+    if (data instanceof FormData) {
+      body = data;
+    } else if (data) {
+      body = JSON.stringify(data);
+    }
+
+    return this.request<T>(endpoint, {
+      ...options,
+      method: "PATCH",
+      body,
+    });
+  }
 }
 
 export const apiClient = new ApiClient();

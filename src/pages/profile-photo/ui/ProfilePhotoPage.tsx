@@ -4,13 +4,12 @@ import { Header } from "@/widgets/header";
 import { SubHeader } from "@/widgets/sub-header";
 import { Avatar, Button, Typography } from "@/shared/ui";
 import Camera from "@/shared/ui/icons/Camera";
-import { authApi } from "@/shared/api/auth";
-import { authStorage } from "@/shared/lib/auth";
 
 interface RegisterState {
   email: string;
   password: string;
   name: string;
+  profilePicture?: File;
 }
 
 export default function ProfilePhotoPage() {
@@ -21,7 +20,6 @@ export default function ProfilePhotoPage() {
   const [profileFile, setProfileFile] = useState<File | null>(null);
   const [registerData, setRegisterData] = useState<RegisterState | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const state = location.state as RegisterState | null;
@@ -62,32 +60,14 @@ export default function ProfilePhotoPage() {
       return;
     }
 
-    try {
-      setLoading(true);
-      setError(null);
-
-      const response = await authApi.register({
+    navigate("/interest-areas", {
+      state: {
         email: registerData.email,
         password: registerData.password,
         name: registerData.name,
         profilePicture: profileFile || undefined,
-      });
-
-      authStorage.setTokens(
-        response.data.accessToken,
-        response.data.refreshToken
-      );
-
-      navigate("/interest-areas");
-    } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError("회원가입에 실패했습니다. 다시 시도해주세요.");
-      }
-    } finally {
-      setLoading(false);
-    }
+      },
+    });
   };
 
   return (
@@ -227,8 +207,7 @@ export default function ProfilePhotoPage() {
             variant="primary"
             size="large"
             onClick={handleNext}
-            disabled={loading || !registerData}
-            pending={loading}
+            disabled={!registerData}
             style={{
               width: "100%",
             }}
