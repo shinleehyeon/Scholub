@@ -1,15 +1,22 @@
 import { apiClient } from "./client";
 
+export type NotificationType =
+  | "RECOMMENDED_PAPER"
+  | "SIMILAR_PAPER"
+  | "OPPOSING_PAPER"
+  | "DISCUSSION_ACTIVITY"
+  | "SYSTEM";
+
 export interface Notification {
   id: string;
-  type: "REACTION" | "COMMENT" | "REPLY";
+  type: NotificationType;
   message: string;
-  read: boolean;
+  isRead: boolean;
   createdAt: string;
-  relatedPaper?: {
-    id: string;
-    title: string;
-  };
+  readAt: string | null;
+  relatedPaperId: string | null;
+  relatedUserId: string | null;
+  userId: string;
 }
 
 export interface NotificationsResponse {
@@ -18,14 +25,13 @@ export interface NotificationsResponse {
   instance: string;
   details: string;
   data: {
-    items: Notification[];
-    meta?: {
-      page: number;
-      limit: number;
-      total: number;
-      totalPages: number;
-    };
+    notifications: Notification[];
+    page: number;
+    limit: number;
+    total: number;
   };
+  page?: number;
+  total?: number;
   errors: Record<string, unknown> | null;
   timestamp: string;
 }
@@ -66,9 +72,21 @@ export const notificationsApi = {
       : "/notifications";
 
     const response = await apiClient.get<NotificationsResponse>(endpoint);
+
+    // API 응답 구조에 맞게 notifications 배열을 items로 변환
+    const notifications = response.data?.notifications || [];
+    const total = response.data?.total || response.total || 0;
+    const page = response.data?.page || response.page || 1;
+    const limit = response.data?.limit || 20;
+
     return {
-      items: response.data?.items || [],
-      meta: response.data?.meta,
+      items: notifications,
+      meta: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
     };
   },
 

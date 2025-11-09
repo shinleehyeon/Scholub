@@ -75,9 +75,7 @@ export default function NotificationPopover({
   const notificationItems: NotificationItemData[] = notifications.map(
     (notif) => ({
       id: notif.id,
-      imageUrl: notif.relatedPaper?.id
-        ? `/api/assets/${notif.relatedPaper.id}`
-        : "https://via.placeholder.com/50x50/CCCCCC/666666?text=N",
+      imageUrl: "https://via.placeholder.com/50x50/CCCCCC/666666?text=N",
       message: notif.message,
       timestamp: formatTimestamp(notif.createdAt),
     })
