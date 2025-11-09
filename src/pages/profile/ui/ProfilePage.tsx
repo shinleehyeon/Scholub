@@ -36,7 +36,36 @@ export default function ProfilePage() {
       try {
         setLoadingReactions(true);
         const reactions = await profileApi.getReactionPapers();
-        setReactionPapers(reactions);
+
+        // API 응답을 Paper 형식으로 변환
+        const formattedPapers = reactions.map((paper) => {
+          // 이미지 URL 구성
+          const imageUrl =
+            paper.thumbnailUrl ||
+            paper.imageUrl ||
+            paper.coverImage ||
+            "https://picsum.photos/228/128?random=paper";
+
+          // 카테고리 포맷팅
+          const category =
+            paper.category ||
+            (paper.categories ? paper.categories.join(" > ") : "분류 없음");
+
+          // 설명
+          const description = paper.description || paper.summary || "";
+
+          return {
+            id: paper.id,
+            title: paper.title,
+            description,
+            category,
+            imageUrl,
+            likes: paper.likes || paper.likeCount || 0,
+            comments: paper.comments || paper.commentCount || 0,
+          };
+        });
+
+        setReactionPapers(formattedPapers);
       } catch (err) {
         console.error("반응한 논문 로드 실패:", err);
         setReactionPapers([]);
@@ -45,13 +74,42 @@ export default function ProfilePage() {
         setLoadingReactions(false);
       }
 
-      // 댓글 작성한 논문 목록 (실패해도 계속 진행)
+      // 토론한 논문 목록 (실패해도 계속 진행)
       try {
         setLoadingComments(true);
-        const comments = await profileApi.getCommentPapers();
-        setCommentPapers(comments);
+        const discussed = await profileApi.getDiscussedPapers();
+
+        // API 응답을 Paper 형식으로 변환
+        const formattedPapers = discussed.map((paper) => {
+          // 이미지 URL 구성
+          const imageUrl =
+            paper.thumbnailUrl ||
+            paper.imageUrl ||
+            paper.coverImage ||
+            "https://picsum.photos/228/128?random=paper";
+
+          // 카테고리 포맷팅
+          const category =
+            paper.category ||
+            (paper.categories ? paper.categories.join(" > ") : "분류 없음");
+
+          // 설명
+          const description = paper.description || paper.summary || "";
+
+          return {
+            id: paper.id,
+            title: paper.title,
+            description,
+            category,
+            imageUrl,
+            likes: paper.likes || paper.likeCount || 0,
+            comments: paper.comments || paper.commentCount || 0,
+          };
+        });
+
+        setCommentPapers(formattedPapers);
       } catch (err) {
-        console.error("댓글 작성한 논문 로드 실패:", err);
+        console.error("토론한 논문 로드 실패:", err);
         setCommentPapers([]);
         // 에러는 조용히 처리 (프로필은 표시되어야 함)
       } finally {
@@ -233,12 +291,12 @@ export default function ProfilePage() {
                 reactionPapers.map((paper) => (
                   <LatestResearchCard
                     key={paper.id}
-                    imageUrl={paper.imageUrl}
-                    category={paper.category}
-                    title={paper.title}
-                    description={paper.description}
-                    likes={paper.likes}
-                    comments={paper.comments}
+                    imageUrl={paper.imageUrl || ""}
+                    category={paper.category || "분류 없음"}
+                    title={paper.title || ""}
+                    description={paper.description || ""}
+                    likes={paper.likes || 0}
+                    comments={paper.comments || 0}
                   />
                 ))
               ) : (
@@ -295,12 +353,12 @@ export default function ProfilePage() {
                 commentPapers.map((paper) => (
                   <LatestResearchCard
                     key={paper.id}
-                    imageUrl={paper.imageUrl}
-                    category={paper.category}
-                    title={paper.title}
-                    description={paper.description}
-                    likes={paper.likes}
-                    comments={paper.comments}
+                    imageUrl={paper.imageUrl || ""}
+                    category={paper.category || "분류 없음"}
+                    title={paper.title || ""}
+                    description={paper.description || ""}
+                    likes={paper.likes || 0}
+                    comments={paper.comments || 0}
                   />
                 ))
               ) : (

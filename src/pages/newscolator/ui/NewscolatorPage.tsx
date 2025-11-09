@@ -1,9 +1,58 @@
+import { useState, useEffect } from "react";
 import { Header } from "@/widgets/header";
 import { SubHeader } from "@/widgets/sub-header";
 import LatestResearchCard from "@/entities/paper/ui/LatestResearchCard";
 import { AIAnswerSection } from "@/widgets/ai-answer-section";
+import { papersApi } from "@/shared/api/papers";
+import { Typography } from "@/shared/ui";
 
 export default function NewscolatorPage() {
+  const [latestPapers, setLatestPapers] = useState<any[]>([]);
+  const [loadingLatest, setLoadingLatest] = useState(true);
+
+  useEffect(() => {
+    const fetchLatestPapers = async () => {
+      try {
+        setLoadingLatest(true);
+        const papers = await papersApi.getLatestPapers(20);
+
+        const formattedPapers = papers.map((paper) => {
+          // 이미지 URL 구성: URL 형태로 직접 제공되는 경우만 사용
+          const imageUrl =
+            paper.thumbnailUrl ||
+            paper.imageUrl ||
+            paper.coverImage ||
+            "https://picsum.photos/228/128?random=paper";
+
+          // 카테고리 포맷팅 (배열을 " > "로 연결)
+          const category = paper.categories.join(" > ") || "분류 없음";
+
+          // 설명(description)은 summary 사용, 없으면 빈 문자열
+          const description = paper.summary || "";
+
+          return {
+            id: paper.id,
+            imageUrl,
+            title: paper.title,
+            description,
+            category,
+            likes: paper.likeCount || 0,
+            comments: 0, // API 응답에 댓글 수가 없으므로 기본값 0
+          };
+        });
+
+        setLatestPapers(formattedPapers);
+      } catch (error) {
+        console.error("최신 연구 로드 실패:", error);
+        setLatestPapers([]);
+      } finally {
+        setLoadingLatest(false);
+      }
+    };
+
+    fetchLatestPapers();
+  }, []);
+
   return (
     <div className="min-h-screen bg-white">
       <Header />
@@ -45,17 +94,25 @@ export default function NewscolatorPage() {
               width: "100%",
             }}
           >
-            {Array.from({ length: 20 }, (_, index) => (
-              <LatestResearchCard
-                key={index}
-                imageUrl="https://picsum.photos/228/128?random=1"
-                category="인공지능 > 머신러닝"
-                title="Deaminative cross-coupling of amines by boryl radical β-scission"
-                description="Amines are among the most common functional groups in bioactive molecules and pharmaceuticals,1-3 yet they are almost universally treated as synthetic endpoint..."
-                likes={32}
-                comments={32}
-              />
-            ))}
+            {loadingLatest ? (
+              <Typography.Body color="subtle">로딩 중...</Typography.Body>
+            ) : latestPapers.length > 0 ? (
+              latestPapers.map((paper) => (
+                <LatestResearchCard
+                  key={paper.id}
+                  imageUrl={paper.imageUrl}
+                  category={paper.category}
+                  title={paper.title}
+                  description={paper.description}
+                  likes={paper.likes}
+                  comments={paper.comments}
+                />
+              ))
+            ) : (
+              <Typography.Body color="subtle">
+                최신 연구가 없습니다.
+              </Typography.Body>
+            )}
           </div>
         </div>
 

@@ -13,12 +13,19 @@ export interface UserProfile {
 
 export interface Paper {
   id: string;
+  paperId?: string;
   title: string;
-  description: string;
-  category: string;
-  imageUrl: string;
-  likes: number;
-  comments: number;
+  description?: string;
+  summary?: string;
+  category?: string;
+  categories?: string[];
+  imageUrl?: string;
+  thumbnailUrl?: string;
+  coverImage?: string;
+  likes?: number;
+  likeCount?: number;
+  comments?: number;
+  commentCount?: number;
 }
 
 export interface ProfileResponse {
@@ -49,6 +56,26 @@ export interface PapersResponse {
   timestamp: string;
 }
 
+export interface DiscussedPapersResponse {
+  status: number;
+  method: string;
+  instance: string;
+  details: string;
+  data: Paper[];
+  errors: Record<string, unknown> | null;
+  timestamp: string;
+}
+
+export interface ReactedPapersResponse {
+  status: number;
+  method: string;
+  instance: string;
+  details: string;
+  data: Paper[];
+  errors: Record<string, unknown> | null;
+  timestamp: string;
+}
+
 export const profileApi = {
   async getProfile(): Promise<UserProfile> {
     const response = await apiClient.get<ProfileResponse>("/users/me");
@@ -56,13 +83,24 @@ export const profileApi = {
   },
 
   async getReactionPapers(): Promise<Paper[]> {
-    const response = await apiClient.get<PapersResponse>("/users/me/reactions");
-    return response.data.items || [];
+    const response = await apiClient.get<ReactedPapersResponse>(
+      "/papers/me/reacted"
+    );
+    // API 응답이 배열로 직접 오는 경우
+    return Array.isArray(response.data) ? response.data : [];
   },
 
   async getCommentPapers(): Promise<Paper[]> {
     const response = await apiClient.get<PapersResponse>("/users/me/comments");
     return response.data.items || [];
+  },
+
+  async getDiscussedPapers(): Promise<Paper[]> {
+    const response = await apiClient.get<DiscussedPapersResponse>(
+      "/papers/me/discussed"
+    );
+    // API 응답이 배열로 직접 오는 경우
+    return Array.isArray(response.data) ? response.data : [];
   },
 
   async updateInterestedCategories(
