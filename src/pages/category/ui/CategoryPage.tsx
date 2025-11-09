@@ -128,7 +128,7 @@ export default function CategoryPage() {
           {Array.from({ length: 20 }, (_, index) => (
             <LatestResearchCard
               key={index}
-              imageUrl="https://picsum.photos/228/128?random=1"
+              imageUrl="https://via.placeholder.com/228x128/CCCCCC/666666?text=No+Image"
               category={`${categoryName} > 머신러닝`}
               title="Deaminative cross-coupling of amines by boryl radical β-scission"
               description="Amines are among the most common functional groups in bioactive molecules and pharmaceuticals,1-3 yet they are almost universally treated as synthetic endpoint..."

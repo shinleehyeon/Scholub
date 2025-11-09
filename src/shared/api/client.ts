@@ -59,7 +59,24 @@ export class ApiClient {
       headers["Content-Type"] = "application/json";
     }
 
-    const accessToken = localStorage.getItem("accessToken");
+    // 토큰이 곧 만료되거나 만료되었으면 리프레시 시도
+    if (
+      authStorage.isAccessTokenExpiringSoon() &&
+      authStorage.getRefreshToken() &&
+      endpoint !== "/auth/refresh" &&
+      endpoint !== "/auth/login" &&
+      endpoint !== "/auth/register"
+    ) {
+      try {
+        await this.refreshToken();
+      } catch (error) {
+        // 리프레시 실패 시 토큰 삭제
+        console.error("토큰 리프레시 실패:", error);
+        authStorage.clearTokens();
+      }
+    }
+
+    const accessToken = authStorage.getAccessToken();
     if (accessToken && !headers["Authorization"]) {
       headers["Authorization"] = `Bearer ${accessToken}`;
     }
@@ -214,6 +231,24 @@ export class ApiClient {
       method: "PATCH",
       body,
     });
+  }
+
+  /**
+   * 토큰이 곧 만료되면 자동으로 리프레시
+   * 주기적으로 호출하여 토큰을 갱신할 수 있음
+   */
+  async refreshTokenIfNeeded(): Promise<void> {
+    if (
+      authStorage.isAccessTokenExpiringSoon() &&
+      authStorage.getRefreshToken()
+    ) {
+      try {
+        await this.refreshToken();
+      } catch (error) {
+        console.error("토큰 자동 리프레시 실패:", error);
+        // 리프레시 실패 시 토큰 삭제는 refreshToken 내부에서 처리됨
+      }
+    }
   }
 }
 

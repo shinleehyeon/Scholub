@@ -22,7 +22,7 @@ export default function NewscolatorPage() {
             paper.thumbnailUrl ||
             paper.imageUrl ||
             paper.coverImage ||
-            "https://picsum.photos/228/128?random=paper";
+            "https://via.placeholder.com/228x128/CCCCCC/666666?text=No+Image";
 
           // 카테고리 포맷팅 (배열을 " > "로 연결)
           const category = paper.categories.join(" > ") || "분류 없음";

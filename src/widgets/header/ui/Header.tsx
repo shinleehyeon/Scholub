@@ -11,6 +11,7 @@ import { authApi } from "@/shared/api/auth";
 import { authStorage } from "@/shared/lib/auth";
 import { profileApi, type UserProfile } from "@/shared/api/profile";
 import { notificationsApi } from "@/shared/api/notifications";
+import { apiClient } from "@/shared/api/client";
 
 interface HeaderProps {
   status?: "logined" | "default";
@@ -50,6 +51,26 @@ export default function Header({
 
     return () => clearInterval(interval);
   }, [status, onStatusChange]);
+
+  // 주기적으로 토큰이 곧 만료되면 자동으로 리프레시 (1분마다)
+  useEffect(() => {
+    const refreshTokenIfNeeded = async () => {
+      if (authStorage.isAuthenticated()) {
+        try {
+          await apiClient.refreshTokenIfNeeded();
+        } catch (error) {
+          console.error("토큰 자동 리프레시 실패:", error);
+        }
+      }
+    };
+
+    refreshTokenIfNeeded();
+
+    // 1분마다 토큰 확인 및 리프레시
+    const interval = setInterval(refreshTokenIfNeeded, 60000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -269,7 +290,7 @@ export default function Header({
                 <img
                   src={
                     userProfile?.profileImageUrl ||
-                    "https://picsum.photos/32/32?random=avatar"
+                    "https://via.placeholder.com/32x32/CCCCCC/666666?text=U"
                   }
                   alt="User avatar"
                   style={{

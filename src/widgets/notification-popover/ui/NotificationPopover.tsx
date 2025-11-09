@@ -77,7 +77,7 @@ export default function NotificationPopover({
       id: notif.id,
       imageUrl: notif.relatedPaper?.id
         ? `/api/assets/${notif.relatedPaper.id}`
-        : "https://picsum.photos/50/50?random=notification",
+        : "https://via.placeholder.com/50x50/CCCCCC/666666?text=N",
       message: notif.message,
       timestamp: formatTimestamp(notif.createdAt),
     })

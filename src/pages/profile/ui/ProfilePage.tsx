@@ -44,7 +44,7 @@ export default function ProfilePage() {
             paper.thumbnailUrl ||
             paper.imageUrl ||
             paper.coverImage ||
-            "https://picsum.photos/228/128?random=paper";
+            "https://via.placeholder.com/228x128/CCCCCC/666666?text=No+Image";
 
           // 카테고리 포맷팅
           const category =
@@ -86,7 +86,7 @@ export default function ProfilePage() {
             paper.thumbnailUrl ||
             paper.imageUrl ||
             paper.coverImage ||
-            "https://picsum.photos/228/128?random=paper";
+            "https://via.placeholder.com/228x128/CCCCCC/666666?text=No+Image";
 
           // 카테고리 포맷팅
           const category =

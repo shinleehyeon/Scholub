@@ -134,7 +134,8 @@ export default function ProfilePhotoPage() {
           >
             <Avatar
               src={
-                profileImage || "https://picsum.photos/146/146?random=profile"
+                profileImage ||
+                "https://via.placeholder.com/146x146/CCCCCC/666666?text=Profile"
               }
               alt="프로필 이미지"
               size={146}

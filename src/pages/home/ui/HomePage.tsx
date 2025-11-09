@@ -40,7 +40,7 @@ export default function Home() {
             paper.thumbnailUrl ||
             paper.imageUrl ||
             paper.coverImage ||
-            "https://picsum.photos/1200/371?random=paper";
+            "https://via.placeholder.com/1200x371/CCCCCC/666666?text=No+Image";
 
           // 작가 정보 포맷팅
           const authorsList = paper.authors.join(", ");
@@ -72,7 +72,8 @@ export default function Home() {
           setCarouselItems([
             {
               id: "no-data",
-              imageUrl: "https://picsum.photos/1200/371?random=1",
+              imageUrl:
+                "https://via.placeholder.com/1200x371/CCCCCC/666666?text=No+Image",
               title: "헤드라인 논문이 없습니다",
               authors: "",
             },
@@ -82,7 +83,8 @@ export default function Home() {
           setCarouselItems([
             {
               id: "error",
-              imageUrl: "https://picsum.photos/1200/371?random=1",
+              imageUrl:
+                "https://via.placeholder.com/1200x371/CCCCCC/666666?text=No+Image",
               title: "헤드라인을 불러올 수 없습니다",
               authors: "",
             },
@@ -106,7 +108,7 @@ export default function Home() {
             paper.thumbnailUrl ||
             paper.imageUrl ||
             paper.coverImage ||
-            "https://picsum.photos/300/169?random=paper";
+            "https://via.placeholder.com/300x169/CCCCCC/666666?text=No+Image";
 
           // 카테고리 포맷팅 (배열을 " > "로 연결)
           const category = paper.categories.join(" > ") || "분류 없음";
@@ -147,7 +149,7 @@ export default function Home() {
             paper.thumbnailUrl ||
             paper.imageUrl ||
             paper.coverImage ||
-            "https://picsum.photos/228/128?random=paper";
+            "https://via.placeholder.com/228x128/CCCCCC/666666?text=No+Image";
 
           // 카테고리 포맷팅 (배열을 " > "로 연결)
           const category = paper.categories.join(" > ") || "분류 없음";
@@ -208,7 +210,7 @@ export default function Home() {
             paper.thumbnailUrl ||
             paper.imageUrl ||
             paper.coverImage ||
-            "https://picsum.photos/228/128?random=paper";
+            "https://via.placeholder.com/228x128/CCCCCC/666666?text=No+Image";
 
           // 카테고리 포맷팅 (배열을 " > "로 연결)
           const category = paper.categories.join(" > ") || "분류 없음";

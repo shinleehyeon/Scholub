@@ -19,7 +19,7 @@ export default function UserMenuPopover({
   onLogout,
   userName = "iamfiro",
   userEmail = "hello@example.com",
-  avatarUrl = "https://picsum.photos/33/33?random=avatar",
+  avatarUrl = "https://via.placeholder.com/33x33/CCCCCC/666666?text=U",
 }: UserMenuPopoverProps) {
   const navigate = useNavigate();
 
