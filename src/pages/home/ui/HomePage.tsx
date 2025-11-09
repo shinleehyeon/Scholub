@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { Header } from "@/widgets/header";
 import { SubHeader } from "@/widgets/sub-header";
 import PopularPaperCard from "@/entities/paper/ui/PopularPaperCard";
@@ -7,57 +8,264 @@ import ChevronLeft from "@/shared/ui/icons/ChevronLeft";
 import ChevronRight from "@/shared/ui/icons/ChevronRight";
 import Sparkles from "@/shared/ui/icons/Sparkles";
 import { Typography } from "@/shared/ui";
+import { papersApi } from "@/shared/api/papers";
+import { authStorage } from "@/shared/lib/auth";
 
 interface CarouselItem {
-  id: number;
+  id: string;
   imageUrl: string;
   title: string;
   authors: string;
 }
 
-const carouselItems: CarouselItem[] = [
-  {
-    id: 1,
-    imageUrl: "https://picsum.photos/1200/371?random=1",
-    title: "Deaminative cross-coupling of amines by boryl radical β-scission",
-    authors: "Haoran Wei, Yaofeng Sun, Yukun Li (2025)",
-  },
-  {
-    id: 2,
-    imageUrl: "https://picsum.photos/1200/371?random=1",
-    title: "Deaminative cross-coupling of amines by boryl radical β-scission",
-    authors: "Haoran Wei, Yaofeng Sun, Yukun Li (2025)",
-  },
-  {
-    id: 3,
-    imageUrl: "https://picsum.photos/1200/371?random=1",
-    title: "Deaminative cross-coupling of amines by boryl radical β-scission",
-    authors: "Haoran Wei, Yaofeng Sun, Yukun Li (2025)",
-  },
-];
-
 export default function Home() {
+  const [carouselItems, setCarouselItems] = useState<CarouselItem[]>([]);
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [popularPapers, setPopularPapers] = useState<any[]>([]);
+  const [loadingPopular, setLoadingPopular] = useState(true);
+  const [latestPapers, setLatestPapers] = useState<any[]>([]);
+  const [loadingLatest, setLoadingLatest] = useState(true);
+  const [recommendedPapers, setRecommendedPapers] = useState<any[]>([]);
+  const [loadingRecommended, setLoadingRecommended] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const fetchHeadlines = async () => {
+      try {
+        const headlines = await papersApi.getHeadlines(4);
+
+        const items: CarouselItem[] = headlines.map((paper) => {
+          // 이미지 URL 구성: URL 형태로 직접 제공되는 경우만 사용
+          const imageUrl =
+            paper.thumbnailUrl ||
+            paper.imageUrl ||
+            paper.coverImage ||
+            "https://picsum.photos/1200/371?random=paper";
+
+          // 작가 정보 포맷팅
+          const authorsList = paper.authors.join(", ");
+          const year = paper.issuedAt
+            ? new Date(paper.issuedAt).getFullYear()
+            : new Date(paper.createdAt).getFullYear();
+          const authors = `${authorsList} (${year})`;
+
+          return {
+            id: paper.id,
+            imageUrl,
+            title: paper.title,
+            authors,
+          };
+        });
+
+        setCarouselItems(items);
+        if (items.length > 0) {
+          setCurrentSlide(0);
+        }
+      } catch (error) {
+        console.error("헤드라인 로드 실패:", error);
+        // 404 에러는 데이터가 없는 것으로 처리
+        const errorMessage = error instanceof Error ? error.message : "";
+        if (
+          errorMessage.includes("404") ||
+          errorMessage.includes("not found")
+        ) {
+          setCarouselItems([
+            {
+              id: "no-data",
+              imageUrl: "https://picsum.photos/1200/371?random=1",
+              title: "헤드라인 논문이 없습니다",
+              authors: "",
+            },
+          ]);
+        } else {
+          // 다른 에러 발생 시 기본값 사용
+          setCarouselItems([
+            {
+              id: "error",
+              imageUrl: "https://picsum.photos/1200/371?random=1",
+              title: "헤드라인을 불러올 수 없습니다",
+              authors: "",
+            },
+          ]);
+        }
+      }
+    };
+
+    fetchHeadlines();
+  }, []);
+
+  useEffect(() => {
+    const fetchPopularPapers = async () => {
+      try {
+        setLoadingPopular(true);
+        const papers = await papersApi.getPopularPapers(20, 90);
+
+        const formattedPapers = papers.map((paper) => {
+          // 이미지 URL 구성: URL 형태로 직접 제공되는 경우만 사용
+          const imageUrl =
+            paper.thumbnailUrl ||
+            paper.imageUrl ||
+            paper.coverImage ||
+            "https://picsum.photos/300/169?random=paper";
+
+          // 카테고리 포맷팅 (배열을 " > "로 연결)
+          const category = paper.categories.join(" > ") || "분류 없음";
+
+          // 요약(subtitle)은 summary 사용, 없으면 빈 문자열
+          const subtitle = paper.summary || "";
+
+          return {
+            id: paper.id,
+            imageUrl,
+            title: paper.title,
+            subtitle,
+            category,
+          };
+        });
+
+        setPopularPapers(formattedPapers);
+      } catch (error) {
+        console.error("인기 논문 로드 실패:", error);
+        setPopularPapers([]);
+      } finally {
+        setLoadingPopular(false);
+      }
+    };
+
+    fetchPopularPapers();
+  }, []);
+
+  useEffect(() => {
+    const fetchLatestPapers = async () => {
+      try {
+        setLoadingLatest(true);
+        const papers = await papersApi.getLatestPapers(20);
+
+        const formattedPapers = papers.map((paper) => {
+          // 이미지 URL 구성: URL 형태로 직접 제공되는 경우만 사용
+          const imageUrl =
+            paper.thumbnailUrl ||
+            paper.imageUrl ||
+            paper.coverImage ||
+            "https://picsum.photos/228/128?random=paper";
+
+          // 카테고리 포맷팅 (배열을 " > "로 연결)
+          const category = paper.categories.join(" > ") || "분류 없음";
+
+          // 설명(description)은 summary 사용, 없으면 빈 문자열
+          const description = paper.summary || "";
+
+          return {
+            id: paper.id,
+            imageUrl,
+            title: paper.title,
+            description,
+            category,
+            likes: paper.likeCount || 0,
+            comments: 0, // API 응답에 댓글 수가 없으므로 기본값 0
+          };
+        });
+
+        setLatestPapers(formattedPapers);
+      } catch (error) {
+        console.error("최신 연구 로드 실패:", error);
+        setLatestPapers([]);
+      } finally {
+        setLoadingLatest(false);
+      }
+    };
+
+    fetchLatestPapers();
+  }, []);
+
+  useEffect(() => {
+    // 로그인 상태 확인
+    const checkAuth = () => {
+      setIsAuthenticated(authStorage.isAuthenticated());
+    };
+
+    checkAuth();
+    // 주기적으로 로그인 상태 확인 (1초마다)
+    const interval = setInterval(checkAuth, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const fetchRecommendedPapers = async () => {
+      // 로그인하지 않은 경우 API 호출하지 않음
+      if (!authStorage.isAuthenticated()) {
+        setLoadingRecommended(false);
+        return;
+      }
+
+      try {
+        setLoadingRecommended(true);
+        const papers = await papersApi.getRecommendedPapers(20);
+
+        const formattedPapers = papers.map((paper) => {
+          // 이미지 URL 구성: URL 형태로 직접 제공되는 경우만 사용
+          const imageUrl =
+            paper.thumbnailUrl ||
+            paper.imageUrl ||
+            paper.coverImage ||
+            "https://picsum.photos/228/128?random=paper";
+
+          // 카테고리 포맷팅 (배열을 " > "로 연결)
+          const category = paper.categories.join(" > ") || "분류 없음";
+
+          // 설명(description)은 summary 사용, 없으면 빈 문자열
+          const description = paper.summary || "";
+
+          return {
+            id: paper.id,
+            imageUrl,
+            title: paper.title,
+            description,
+            category,
+            likes: paper.likeCount || 0,
+            comments: 0, // API 응답에 댓글 수가 없으므로 기본값 0
+          };
+        });
+
+        setRecommendedPapers(formattedPapers);
+      } catch (error) {
+        console.error("추천 논문 로드 실패:", error);
+        setRecommendedPapers([]);
+      } finally {
+        setLoadingRecommended(false);
+      }
+    };
+
+    fetchRecommendedPapers();
+  }, [isAuthenticated]);
 
   const nextSlide = () => {
+    if (carouselItems.length === 0) return;
     setCurrentSlide((prev) => (prev + 1) % carouselItems.length);
   };
 
   const prevSlide = () => {
+    if (carouselItems.length === 0) return;
     setCurrentSlide(
       (prev) => (prev - 1 + carouselItems.length) % carouselItems.length
     );
   };
 
   useEffect(() => {
+    if (carouselItems.length === 0) return;
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % carouselItems.length);
     }, 5000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [carouselItems.length]);
 
-  const currentItem = carouselItems[currentSlide];
+  const currentItem = carouselItems[currentSlide] || {
+    id: "loading",
+    imageUrl: "",
+    title: "로딩 중...",
+    authors: "",
+  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -126,45 +334,49 @@ export default function Home() {
           </Typography.BodyLarge>
         </div>
 
-        <button
-          onClick={prevSlide}
-          style={{
-            position: "absolute",
-            left: "var(--spacing-24)",
-            top: "50%",
-            transform: "translateY(-50%)",
-            background: "transparent",
-            border: "none",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: 0,
-            zIndex: 2,
-          }}
-        >
-          <ChevronLeft size={64} />
-        </button>
+        {carouselItems.length > 1 && (
+          <>
+            <button
+              onClick={prevSlide}
+              style={{
+                position: "absolute",
+                left: "var(--spacing-24)",
+                top: "50%",
+                transform: "translateY(-50%)",
+                background: "transparent",
+                border: "none",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: 0,
+                zIndex: 2,
+              }}
+            >
+              <ChevronLeft size={64} />
+            </button>
 
-        <button
-          onClick={nextSlide}
-          style={{
-            position: "absolute",
-            right: "var(--spacing-24)",
-            top: "50%",
-            transform: "translateY(-50%)",
-            background: "transparent",
-            border: "none",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: 0,
-            zIndex: 2,
-          }}
-        >
-          <ChevronRight size={64} />
-        </button>
+            <button
+              onClick={nextSlide}
+              style={{
+                position: "absolute",
+                right: "var(--spacing-24)",
+                top: "50%",
+                transform: "translateY(-50%)",
+                background: "transparent",
+                border: "none",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: 0,
+                zIndex: 2,
+              }}
+            >
+              <ChevronRight size={64} />
+            </button>
+          </>
+        )}
       </div>
 
       <div
@@ -194,51 +406,21 @@ export default function Home() {
           }}
           className="scrollbar-hide"
         >
-          <PopularPaperCard
-            imageUrl="https://picsum.photos/300/169?random=1"
-            title="Deaminative cross-coupling of amines by boryl radical β-scission"
-            subtitle="Amines are among the most common functional groups in bioactive molecules and pharmaceuticals,1-3 yet they are almost universally treated as synthetic endpoint..."
-            category="인공지능 > 머신러닝"
-          />
-          <PopularPaperCard
-            imageUrl="https://picsum.photos/300/169?random=1"
-            title="Deaminative cross-coupling of amines by boryl radical β-scission"
-            subtitle="Amines are among the most common functional groups in bioactive molecules and pharmaceuticals,1-3 yet they are almost universally treated as synthetic endpoint..."
-            category="인공지능 > 머신러닝"
-          />
-          <PopularPaperCard
-            imageUrl="https://picsum.photos/300/169?random=1"
-            title="Deaminative cross-coupling of amines by boryl radical β-scission"
-            subtitle="Amines are among the most common functional groups in bioactive molecules and pharmaceuticals,1-3 yet they are almost universally treated as synthetic endpoint..."
-            category="인공지능 > 머신러닝"
-          />
-          <PopularPaperCard
-            imageUrl="https://picsum.photos/300/169?random=1"
-            title="Deaminative cross-coupling of amines by boryl radical β-scission"
-            subtitle="Amines are among the most common functional groups in bioactive molecules and pharmaceuticals,1-3 yet they are almost universally treated as synthetic endpoint..."
-            category="인공지능 > 머신러닝"
-          />
-          <PopularPaperCard
-            imageUrl="https://picsum.photos/300/169?random=1"
-            title="Deaminative cross-coupling of amines by boryl radical β-scission"
-            subtitle="Amines are among the most common functional groups in bioactive molecules and pharmaceuticals,1-3 yet they are almost universally treated as synthetic endpoint..."
-            category="인공지능 > 머신러닝"
-          />
-          <PopularPaperCard
-            imageUrl="https://picsum.photos/300/169?random=1"
-            title="Deaminative cross-coupling of amines by boryl radical β-scission"
-            subtitle="Amines are among the most common functional groups in bioactive molecules and pharmaceuticals,1-3 yet they are almost universally treated as synthetic endpoint..."
-            category="인공지능 > 머신러닝"
-          />
-          {Array.from({ length: 10 }, (_, index) => (
-            <PopularPaperCard
-              key={index}
-              imageUrl="https://picsum.photos/300/169?random=1"
-              title="Deaminative cross-coupling of amines by boryl radical β-scission"
-              subtitle="Amines are among the most common functional groups in bioactive molecules and pharmaceuticals,1-3 yet they are almost universally treated as synthetic endpoint..."
-              category="인공지능 > 머신러닝"
-            />
-          ))}
+          {loadingPopular ? (
+            <div>로딩 중...</div>
+          ) : popularPapers.length > 0 ? (
+            popularPapers.map((paper) => (
+              <PopularPaperCard
+                key={paper.id}
+                imageUrl={paper.imageUrl}
+                title={paper.title}
+                subtitle={paper.subtitle}
+                category={paper.category}
+              />
+            ))
+          ) : (
+            <div>인기 논문이 없습니다.</div>
+          )}
         </div>
       </div>
 
@@ -273,30 +455,25 @@ export default function Home() {
               width: "100%",
             }}
           >
-            <LatestResearchCard
-              imageUrl="https://picsum.photos/228/128?random=1"
-              category="인공지능 > 머신러닝"
-              title="Deaminative cross-coupling of amines by boryl radical β-scission"
-              description="Amines are among the most common functional groups in bioactive molecules and pharmaceuticals,1-3 yet they are almost universally treated as synthetic endpoint..."
-              likes={32}
-              comments={32}
-            />
-            <LatestResearchCard
-              imageUrl="https://picsum.photos/228/128?random=1"
-              category="인공지능 > 머신러닝"
-              title="Deaminative cross-coupling of amines by boryl radical β-scission"
-              description="Amines are among the most common functional groups in bioactive molecules and pharmaceuticals,1-3 yet they are almost universally treated as synthetic endpoint..."
-              likes={32}
-              comments={32}
-            />
-            <LatestResearchCard
-              imageUrl="https://picsum.photos/228/128?random=1"
-              category="인공지능 > 머신러닝"
-              title="Deaminative cross-coupling of amines by boryl radical β-scission"
-              description="Amines are among the most common functional groups in bioactive molecules and pharmaceuticals,1-3 yet they are almost universally treated as synthetic endpoint..."
-              likes={32}
-              comments={32}
-            />
+            {loadingLatest ? (
+              <div>로딩 중...</div>
+            ) : latestPapers.length > 0 ? (
+              latestPapers
+                .slice(0, 3)
+                .map((paper) => (
+                  <LatestResearchCard
+                    key={paper.id}
+                    imageUrl={paper.imageUrl}
+                    category={paper.category}
+                    title={paper.title}
+                    description={paper.description}
+                    likes={paper.likes}
+                    comments={paper.comments}
+                  />
+                ))
+            ) : (
+              <div>최신 연구가 없습니다.</div>
+            )}
           </div>
         </div>
 
@@ -331,7 +508,7 @@ export default function Home() {
             </div>
 
             <h2 className="text-[var(--color-text-default)] font-[Pretendard] text-[24px] font-bold leading-[30px] m-0">
-              인공지능
+              추천 논문
             </h2>
           </div>
 
@@ -343,30 +520,50 @@ export default function Home() {
               width: "100%",
             }}
           >
-            <LatestResearchCard
-              imageUrl="https://picsum.photos/228/128?random=1"
-              category="인공지능 > 머신러닝"
-              title="Deaminative cross-coupling of amines by boryl radical β-scission"
-              description="Amines are among the most common functional groups in bioactive molecules and pharmaceuticals,1-3 yet they are almost universally treated as synthetic endpoint..."
-              likes={32}
-              comments={32}
-            />
-            <LatestResearchCard
-              imageUrl="https://picsum.photos/228/128?random=1"
-              category="인공지능 > 머신러닝"
-              title="Deaminative cross-coupling of amines by boryl radical β-scission"
-              description="Amines are among the most common functional groups in bioactive molecules and pharmaceuticals,1-3 yet they are almost universally treated as synthetic endpoint..."
-              likes={32}
-              comments={32}
-            />
-            <LatestResearchCard
-              imageUrl="https://picsum.photos/228/128?random=1"
-              category="인공지능 > 머신러닝"
-              title="Deaminative cross-coupling of amines by boryl radical β-scission"
-              description="Amines are among the most common functional groups in bioactive molecules and pharmaceuticals,1-3 yet they are almost universally treated as synthetic endpoint..."
-              likes={32}
-              comments={32}
-            />
+            {!isAuthenticated ? (
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: "var(--spacing-48) var(--spacing-24)",
+                  gap: "var(--spacing-16)",
+                }}
+              >
+                <Typography.BodyLarge color="subtle" className="text-center">
+                  추천 논문을 확인하려면 로그인이 필요합니다.
+                </Typography.BodyLarge>
+                <Link
+                  to="/login"
+                  style={{
+                    textDecoration: "none",
+                  }}
+                >
+                  <Typography.BodyLarge color="brand" className="text-center">
+                    로그인하러 가기 →
+                  </Typography.BodyLarge>
+                </Link>
+              </div>
+            ) : loadingRecommended ? (
+              <div>로딩 중...</div>
+            ) : recommendedPapers.length > 0 ? (
+              recommendedPapers
+                .slice(0, 3)
+                .map((paper) => (
+                  <LatestResearchCard
+                    key={paper.id}
+                    imageUrl={paper.imageUrl}
+                    category={paper.category}
+                    title={paper.title}
+                    description={paper.description}
+                    likes={paper.likes}
+                    comments={paper.comments}
+                  />
+                ))
+            ) : (
+              <div>추천 논문이 없습니다.</div>
+            )}
           </div>
         </div>
       </div>

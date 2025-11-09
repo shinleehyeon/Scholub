@@ -1,17 +1,55 @@
+import { authApi } from "./auth";
+import { authStorage } from "@/shared/lib/auth";
+
 const API_BASE_URL = import.meta.env.DEV
   ? "/api"
-  : "https://scholub-api.alpa.dev/api";
+  : "https://plaza-distances-identical-warning.trycloudflare.com/api";
 
 export class ApiClient {
   private baseUrl: string;
+  private isRefreshing = false;
+  private refreshPromise: Promise<void> | null = null;
 
   constructor(baseUrl: string = API_BASE_URL) {
     this.baseUrl = baseUrl;
   }
 
+  private async refreshToken(): Promise<void> {
+    // 이미 리프레시 중이면 기존 Promise 반환
+    if (this.isRefreshing && this.refreshPromise) {
+      return this.refreshPromise;
+    }
+
+    this.isRefreshing = true;
+    this.refreshPromise = (async () => {
+      try {
+        const refreshToken = authStorage.getRefreshToken();
+        if (!refreshToken) {
+          throw new Error("리프레시 토큰이 없습니다.");
+        }
+
+        const response = await authApi.refresh(refreshToken);
+        authStorage.setTokens(
+          response.data.accessToken,
+          response.data.refreshToken
+        );
+      } catch (error) {
+        // 리프레시 실패 시 토큰 삭제
+        authStorage.clearTokens();
+        throw error;
+      } finally {
+        this.isRefreshing = false;
+        this.refreshPromise = null;
+      }
+    })();
+
+    return this.refreshPromise;
+  }
+
   private async request<T>(
     endpoint: string,
-    options: RequestInit = {}
+    options: RequestInit = {},
+    retryCount = 0
   ): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
 
@@ -36,6 +74,35 @@ export class ApiClient {
     });
 
     if (!response.ok) {
+      // 401 에러이고 리프레시 토큰이 있고, 아직 재시도하지 않은 경우
+      if (
+        response.status === 401 &&
+        authStorage.getRefreshToken() &&
+        retryCount === 0 &&
+        endpoint !== "/auth/refresh" // 리프레시 요청 자체는 제외
+      ) {
+        try {
+          // 리프레시 토큰으로 액세스 토큰 갱신
+          await this.refreshToken();
+          // 원래 요청 재시도 (재시도 카운트 증가)
+          return this.request<T>(endpoint, options, retryCount + 1);
+        } catch {
+          // 리프레시 실패 시 에러 처리
+          let errorData: any = {};
+          try {
+            const contentType = response.headers.get("content-type");
+            if (contentType && contentType.includes("application/json")) {
+              errorData = await response.json();
+            }
+          } catch {
+            // ignore
+          }
+          throw new Error(
+            errorData.details || "인증이 만료되었습니다. 다시 로그인해주세요."
+          );
+        }
+      }
+
       let errorData: any = {};
 
       try {

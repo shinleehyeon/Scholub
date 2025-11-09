@@ -62,6 +62,19 @@ export interface LogoutResponse {
   timestamp: string;
 }
 
+export interface RefreshResponse {
+  status: number;
+  method: string;
+  instance: string;
+  details: string;
+  data: {
+    accessToken: string;
+    refreshToken: string;
+  };
+  errors: Record<string, unknown> | null;
+  timestamp: string;
+}
+
 export const authApi = {
   async login(data: LoginRequest): Promise<LoginResponse> {
     return apiClient.post<LoginResponse>("/auth/login", {
@@ -115,6 +128,12 @@ export const authApi = {
 
   async logout(refreshToken: string): Promise<LogoutResponse> {
     return apiClient.post<LogoutResponse>("/auth/logout", {
+      refreshToken,
+    });
+  },
+
+  async refresh(refreshToken: string): Promise<RefreshResponse> {
+    return apiClient.post<RefreshResponse>("/auth/refresh", {
       refreshToken,
     });
   },
