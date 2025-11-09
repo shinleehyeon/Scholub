@@ -10,6 +10,7 @@ import { Typography } from "@/shared/ui";
 import { authApi } from "@/shared/api/auth";
 import { authStorage } from "@/shared/lib/auth";
 import { profileApi, type UserProfile } from "@/shared/api/profile";
+import { notificationsApi } from "@/shared/api/notifications";
 
 interface HeaderProps {
   status?: "logined" | "default";
@@ -30,7 +31,7 @@ export default function Header({
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const hasNotifications = true;
+  const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
     const checkAuthStatus = () => {
@@ -69,6 +70,28 @@ export default function Header({
 
     fetchUserProfile();
   }, [status, onStatusChange]);
+
+  // 읽지 않은 알림 수만 가져오기
+  useEffect(() => {
+    const fetchUnreadCount = async () => {
+      if (status === "logined" && authStorage.isAuthenticated()) {
+        try {
+          const count = await notificationsApi.getUnreadCount();
+          setUnreadCount(count);
+        } catch (err) {
+          console.error("Failed to fetch unread count:", err);
+        }
+      } else {
+        setUnreadCount(0);
+      }
+    };
+
+    fetchUnreadCount();
+
+    // 주기적으로 읽지 않은 알림 수 업데이트 (30초마다)
+    const interval = setInterval(fetchUnreadCount, 30000);
+    return () => clearInterval(interval);
+  }, [status]);
 
   const handleLogout = async () => {
     try {
@@ -214,7 +237,7 @@ export default function Header({
                 }}
               >
                 <Bell size={24} />
-                {hasNotifications && <NotificationBadge size={10} />}
+                {unreadCount > 0 && <NotificationBadge size={10} />}
               </button>
               <NotificationPopover
                 isOpen={isNotificationOpen}

@@ -25,7 +25,11 @@ export default function ProfilePage() {
         setReactionPapers(reactions);
         setCommentPapers(comments);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "프로필을 불러오는데 실패했습니다.");
+        setError(
+          err instanceof Error
+            ? err.message
+            : "프로필을 불러오는데 실패했습니다."
+        );
       } finally {
         setLoading(false);
       }
@@ -87,7 +91,10 @@ export default function ProfilePage() {
               }}
             >
               <Avatar
-                src={profile?.profileImageUrl || "https://picsum.photos/100/100?random=profile"}
+                src={
+                  profile?.profileImageUrl ||
+                  "https://picsum.photos/100/100?random=profile"
+                }
                 alt="프로필 이미지"
                 size={100}
               />
@@ -216,7 +223,9 @@ export default function ProfilePage() {
                   />
                 ))
               ) : (
-                <Typography.Body color="subtle">반응한 논문이 없습니다.</Typography.Body>
+                <Typography.Body color="subtle">
+                  반응한 논문이 없습니다.
+                </Typography.Body>
               )}
             </div>
 
@@ -249,7 +258,7 @@ export default function ProfilePage() {
                 textAlign: "left",
               }}
             >
-              내가 댓글 작성한 논문
+              내가 토론한 논문
             </Typography.BodyLarge>
 
             <div
@@ -278,7 +287,9 @@ export default function ProfilePage() {
                   />
                 ))
               ) : (
-                <Typography.Body color="subtle">댓글 작성한 논문이 없습니다.</Typography.Body>
+                <Typography.Body color="subtle">
+                  댓글 작성한 논문이 없습니다.
+                </Typography.Body>
               )}
             </div>
 
