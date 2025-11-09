@@ -8,6 +8,7 @@ import { InterestAreasPage } from "@/pages/interest-areas";
 import { CategoryPage } from "@/pages/category";
 import { ProfilePage } from "@/pages/profile";
 import { SettingsPage } from "@/pages/settings";
+import { ProfilePhotoPage } from "@/pages/profile-photo";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <Route path="/newscolar" element={<NewscolatorPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/profile-photo" element={<ProfilePhotoPage />} />
         <Route path="/interest-areas" element={<InterestAreasPage />} />
         <Route path="/component-test" element={<ComponentTest />} />
         <Route path="/category/:categoryId" element={<CategoryPage />} />

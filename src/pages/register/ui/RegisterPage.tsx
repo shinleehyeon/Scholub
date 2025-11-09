@@ -9,7 +9,7 @@ export default function Register() {
   const navigate = useNavigate();
 
   const handleRegister = () => {
-    navigate("/interest-areas");
+    navigate("/profile-photo");
   };
 
   return (

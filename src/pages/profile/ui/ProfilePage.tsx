@@ -1,9 +1,38 @@
+import { useState, useEffect } from "react";
 import { Header } from "@/widgets/header";
 import { SubHeader } from "@/widgets/sub-header";
 import { Avatar, Button, Typography } from "@/shared/ui";
 import LatestResearchCard from "@/entities/paper/ui/LatestResearchCard";
+import { profileApi, type UserProfile, type Paper } from "@/shared/api/profile";
 
 export default function ProfilePage() {
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [reactionPapers, setReactionPapers] = useState<Paper[]>([]);
+  const [commentPapers, setCommentPapers] = useState<Paper[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchProfileData = async () => {
+      try {
+        setLoading(true);
+        const [profileData, reactions, comments] = await Promise.all([
+          profileApi.getProfile(),
+          profileApi.getReactionPapers(),
+          profileApi.getCommentPapers(),
+        ]);
+        setProfile(profileData);
+        setReactionPapers(reactions);
+        setCommentPapers(comments);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "프로필을 불러오는데 실패했습니다.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfileData();
+  }, []);
   return (
     <div className="min-h-screen bg-white">
       <Header />
@@ -58,7 +87,7 @@ export default function ProfilePage() {
               }}
             >
               <Avatar
-                src="https://picsum.photos/100/100?random=profile"
+                src={profile?.avatarUrl || "https://picsum.photos/100/100?random=profile"}
                 alt="프로필 이미지"
                 size={100}
               />
@@ -71,10 +100,10 @@ export default function ProfilePage() {
                 }}
               >
                 <Typography.Headline color="default">
-                  환경 피로
+                  {profile?.name || "로딩 중..."}
                 </Typography.Headline>
                 <Typography.BodyLarge color="subtle">
-                  fire.extinguisher@gmail.com
+                  {profile?.email || ""}
                 </Typography.BodyLarge>
               </div>
             </div>
@@ -108,7 +137,9 @@ export default function ProfilePage() {
               >
                 논문 반응
               </Typography.Subtext>
-              <Typography.Headline color="default">32개</Typography.Headline>
+              <Typography.Headline color="default">
+                {profile?.reactionCount || 0}개
+              </Typography.Headline>
             </div>
 
             <div
@@ -135,7 +166,9 @@ export default function ProfilePage() {
               >
                 댓글
               </Typography.Subtext>
-              <Typography.Headline color="default">12개</Typography.Headline>
+              <Typography.Headline color="default">
+                {profile?.commentCount || 0}개
+              </Typography.Headline>
             </div>
           </div>
 
@@ -166,17 +199,25 @@ export default function ProfilePage() {
                 marginTop: "var(--spacing-12)",
               }}
             >
-              {Array.from({ length: 3 }, (_, index) => (
-                <LatestResearchCard
-                  key={index}
-                  imageUrl="https://picsum.photos/228/128?random=1"
-                  category="인공지능"
-                  title="Deaminative cross-coupling of amines by boryl radical β-scission"
-                  description="Amines are among the most common functional groups in bioactive molecules and pharmaceuticals,1-3 yet they are almost universally treated as synthetic endpoint..."
-                  likes={32}
-                  comments={32}
-                />
-              ))}
+              {loading ? (
+                <Typography.Body color="subtle">로딩 중...</Typography.Body>
+              ) : error ? (
+                <Typography.Body color="subtle">{error}</Typography.Body>
+              ) : reactionPapers.length > 0 ? (
+                reactionPapers.map((paper) => (
+                  <LatestResearchCard
+                    key={paper.id}
+                    imageUrl={paper.imageUrl}
+                    category={paper.category}
+                    title={paper.title}
+                    description={paper.description}
+                    likes={paper.likes}
+                    comments={paper.comments}
+                  />
+                ))
+              ) : (
+                <Typography.Body color="subtle">반응한 논문이 없습니다.</Typography.Body>
+              )}
             </div>
 
             <div
@@ -220,17 +261,25 @@ export default function ProfilePage() {
                 marginTop: "var(--spacing-12)",
               }}
             >
-              {Array.from({ length: 3 }, (_, index) => (
-                <LatestResearchCard
-                  key={index}
-                  imageUrl="https://picsum.photos/228/128?random=2"
-                  category="인공지능"
-                  title="Deaminative cross-coupling of amines by boryl radical β-scission"
-                  description="Amines are among the most common functional groups in bioactive molecules and pharmaceuticals,1-3 yet they are almost universally treated as synthetic endpoint..."
-                  likes={32}
-                  comments={32}
-                />
-              ))}
+              {loading ? (
+                <Typography.Body color="subtle">로딩 중...</Typography.Body>
+              ) : error ? (
+                <Typography.Body color="subtle">{error}</Typography.Body>
+              ) : commentPapers.length > 0 ? (
+                commentPapers.map((paper) => (
+                  <LatestResearchCard
+                    key={paper.id}
+                    imageUrl={paper.imageUrl}
+                    category={paper.category}
+                    title={paper.title}
+                    description={paper.description}
+                    likes={paper.likes}
+                    comments={paper.comments}
+                  />
+                ))
+              ) : (
+                <Typography.Body color="subtle">댓글 작성한 논문이 없습니다.</Typography.Body>
+              )}
             </div>
 
             <div
