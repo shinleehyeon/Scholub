@@ -59,26 +59,43 @@ export class ApiClient {
       headers["Content-Type"] = "application/json";
     }
 
-    // 토큰이 곧 만료되거나 만료되었으면 리프레시 시도
-    if (
-      authStorage.isAccessTokenExpiringSoon() &&
-      authStorage.getRefreshToken() &&
-      endpoint !== "/auth/refresh" &&
-      endpoint !== "/auth/login" &&
-      endpoint !== "/auth/register"
-    ) {
+    // 토큰이 곧 만료되거나 이미 만료되었으면 리프레시 시도
+    const accessToken = authStorage.getAccessToken();
+    const refreshToken = authStorage.getRefreshToken();
+    const shouldRefresh =
+      refreshToken &&
+      accessToken &&
+      (authStorage.isAccessTokenExpiringSoon() ||
+        authStorage.isAccessTokenExpired()) &&
+      !endpoint.includes("/auth/refresh") &&
+      !endpoint.includes("/auth/login") &&
+      !endpoint.includes("/auth/register");
+
+    if (shouldRefresh) {
       try {
         await this.refreshToken();
+        // 리프레시 후 새로운 토큰으로 헤더 업데이트
+        const newAccessToken = authStorage.getAccessToken();
+        if (newAccessToken) {
+          headers["Authorization"] = `Bearer ${newAccessToken}`;
+        }
       } catch (error) {
         // 리프레시 실패 시 토큰 삭제
         console.error("토큰 리프레시 실패:", error);
         authStorage.clearTokens();
+        // 인증이 필요한 요청인 경우 에러 발생
+        if (accessToken) {
+          throw new Error("인증이 만료되었습니다. 다시 로그인해주세요.");
+        }
       }
     }
 
-    const accessToken = authStorage.getAccessToken();
-    if (accessToken && !headers["Authorization"]) {
-      headers["Authorization"] = `Bearer ${accessToken}`;
+    // 리프레시 후 헤더가 설정되지 않았으면 기본 토큰 사용
+    if (!headers["Authorization"]) {
+      const currentAccessToken = authStorage.getAccessToken();
+      if (currentAccessToken) {
+        headers["Authorization"] = `Bearer ${currentAccessToken}`;
+      }
     }
 
     if (options.headers) {
@@ -91,12 +108,15 @@ export class ApiClient {
     });
 
     if (!response.ok) {
-      // 401 에러이고 리프레시 토큰이 있고, 아직 재시도하지 않은 경우
+      // 401 또는 403 에러이고 리프레시 토큰이 있고, 아직 재시도하지 않은 경우
+      const isAuthError = response.status === 401 || response.status === 403;
       if (
-        response.status === 401 &&
+        isAuthError &&
         authStorage.getRefreshToken() &&
         retryCount === 0 &&
-        endpoint !== "/auth/refresh" // 리프레시 요청 자체는 제외
+        !endpoint.includes("/auth/refresh") &&
+        !endpoint.includes("/auth/login") &&
+        !endpoint.includes("/auth/register")
       ) {
         try {
           // 리프레시 토큰으로 액세스 토큰 갱신
@@ -105,6 +125,7 @@ export class ApiClient {
           return this.request<T>(endpoint, options, retryCount + 1);
         } catch {
           // 리프레시 실패 시 에러 처리
+          authStorage.clearTokens();
           let errorData: any = {};
           try {
             const contentType = response.headers.get("content-type");

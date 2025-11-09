@@ -3,14 +3,38 @@ import { Header } from "@/widgets/header";
 import { SubHeader } from "@/widgets/sub-header";
 import { Avatar, Button, Typography } from "@/shared/ui";
 import LatestResearchCard from "@/entities/paper/ui/LatestResearchCard";
-import { profileApi, type UserProfile, type Paper } from "@/shared/api/profile";
+import { profileApi, type UserProfile } from "@/shared/api/profile";
 import { useToast } from "@/shared/ui/Toast";
 
 export default function ProfilePage() {
   const { showToast } = useToast();
   const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [reactionPapers, setReactionPapers] = useState<Paper[]>([]);
-  const [commentPapers, setCommentPapers] = useState<Paper[]>([]);
+  const [reactionPapers, setReactionPapers] = useState<
+    Array<{
+      id: string;
+      paperId: string;
+      title: string;
+      description: string;
+      category: string;
+      imageUrl: string;
+      likes: number;
+      comments: number;
+      isLiked: boolean;
+    }>
+  >([]);
+  const [commentPapers, setCommentPapers] = useState<
+    Array<{
+      id: string;
+      paperId: string;
+      title: string;
+      description: string;
+      category: string;
+      imageUrl: string;
+      likes: number;
+      comments: number;
+      isLiked: boolean;
+    }>
+  >([]);
   const [loadingProfile, setLoadingProfile] = useState(true);
   const [loadingReactions, setLoadingReactions] = useState(true);
   const [loadingComments, setLoadingComments] = useState(true);
@@ -56,12 +80,14 @@ export default function ProfilePage() {
 
           return {
             id: paper.id,
+            paperId: paper.id, // API 엔드포인트는 id를 사용
             title: paper.title,
             description,
             category,
             imageUrl,
             likes: paper.likes || paper.likeCount || 0,
             comments: paper.comments || paper.commentCount || 0,
+            isLiked: paper.myReaction?.isLiked || false,
           };
         });
 
@@ -98,12 +124,14 @@ export default function ProfilePage() {
 
           return {
             id: paper.id,
+            paperId: paper.id, // API 엔드포인트는 id를 사용
             title: paper.title,
             description,
             category,
             imageUrl,
             likes: paper.likes || paper.likeCount || 0,
             comments: paper.comments || paper.commentCount || 0,
+            isLiked: paper.myReaction?.isLiked || false,
           };
         });
 
@@ -119,6 +147,88 @@ export default function ProfilePage() {
 
     fetchProfileData();
   }, [showToast]);
+
+  // 반응한 논문 목록만 다시 불러오기
+  const fetchReactionPapers = async () => {
+    try {
+      setLoadingReactions(true);
+      const reactions = await profileApi.getReactionPapers();
+
+      const formattedPapers = reactions.map((paper) => {
+        const imageUrl =
+          paper.thumbnailUrl ||
+          paper.imageUrl ||
+          paper.coverImage ||
+          "https://via.placeholder.com/228x128/CCCCCC/666666?text=No+Image";
+
+        const category =
+          paper.category ||
+          (paper.categories ? paper.categories.join(" > ") : "분류 없음");
+
+        const description = paper.description || paper.summary || "";
+
+        // "내가 반응한 논문"이므로 항상 isLiked는 true여야 함
+        // 하지만 API 응답에 myReaction이 없을 수도 있으므로 기본값을 true로 설정
+        const isLiked = paper.myReaction?.isLiked ?? true;
+
+        console.log("반응한 논문:", {
+          id: paper.id,
+          title: paper.title,
+          myReaction: paper.myReaction,
+          isLiked,
+        });
+
+        return {
+          id: paper.id,
+          paperId: paper.id,
+          title: paper.title,
+          description,
+          category,
+          imageUrl,
+          likes: paper.likes || paper.likeCount || 0,
+          comments: paper.comments || paper.commentCount || 0,
+          isLiked,
+        };
+      });
+
+      setReactionPapers(formattedPapers);
+    } catch (err) {
+      console.error("반응한 논문 로드 실패:", err);
+      setReactionPapers([]);
+    } finally {
+      setLoadingReactions(false);
+    }
+  };
+
+  // 하트 클릭 시 호출되는 핸들러
+  const handleReactionLikeChange = async (
+    paperId: string,
+    isLiked: boolean
+  ) => {
+    // 낙관적 업데이트: 즉시 UI 반영
+    setReactionPapers((prev) => {
+      if (!isLiked) {
+        // 하트가 취소되면 목록에서 제거
+        return prev.filter((paper) => paper.paperId !== paperId);
+      } else {
+        // 하트가 추가되면 목록에 있으면 상태만 업데이트, 없으면 추가하지 않음 (이미 목록에 있으므로)
+        return prev.map((paper) =>
+          paper.paperId === paperId ? { ...paper, isLiked: true } : paper
+        );
+      }
+    });
+
+    // API 요청이 완료된 후 서버 상태와 동기화
+    // 하트가 취소되면 목록을 다시 불러와서 최신 상태 확인
+    if (!isLiked) {
+      try {
+        await fetchReactionPapers();
+      } catch (err) {
+        console.error("반응한 논문 목록 갱신 실패:", err);
+      }
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white">
       <Header />
@@ -291,12 +401,15 @@ export default function ProfilePage() {
                 reactionPapers.map((paper) => (
                   <LatestResearchCard
                     key={paper.id}
+                    paperId={paper.paperId || paper.id}
                     imageUrl={paper.imageUrl || ""}
                     category={paper.category || "분류 없음"}
                     title={paper.title || ""}
                     description={paper.description || ""}
                     likes={paper.likes || 0}
                     comments={paper.comments || 0}
+                    isLiked={paper.isLiked || false}
+                    onLikeChange={handleReactionLikeChange}
                   />
                 ))
               ) : (
@@ -353,12 +466,14 @@ export default function ProfilePage() {
                 commentPapers.map((paper) => (
                   <LatestResearchCard
                     key={paper.id}
+                    paperId={paper.paperId || paper.id}
                     imageUrl={paper.imageUrl || ""}
                     category={paper.category || "분류 없음"}
                     title={paper.title || ""}
                     description={paper.description || ""}
                     likes={paper.likes || 0}
                     comments={paper.comments || 0}
+                    isLiked={paper.isLiked || false}
                   />
                 ))
               ) : (

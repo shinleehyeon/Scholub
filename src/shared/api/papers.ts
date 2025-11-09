@@ -1,8 +1,8 @@
 import { apiClient } from "./client";
 
-export interface HeadlinePaper {
+export interface Paper {
   id: string;
-  paperId: string;
+  paperId?: string; // API 응답에 있을 수 있지만, 실제로는 id를 사용
   title: string;
   categories: string[];
   authors: string[];
@@ -15,9 +15,9 @@ export interface HeadlinePaper {
   likeCount: number;
   unlikeCount: number;
   totalViewCount: number;
-  thumbnailUrl?: string; // URL 형태로 올 수 있음
-  imageUrl?: string; // URL 형태로 올 수 있음
-  coverImage?: string; // URL 형태로 올 수 있음
+  thumbnailUrl?: string;
+  imageUrl?: string;
+  coverImage?: string;
   pdfId?: string;
   createdAt: string;
   updatedAt: string;
@@ -32,7 +32,7 @@ export interface HeadlinesResponse {
   method: string;
   instance: string;
   details: string;
-  data: HeadlinePaper[] | null;
+  data: Paper[] | null;
   errors: Record<string, unknown> | null;
   timestamp: string;
 }
@@ -42,7 +42,7 @@ export interface PopularPapersResponse {
   method: string;
   instance: string;
   details: string;
-  data: HeadlinePaper[] | null;
+  data: Paper[] | null;
   errors: Record<string, unknown> | null;
   timestamp: string;
 }
@@ -52,7 +52,7 @@ export interface LatestPapersResponse {
   method: string;
   instance: string;
   details: string;
-  data: HeadlinePaper[] | null;
+  data: Paper[] | null;
   errors: Record<string, unknown> | null;
   timestamp: string;
 }
@@ -62,44 +62,61 @@ export interface RecommendedPapersResponse {
   method: string;
   instance: string;
   details: string;
-  data: HeadlinePaper[] | null;
+  data: Paper[] | null;
   errors: Record<string, unknown> | null;
   timestamp: string;
 }
 
 export const papersApi = {
-  async getHeadlines(limit: number = 4): Promise<HeadlinePaper[]> {
+  async getHeadlines(limit: number = 4): Promise<Paper[]> {
     const response = await apiClient.get<HeadlinesResponse>(
       `/papers/headlines?limit=${limit}`
     );
-    // API가 null을 반환할 수 있으므로 빈 배열로 처리
     return Array.isArray(response.data) ? response.data : [];
   },
 
   async getPopularPapers(
     limit: number = 20,
     days: number = 90
-  ): Promise<HeadlinePaper[]> {
+  ): Promise<Paper[]> {
     const response = await apiClient.get<PopularPapersResponse>(
       `/papers/popular?limit=${limit}&days=${days}`
     );
-    // API가 null을 반환할 수 있으므로 빈 배열로 처리
     return Array.isArray(response.data) ? response.data : [];
   },
 
-  async getLatestPapers(limit: number = 20): Promise<HeadlinePaper[]> {
+  async getLatestPapers(limit: number = 20): Promise<Paper[]> {
     const response = await apiClient.get<LatestPapersResponse>(
       `/papers/latest?limit=${limit}`
     );
-    // API가 null을 반환할 수 있으므로 빈 배열로 처리
     return Array.isArray(response.data) ? response.data : [];
   },
 
-  async getRecommendedPapers(limit: number = 20): Promise<HeadlinePaper[]> {
+  async getRecommendedPapers(limit: number = 20): Promise<Paper[]> {
     const response = await apiClient.get<RecommendedPapersResponse>(
       `/papers/me/recommended?limit=${limit}`
     );
-    // API가 null을 반환할 수 있으므로 빈 배열로 처리
     return Array.isArray(response.data) ? response.data : [];
+  },
+
+  async toggleReaction(
+    paperId: string,
+    type: "LIKE" | "UNLIKE"
+  ): Promise<{ isReacted: boolean; likeCount?: number }> {
+    const response = await apiClient.post<{
+      status: number;
+      data: {
+        reactionType: string;
+        isReacted: boolean;
+        likeCount?: number;
+      };
+    }>(`/papers/${paperId}/reactions`, { type });
+
+    console.log("toggleReaction API 응답:", response);
+
+    return {
+      isReacted: response.data?.isReacted ?? false,
+      likeCount: response.data?.likeCount,
+    };
   },
 };

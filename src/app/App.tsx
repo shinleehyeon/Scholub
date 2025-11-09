@@ -14,20 +14,20 @@ import { ProfilePhotoPage } from "@/pages/profile-photo";
 function App() {
   return (
     <ToastProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/newscolar" element={<NewscolatorPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="/profile-photo" element={<ProfilePhotoPage />} />
-          <Route path="/interest-areas" element={<InterestAreasPage />} />
-          <Route path="/component-test" element={<ComponentTest />} />
-          <Route path="/category/:categoryId" element={<CategoryPage />} />
-          <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/settings" element={<SettingsPage />} />
-        </Routes>
-      </BrowserRouter>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/newscolar" element={<NewscolatorPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/profile-photo" element={<ProfilePhotoPage />} />
+        <Route path="/interest-areas" element={<InterestAreasPage />} />
+        <Route path="/component-test" element={<ComponentTest />} />
+        <Route path="/category/:categoryId" element={<CategoryPage />} />
+        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/settings" element={<SettingsPage />} />
+      </Routes>
+    </BrowserRouter>
     </ToastProvider>
   );
 }

@@ -159,12 +159,14 @@ export default function Home() {
 
           return {
             id: paper.id,
+            paperId: paper.id, // API 엔드포인트는 id를 사용
             imageUrl,
             title: paper.title,
             description,
             category,
             likes: paper.likeCount || 0,
             comments: 0, // API 응답에 댓글 수가 없으므로 기본값 0
+            isLiked: paper.myReaction?.isLiked || false,
           };
         });
 
@@ -220,12 +222,14 @@ export default function Home() {
 
           return {
             id: paper.id,
+            paperId: paper.id, // API 엔드포인트는 id를 사용
             imageUrl,
             title: paper.title,
             description,
             category,
             likes: paper.likeCount || 0,
             comments: 0, // API 응답에 댓글 수가 없으므로 기본값 0
+            isLiked: paper.myReaction?.isLiked || false,
           };
         });
 
@@ -465,12 +469,14 @@ export default function Home() {
                 .map((paper) => (
                   <LatestResearchCard
                     key={paper.id}
+                    paperId={paper.paperId}
                     imageUrl={paper.imageUrl}
                     category={paper.category}
                     title={paper.title}
                     description={paper.description}
                     likes={paper.likes}
                     comments={paper.comments}
+                    isLiked={paper.isLiked}
                   />
                 ))
             ) : (
@@ -555,12 +561,14 @@ export default function Home() {
                 .map((paper) => (
                   <LatestResearchCard
                     key={paper.id}
+                    paperId={paper.paperId}
                     imageUrl={paper.imageUrl}
                     category={paper.category}
                     title={paper.title}
                     description={paper.description}
                     likes={paper.likes}
                     comments={paper.comments}
+                    isLiked={paper.isLiked}
                   />
                 ))
             ) : (

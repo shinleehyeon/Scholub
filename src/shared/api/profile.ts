@@ -1,4 +1,5 @@
 import { apiClient } from "./client";
+import type { Paper as BasePaper } from "./papers";
 
 export interface UserProfile {
   id: string;
@@ -11,19 +12,10 @@ export interface UserProfile {
   interestedCategories?: string[];
 }
 
-export interface Paper {
-  id: string;
-  paperId?: string;
-  title: string;
+export interface Paper extends BasePaper {
   description?: string;
-  summary?: string;
   category?: string;
-  categories?: string[];
-  imageUrl?: string;
-  thumbnailUrl?: string;
-  coverImage?: string;
   likes?: number;
-  likeCount?: number;
   comments?: number;
   commentCount?: number;
 }
