@@ -38,7 +38,7 @@ export default function Header({
     const checkAuthStatus = () => {
       const isAuthenticated = authStorage.isAuthenticated();
       const newStatus = isAuthenticated ? "logined" : "default";
-      
+
       if (status !== newStatus) {
         setStatus(newStatus);
         onStatusChange?.(newStatus);
@@ -80,7 +80,7 @@ export default function Header({
     try {
       // refreshToken 가져오기
       const refreshToken = authStorage.getRefreshToken();
-      
+
       if (refreshToken) {
         // 로그아웃 API 호출
         await authApi.logout(refreshToken);
@@ -91,11 +91,11 @@ export default function Header({
     } finally {
       // 토큰 삭제
       authStorage.clearTokens();
-      
+
       // 상태 업데이트
       setStatus("default");
       onStatusChange?.("default");
-      
+
       // 로그인 페이지로 이동
       navigate("/login");
     }
@@ -258,7 +258,7 @@ export default function Header({
               >
                 <img
                   src={
-                    userProfile?.avatarUrl ||
+                    userProfile?.profileImageUrl ||
                     "https://picsum.photos/32/32?random=avatar"
                   }
                   alt="User avatar"
@@ -275,7 +275,7 @@ export default function Header({
                 onLogout={handleLogout}
                 userName={userProfile?.name}
                 userEmail={userProfile?.email}
-                avatarUrl={userProfile?.avatarUrl}
+                avatarUrl={userProfile?.profileImageUrl}
               />
             </div>
           </>

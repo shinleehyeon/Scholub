@@ -77,14 +77,26 @@ export const authApi = {
 
     if (data.profilePicture) {
       formData.append("profilePicture", data.profilePicture);
+      console.log("Profile picture added to FormData:", {
+        name: data.profilePicture.name,
+        size: data.profilePicture.size,
+        type: data.profilePicture.type,
+      });
+    } else {
+      console.log("No profile picture provided");
     }
 
-    console.log("Register request data:", {
-      email: data.email,
-      name: data.name,
-      hasPassword: !!data.password,
-      hasProfilePicture: !!data.profilePicture,
-    });
+    // FormData 내용 확인 (디버깅용)
+    console.log("Register FormData contents:");
+    for (const [key, value] of formData.entries()) {
+      if (value instanceof File) {
+        console.log(
+          `  ${key}: File(${value.name}, ${value.size} bytes, ${value.type})`
+        );
+      } else {
+        console.log(`  ${key}: ${value}`);
+      }
+    }
 
     return apiClient.post<RegisterResponse>("/auth/register", formData);
   },

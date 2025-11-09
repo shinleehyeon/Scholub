@@ -4,7 +4,7 @@ export interface UserProfile {
   id: string;
   name: string;
   email: string;
-  avatarUrl?: string;
+  profileImageUrl?: string;
   reactionCount: number;
   commentCount: number;
 }

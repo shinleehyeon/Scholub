@@ -87,7 +87,7 @@ export default function ProfilePage() {
               }}
             >
               <Avatar
-                src={profile?.avatarUrl || "https://picsum.photos/100/100?random=profile"}
+                src={profile?.profileImageUrl || "https://picsum.photos/100/100?random=profile"}
                 alt="프로필 이미지"
                 size={100}
               />
