@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "website-control": {
+      "command": "npx",
+      "args": [
+        "tsx",
+        "/Users/shinleehyeon/Dev/Projects/Scholub/mcp-website-control/src/index.ts"
+      ]
+    }
+  }
+}
+
+

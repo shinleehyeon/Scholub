@@ -1,16 +1,52 @@
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Header } from "@/widgets/header";
 import { SubHeader } from "@/widgets/sub-header";
 import { Input } from "@/shared/ui";
 import { Button } from "@/shared/ui";
 import { Typography } from "@/shared/ui";
-import { useNavigate } from "react-router-dom";
+import { authApi } from "@/shared/api/auth";
+import { authStorage } from "@/shared/lib/auth";
 
 export default function Login() {
   const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = () => {
-    navigate("/");
+  const handleLogin = async () => {
+    if (!email || !password) {
+      setError("이메일과 비밀번호를 입력해주세요.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await authApi.login({
+        email,
+        password,
+      });
+
+      // 토큰 저장
+      authStorage.setTokens(
+        response.data.accessToken,
+        response.data.refreshToken
+      );
+
+      // 홈으로 이동
+      navigate("/");
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("로그인에 실패했습니다. 다시 시도해주세요.");
+      }
+    } finally {
+      setLoading(false);
+    }
   };
   return (
     <div className="min-h-screen bg-white">
@@ -70,6 +106,9 @@ export default function Login() {
               required
               fullWidth
               size="large"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              disabled={loading}
             />
 
             <Input
@@ -79,13 +118,35 @@ export default function Login() {
               required
               fullWidth
               size="large"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              disabled={loading}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !loading) {
+                  handleLogin();
+                }
+              }}
             />
+
+            {error && (
+              <Typography.Body
+                color="subtle"
+                style={{
+                  color: "var(--color-text-error)",
+                  fontSize: "14px",
+                }}
+              >
+                {error}
+              </Typography.Body>
+            )}
 
             <Button
               variant="primary"
               size="large"
               fullWidth
               onClick={handleLogin}
+              disabled={loading}
+              pending={loading}
             >
               로그인
             </Button>

@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "website-control": {
+      "command": "node",
+      "args": [
+        "/Users/shinleehyeon/Dev/Projects/Scholub/mcp-website-control/dist/index.js"
+      ]
+    }
+  }
+}
+
+

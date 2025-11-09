@@ -1,14 +1,36 @@
-import { useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useRef, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Header } from "@/widgets/header";
 import { SubHeader } from "@/widgets/sub-header";
 import { Avatar, Button, Typography } from "@/shared/ui";
 import Camera from "@/shared/ui/icons/Camera";
+import { authApi } from "@/shared/api/auth";
+import { authStorage } from "@/shared/lib/auth";
+
+interface RegisterState {
+  email: string;
+  password: string;
+  name: string;
+}
 
 export default function ProfilePhotoPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [profileFile, setProfileFile] = useState<File | null>(null);
+  const [registerData, setRegisterData] = useState<RegisterState | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const state = location.state as RegisterState | null;
+    if (!state || !state.email || !state.password || !state.name) {
+      navigate("/register");
+      return;
+    }
+    setRegisterData(state);
+  }, [location, navigate]);
 
   const handleCameraClick = () => {
     fileInputRef.current?.click();
@@ -17,6 +39,7 @@ export default function ProfilePhotoPage() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setProfileFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
         setProfileImage(reader.result as string);
@@ -27,13 +50,44 @@ export default function ProfilePhotoPage() {
 
   const handleDeleteImage = () => {
     setProfileImage(null);
+    setProfileFile(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
   };
 
-  const handleNext = () => {
-    navigate("/interest-areas");
+  const handleNext = async () => {
+    if (!registerData) {
+      setError("회원가입 정보가 없습니다.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await authApi.register({
+        email: registerData.email,
+        password: registerData.password,
+        name: registerData.name,
+        profilePicture: profileFile || undefined,
+      });
+
+      authStorage.setTokens(
+        response.data.accessToken,
+        response.data.refreshToken
+      );
+
+      navigate("/interest-areas");
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("회원가입에 실패했습니다. 다시 시도해주세요.");
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -157,10 +211,24 @@ export default function ProfilePhotoPage() {
             </Typography.Body>
           </button>
 
+          {error && (
+            <Typography.Body
+              color="subtle"
+              style={{
+                color: "var(--color-text-error)",
+                fontSize: "14px",
+              }}
+            >
+              {error}
+            </Typography.Body>
+          )}
+
           <Button
             variant="primary"
             size="large"
             onClick={handleNext}
+            disabled={loading || !registerData}
+            pending={loading}
             style={{
               width: "100%",
             }}

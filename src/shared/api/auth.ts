@@ -1,0 +1,81 @@
+import { apiClient } from "./client";
+
+export interface RegisterRequest {
+  email: string;
+  password: string;
+  name: string;
+  profilePicture?: File;
+}
+
+export interface RegisterResponse {
+  status: number;
+  method: string;
+  instance: string;
+  details: string;
+  data: {
+    accessToken: string;
+    refreshToken: string;
+  };
+  errors: Record<string, unknown>;
+  timestamp: string;
+}
+
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+export interface LoginResponse {
+  status: number;
+  method: string;
+  instance: string;
+  details: string;
+  data: {
+    accessToken: string;
+    refreshToken: string;
+  };
+  errors: Record<string, unknown> | null;
+  timestamp: string;
+}
+
+export interface ApiError {
+  status: number;
+  method: string;
+  instance: string;
+  details: string;
+  data: unknown;
+  errors: Array<{
+    field: string;
+    message: string;
+  }>;
+  timestamp: string;
+}
+
+export const authApi = {
+  async login(data: LoginRequest): Promise<LoginResponse> {
+    return apiClient.post<LoginResponse>("/auth/login", {
+      email: data.email,
+      password: data.password,
+    });
+  },
+
+  async register(data: RegisterRequest): Promise<RegisterResponse> {
+    const formData = new FormData();
+    formData.append("email", data.email);
+    formData.append("password", data.password);
+    formData.append("name", data.name);
+
+    if (data.profilePicture) {
+      formData.append("profilePicture", data.profilePicture);
+    }
+
+    console.log("Register request data:", {
+      email: data.email,
+      name: data.name,
+      hasPassword: !!data.password,
+      hasProfilePicture: !!data.profilePicture,
+    });
+
+    return apiClient.post<RegisterResponse>("/auth/register", formData);
+  },
+};

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Header } from "@/widgets/header";
 import { SubHeader } from "@/widgets/sub-header";
@@ -7,9 +8,30 @@ import { Typography } from "@/shared/ui";
 
 export default function Register() {
   const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
+  const [password, setPassword] = useState("");
+  const [passwordConfirm, setPasswordConfirm] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
   const handleRegister = () => {
-    navigate("/profile-photo");
+    if (!email || !name || !password || !passwordConfirm) {
+      setError("모든 필드를 입력해주세요.");
+      return;
+    }
+
+    if (password !== passwordConfirm) {
+      setError("비밀번호가 일치하지 않습니다.");
+      return;
+    }
+
+    navigate("/profile-photo", {
+      state: {
+        email,
+        password,
+        name,
+      },
+    });
   };
 
   return (
@@ -70,6 +92,8 @@ export default function Register() {
               required
               fullWidth
               size="large"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
             />
 
             <Input
@@ -79,6 +103,8 @@ export default function Register() {
               required
               fullWidth
               size="large"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
             />
 
             <Input
@@ -88,6 +114,8 @@ export default function Register() {
               required
               fullWidth
               size="large"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
             />
 
             <Input
@@ -97,7 +125,21 @@ export default function Register() {
               required
               fullWidth
               size="large"
+              value={passwordConfirm}
+              onChange={(e) => setPasswordConfirm(e.target.value)}
             />
+
+            {error && (
+              <Typography.Body
+                color="subtle"
+                style={{
+                  color: "var(--color-text-error)",
+                  fontSize: "14px",
+                }}
+              >
+                {error}
+              </Typography.Body>
+            )}
 
             <Button
               variant="primary"
