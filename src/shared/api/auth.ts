@@ -51,6 +51,16 @@ export interface ApiError {
   timestamp: string;
 }
 
+export interface LogoutResponse {
+  status: number;
+  method: string;
+  instance: string;
+  details: string;
+  data: unknown;
+  errors: Record<string, unknown> | null;
+  timestamp: string;
+}
+
 export const authApi = {
   async login(data: LoginRequest): Promise<LoginResponse> {
     return apiClient.post<LoginResponse>("/auth/login", {
@@ -77,5 +87,11 @@ export const authApi = {
     });
 
     return apiClient.post<RegisterResponse>("/auth/register", formData);
+  },
+
+  async logout(refreshToken: string): Promise<LogoutResponse> {
+    return apiClient.post<LogoutResponse>("/auth/logout", {
+      refreshToken,
+    });
   },
 };

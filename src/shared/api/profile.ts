@@ -19,16 +19,47 @@ export interface Paper {
   comments: number;
 }
 
+export interface ProfileResponse {
+  status: number;
+  method: string;
+  instance: string;
+  details: string;
+  data: UserProfile;
+  errors: Record<string, unknown> | null;
+  timestamp: string;
+}
+
+export interface PapersResponse {
+  status: number;
+  method: string;
+  instance: string;
+  details: string;
+  data: {
+    items: Paper[];
+    meta?: {
+      page: number;
+      limit: number;
+      total: number;
+      totalPages: number;
+    };
+  };
+  errors: Record<string, unknown> | null;
+  timestamp: string;
+}
+
 export const profileApi = {
   async getProfile(): Promise<UserProfile> {
-    return apiClient.get<UserProfile>("/users/me");
+    const response = await apiClient.get<ProfileResponse>("/users/me");
+    return response.data;
   },
 
   async getReactionPapers(): Promise<Paper[]> {
-    return apiClient.get<Paper[]>("/users/me/reactions");
+    const response = await apiClient.get<PapersResponse>("/users/me/reactions");
+    return response.data.items || [];
   },
 
   async getCommentPapers(): Promise<Paper[]> {
-    return apiClient.get<Paper[]>("/users/me/comments");
+    const response = await apiClient.get<PapersResponse>("/users/me/comments");
+    return response.data.items || [];
   },
 };

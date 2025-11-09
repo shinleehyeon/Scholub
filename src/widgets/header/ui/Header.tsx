@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Logo } from "@/shared/ui";
 import SearchIcon from "@/shared/ui/icons/Search";
 import Bell from "@/shared/ui/icons/Bell";
@@ -7,6 +7,9 @@ import NotificationBadge from "@/shared/ui/icons/NotificationBadge";
 import { NotificationPopover } from "@/widgets/notification-popover";
 import { UserMenuPopover } from "@/widgets/user-menu-popover";
 import { Typography } from "@/shared/ui";
+import { authApi } from "@/shared/api/auth";
+import { authStorage } from "@/shared/lib/auth";
+import { profileApi, type UserProfile } from "@/shared/api/profile";
 
 interface HeaderProps {
   status?: "logined" | "default";
@@ -14,23 +17,97 @@ interface HeaderProps {
 }
 
 export default function Header({
-  status: initialStatus = "logined",
+  status: initialStatus,
   onStatusChange,
 }: HeaderProps) {
-  const [status, setStatus] = useState<"logined" | "default">(initialStatus);
+  const navigate = useNavigate();
+  // 초기 상태는 토큰 존재 여부에 따라 결정
+  const [status, setStatus] = useState<"logined" | "default">(() => {
+    if (initialStatus !== undefined) {
+      return initialStatus;
+    }
+    return authStorage.isAuthenticated() ? "logined" : "default";
+  });
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const hasNotifications = true;
 
-  const handleLogout = () => {
-    setStatus("default");
-    onStatusChange?.("default");
+  // 토큰 상태 감지 및 헤더 상태 업데이트
+  useEffect(() => {
+    const checkAuthStatus = () => {
+      const isAuthenticated = authStorage.isAuthenticated();
+      const newStatus = isAuthenticated ? "logined" : "default";
+      
+      if (status !== newStatus) {
+        setStatus(newStatus);
+        onStatusChange?.(newStatus);
+      }
+    };
+
+    // 초기 체크
+    checkAuthStatus();
+
+    // 주기적으로 토큰 상태 확인 (다른 탭에서 로그아웃한 경우 대비)
+    const interval = setInterval(checkAuthStatus, 1000);
+
+    return () => clearInterval(interval);
+  }, [status, onStatusChange]);
+
+  // 사용자 프로필 데이터 불러오기
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      if (status === "logined" && authStorage.isAuthenticated()) {
+        try {
+          const profile = await profileApi.getProfile();
+          setUserProfile(profile);
+        } catch (err) {
+          console.error("Failed to fetch user profile:", err);
+          // 프로필 불러오기 실패 시 로그아웃 처리
+          authStorage.clearTokens();
+          setStatus("default");
+          onStatusChange?.("default");
+        }
+      } else {
+        setUserProfile(null);
+      }
+    };
+
+    fetchUserProfile();
+  }, [status, onStatusChange]);
+
+  const handleLogout = async () => {
+    try {
+      // refreshToken 가져오기
+      const refreshToken = authStorage.getRefreshToken();
+      
+      if (refreshToken) {
+        // 로그아웃 API 호출
+        await authApi.logout(refreshToken);
+      }
+    } catch (err) {
+      // API 호출 실패해도 로컬 토큰은 삭제
+      console.error("Logout API error:", err);
+    } finally {
+      // 토큰 삭제
+      authStorage.clearTokens();
+      
+      // 상태 업데이트
+      setStatus("default");
+      onStatusChange?.("default");
+      
+      // 로그인 페이지로 이동
+      navigate("/login");
+    }
   };
   const notificationRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
+  // initialStatus prop이 변경되면 상태 업데이트
   useEffect(() => {
-    setStatus(initialStatus);
+    if (initialStatus !== undefined) {
+      setStatus(initialStatus);
+    }
   }, [initialStatus]);
 
   useEffect(() => {
@@ -180,7 +257,10 @@ export default function Header({
                 }}
               >
                 <img
-                  src="https://picsum.photos/32/32?random=avatar"
+                  src={
+                    userProfile?.avatarUrl ||
+                    "https://picsum.photos/32/32?random=avatar"
+                  }
                   alt="User avatar"
                   style={{
                     width: "100%",
@@ -193,6 +273,9 @@ export default function Header({
                 isOpen={isUserMenuOpen}
                 onClose={() => setIsUserMenuOpen(false)}
                 onLogout={handleLogout}
+                userName={userProfile?.name}
+                userEmail={userProfile?.email}
+                avatarUrl={userProfile?.avatarUrl}
               />
             </div>
           </>
