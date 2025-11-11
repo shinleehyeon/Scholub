@@ -12,7 +12,8 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: "https://the-utc-operational-unity.trycloudflare.com/",
+        target:
+          "https://classification-gras-sometimes-promo.trycloudflare.com/",
         changeOrigin: true,
         secure: true,
         rewrite: (path) => path.replace(/^\/api/, "/api"),

@@ -28,6 +28,7 @@ export default function Home() {
   const [recommendedPapers, setRecommendedPapers] = useState<any[]>([]);
   const [loadingRecommended, setLoadingRecommended] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAutoSlidePaused, setIsAutoSlidePaused] = useState(false);
 
   useEffect(() => {
     const fetchHeadlines = async () => {
@@ -43,10 +44,14 @@ export default function Home() {
             "https://via.placeholder.com/1200x371/CCCCCC/666666?text=No+Image";
 
           // 작가 정보 포맷팅
-          const authorsList = paper.authors.join(", ");
+          const authorsList = paper.authors && paper.authors.length > 0 
+            ? paper.authors.join(", ") 
+            : "작가 정보 없음";
           const year = paper.issuedAt
             ? new Date(paper.issuedAt).getFullYear()
-            : new Date(paper.createdAt).getFullYear();
+            : paper.createdAt
+            ? new Date(paper.createdAt).getFullYear()
+            : new Date().getFullYear();
           const authors = `${authorsList} (${year})`;
 
           return {
@@ -248,6 +253,12 @@ export default function Home() {
   const nextSlide = () => {
     if (carouselItems.length === 0) return;
     setCurrentSlide((prev) => (prev + 1) % carouselItems.length);
+    // 사용자가 수동으로 클릭하면 자동 슬라이드 일시 중지
+    setIsAutoSlidePaused(true);
+    // 5초 후 자동 슬라이드 재개
+    setTimeout(() => {
+      setIsAutoSlidePaused(false);
+    }, 5000);
   };
 
   const prevSlide = () => {
@@ -255,16 +266,22 @@ export default function Home() {
     setCurrentSlide(
       (prev) => (prev - 1 + carouselItems.length) % carouselItems.length
     );
+    // 사용자가 수동으로 클릭하면 자동 슬라이드 일시 중지
+    setIsAutoSlidePaused(true);
+    // 5초 후 자동 슬라이드 재개
+    setTimeout(() => {
+      setIsAutoSlidePaused(false);
+    }, 5000);
   };
 
   useEffect(() => {
-    if (carouselItems.length === 0) return;
+    if (carouselItems.length === 0 || isAutoSlidePaused) return;
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % carouselItems.length);
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [carouselItems.length]);
+  }, [carouselItems.length, isAutoSlidePaused]);
 
   const currentItem = carouselItems[currentSlide] || {
     id: "loading",
