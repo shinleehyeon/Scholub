@@ -15,7 +15,7 @@ export class ApiClient {
   }
 
   private async refreshToken(): Promise<void> {
-    // 이미 리프레시 중이면 기존 Promise 반환
+
     if (this.isRefreshing && this.refreshPromise) {
       return this.refreshPromise;
     }
@@ -34,7 +34,7 @@ export class ApiClient {
           response.data.refreshToken
         );
       } catch (error) {
-        // 리프레시 실패 시 토큰 삭제
+
         authStorage.clearTokens();
         throw error;
       } finally {
@@ -59,7 +59,6 @@ export class ApiClient {
       headers["Content-Type"] = "application/json";
     }
 
-    // 토큰이 곧 만료되거나 이미 만료되었으면 리프레시 시도
     const accessToken = authStorage.getAccessToken();
     const refreshToken = authStorage.getRefreshToken();
     const shouldRefresh =
@@ -74,16 +73,16 @@ export class ApiClient {
     if (shouldRefresh) {
       try {
         await this.refreshToken();
-        // 리프레시 후 새로운 토큰으로 헤더 업데이트
+
         const newAccessToken = authStorage.getAccessToken();
         if (newAccessToken) {
           headers["Authorization"] = `Bearer ${newAccessToken}`;
         }
       } catch (error) {
-        // 리프레시 실패 시 토큰 삭제 및 로그인 페이지로 이동
+
         console.error("토큰 리프레시 실패:", error);
         authStorage.clearTokens();
-        // 인증이 필요한 요청인 경우 로그인 페이지로 이동
+
         if (accessToken) {
           window.location.href = "/login";
           throw new Error("인증이 만료되었습니다. 다시 로그인해주세요.");
@@ -91,7 +90,6 @@ export class ApiClient {
       }
     }
 
-    // 리프레시 후 헤더가 설정되지 않았으면 기본 토큰 사용
     if (!headers["Authorization"]) {
       const currentAccessToken = authStorage.getAccessToken();
       if (currentAccessToken) {
@@ -109,7 +107,7 @@ export class ApiClient {
     });
 
     if (!response.ok) {
-      // 401 또는 403 에러이고 리프레시 토큰이 있고, 아직 재시도하지 않은 경우
+
       const isAuthError = response.status === 401 || response.status === 403;
       if (
         isAuthError &&
@@ -120,9 +118,9 @@ export class ApiClient {
         !endpoint.includes("/auth/register")
       ) {
         try {
-          // 리프레시 토큰으로 액세스 토큰 갱신
+
           await this.refreshToken();
-          // 원래 요청 재시도 (재시도 카운트 증가)
+
           const retryResponse = await this.request<T>(
             endpoint,
             options,
@@ -130,14 +128,13 @@ export class ApiClient {
           );
           return retryResponse;
         } catch {
-          // 리프레시 실패 시 토큰 삭제 및 로그인 페이지로 이동
+
           authStorage.clearTokens();
           window.location.href = "/login";
           throw new Error("인증이 만료되었습니다. 다시 로그인해주세요.");
         }
       }
 
-      // 리프레시 후 재시도했는데도 401이 발생한 경우
       if (isAuthError && retryCount > 0) {
         authStorage.clearTokens();
         window.location.href = "/login";
@@ -270,7 +267,7 @@ export class ApiClient {
         await this.refreshToken();
       } catch (error) {
         console.error("토큰 자동 리프레시 실패:", error);
-        // 리프레시 실패 시 토큰 삭제는 refreshToken 내부에서 처리됨
+
       }
     }
   }

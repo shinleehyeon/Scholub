@@ -16,7 +16,6 @@ import type { Paper } from "@/shared/api/papers";
 import { useLanguage } from "@/shared/lib/language";
 import { useToast } from "@/shared/ui/Toast";
 
-// 목차 항목 타입 (실제 API 응답 구조)
 interface TableOfContentsItem {
   label: string;
   translatedLabel: string;
@@ -26,7 +25,6 @@ interface TableOfContentsItem {
   }>;
 }
 
-// 목차 항목 컴포넌트
 const TableOfContentsItem = ({
   item,
   depth = 0,
@@ -39,7 +37,6 @@ const TableOfContentsItem = ({
   parentNumber?: string;
 }) => {
   const paddingLeft = 12 + depth * 12;
-  // 번호 생성: depth 0이면 1, 2, 3..., depth 1이면 1.1, 1.2...
   const numbering =
     depth === 0 ? `${index + 1}` : `${parentNumber}.${index + 1}`;
 
@@ -60,7 +57,6 @@ const TableOfContentsItem = ({
           gap: "var(--spacing-10)",
         }}
       >
-        {/* 번호 */}
         <div
           style={{
             width: "25px",
@@ -74,7 +70,6 @@ const TableOfContentsItem = ({
         >
           {numbering}
         </div>
-        {/* 제목 */}
         <Typography.Body
           kor={item.translatedLabel}
           style={{
@@ -129,7 +124,6 @@ export default function PaperDetailPage() {
   const { showToast } = useToast();
   const [paper, setPaper] = useState<Paper | null>(null);
   const [loading, setLoading] = useState(true);
-  // 텍스트 선택 시 좌우 오렌지 바 표시를 위한 ref
   const contentRefs = useRef<(HTMLDivElement | null)[]>([]);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const popupRef = useRef<HTMLDivElement | null>(null);
@@ -145,7 +139,6 @@ export default function PaperDetailPage() {
   const popupPositionRef = useRef(popupPosition);
   const selectedTextRef = useRef(selectedText);
 
-  // API 호출
   useEffect(() => {
     const fetchPaperDetail = async () => {
       if (!paperId) {
@@ -155,11 +148,9 @@ export default function PaperDetailPage() {
 
       try {
         setLoading(true);
-        // 페이지 진입 시 스크롤을 맨 위로 이동
         window.scrollTo(0, 0);
         const paperData = await papersApi.getPaperDetail(paperId);
         setPaper(paperData);
-        // 좋아요/싫어요 상태 초기화
         setIsLiked(paperData.myReaction?.isLiked || false);
         setIsUnliked(paperData.myReaction?.isUnliked || false);
       } catch (error) {
@@ -173,23 +164,19 @@ export default function PaperDetailPage() {
     fetchPaperDetail();
   }, [paperId]);
 
-  // ref 업데이트
   useEffect(() => {
     popupPositionRef.current = popupPosition;
     selectedTextRef.current = selectedText;
   }, [popupPosition, selectedText]);
 
   useEffect(() => {
-    // 텍스트 선택 위치 계산 함수
     const getIconPosition = () => {
       const selection = window.getSelection();
 
       if (selection && selection.rangeCount > 0 && !selection.isCollapsed) {
-        // 현재 선택한 범위
         const range = selection.getRangeAt(0);
 
         if (selection.focusNode) {
-          // 반대 방향 드래그 여부
           const isBackward =
             selection.anchorNode === selection.focusNode
               ? selection.anchorOffset > selection.focusOffset
@@ -201,8 +188,8 @@ export default function PaperDetailPage() {
           const rect = rects[isBackward ? 0 : rects.length - 1];
 
           return {
-            x: isBackward ? rect.left : rect.left + rect.width, // X 좌표
-            y: rect.top, // Y 좌표
+            x: isBackward ? rect.left : rect.left + rect.width,
+            y: rect.top,
           };
         }
       } else {
@@ -216,7 +203,6 @@ export default function PaperDetailPage() {
     let scrollAnimationFrame: number | null = null;
 
     const handleMouseDown = (e: MouseEvent) => {
-      // 팝업 내부 클릭은 무시
       if (popupRef.current && popupRef.current.contains(e.target as Node)) {
         return;
       }
@@ -230,12 +216,10 @@ export default function PaperDetailPage() {
     };
 
     const handleScroll = () => {
-      // 팝업이 없으면 무시
       if (!popupPositionRef.current || !selectedTextRef.current) {
         return;
       }
 
-      // 이미 애니메이션 프레임이 예약되어 있으면 무시 (throttle 효과)
       if (scrollAnimationFrame !== null) {
         return;
       }
@@ -249,7 +233,6 @@ export default function PaperDetailPage() {
           !selection.isCollapsed &&
           selection.toString().trim() === selectedTextRef.current
         ) {
-          // 선택된 텍스트 위치 업데이트
           const position = getIconPosition();
           if (position && position.x !== 0 && position.y !== 0) {
             setPopupPosition(position);
@@ -305,12 +288,10 @@ export default function PaperDetailPage() {
           return;
         }
 
-        // 기존 바 제거
         containerRef.current
           .querySelectorAll(".selection-border-left, .selection-border-right")
           .forEach((el) => el.remove());
 
-        // 바 그리기
         try {
           const containerRect = container.getBoundingClientRect();
 
@@ -354,7 +335,6 @@ export default function PaperDetailPage() {
           console.error("Selection highlight error:", e);
         }
 
-        // 팝업 표시 (최소 2글자)
         if (selectedTextValue.length >= 2) {
           const position = getIconPosition();
           if (position && position.x !== 0 && position.y !== 0) {
@@ -460,7 +440,6 @@ export default function PaperDetailPage() {
     );
   }
 
-  // API 응답 데이터 매핑
   const paperContent = (paper.content as PaperContent) || {};
   const tableOfContents = paperContent.tableOfContents || [];
   const contents = paperContent.contents || [];
@@ -472,7 +451,7 @@ export default function PaperDetailPage() {
   const publishedYear = paper.issuedAt
     ? new Date(paper.issuedAt).getFullYear().toString()
     : "";
-  const pages = ""; // API에서 제공되지 않을 수 있음
+  const pages = "";
   const authors = paper.authors || [];
 
   return (
@@ -502,7 +481,6 @@ export default function PaperDetailPage() {
           paddingRight: showAIChat ? "532px" : "var(--padding)",
         }}
       >
-        {/* 이미지와 글자 레이아웃 */}
         <div
           style={{
             display: "flex",
@@ -514,7 +492,6 @@ export default function PaperDetailPage() {
             margin: "0 auto",
           }}
         >
-          {/* 왼쪽 - 썸네일 */}
           <div
             style={{
               display: "flex",
@@ -539,7 +516,6 @@ export default function PaperDetailPage() {
             />
           </div>
 
-          {/* 오른쪽 - 글자 레이아웃 */}
           <div
             style={{
               display: "flex",
@@ -549,7 +525,6 @@ export default function PaperDetailPage() {
               flex: 1,
             }}
           >
-            {/* 카테고리 */}
             <div
               style={{
                 color: "var(--color-text-brand-default)",
@@ -564,7 +539,6 @@ export default function PaperDetailPage() {
               {paper.categories[0] || ""}
             </div>
 
-            {/* 제목 */}
             <div
               style={{
                 color: "#322F29",
@@ -579,7 +553,6 @@ export default function PaperDetailPage() {
               {paper.title}
             </div>
 
-            {/* 요약 */}
             <div
               style={{
                 color: "var(--color-text-subtle)",
@@ -594,7 +567,6 @@ export default function PaperDetailPage() {
               {paper.summary || paper.translatedSummary || ""}
             </div>
 
-            {/* 메타데이터 레이아웃 */}
             <div
               style={{
                 display: "flex",
@@ -603,7 +575,6 @@ export default function PaperDetailPage() {
                 width: "100%",
               }}
             >
-              {/* 왼쪽 - 회색 라벨들 */}
               <div
                 style={{
                   display: "flex",
@@ -662,7 +633,6 @@ export default function PaperDetailPage() {
                 </div>
               </div>
 
-              {/* 오른쪽 - 검은색 값들 */}
               <div
                 style={{
                   display: "flex",
@@ -725,7 +695,6 @@ export default function PaperDetailPage() {
               </div>
             </div>
 
-            {/* 버튼 레이아웃 */}
             <div
               style={{
                 display: "flex",
@@ -778,7 +747,6 @@ export default function PaperDetailPage() {
           </div>
         </div>
 
-        {/* 목차 섹션 */}
         <div
           style={{
             display: "flex",
@@ -791,7 +759,6 @@ export default function PaperDetailPage() {
             margin: "0 auto",
           }}
         >
-          {/* 목차 제목 */}
           <div
             style={{
               color: "#322F29",
@@ -805,7 +772,6 @@ export default function PaperDetailPage() {
             목차
           </div>
 
-          {/* 구분선 */}
           <div
             style={{
               background: "var(--color-border-default)",
@@ -815,7 +781,6 @@ export default function PaperDetailPage() {
             }}
           />
 
-          {/* 목차 항목들 */}
           <div
             style={{
               display: "flex",
@@ -831,7 +796,6 @@ export default function PaperDetailPage() {
           </div>
         </div>
 
-        {/* 본문 섹션 */}
         {contents.map((content, index) => (
           <div
             key={index}
@@ -846,7 +810,6 @@ export default function PaperDetailPage() {
               margin: "0 auto",
             }}
           >
-            {/* 본문 제목 */}
             <Typography.Headline
               kor={content.translatedLabel}
               style={{
@@ -865,7 +828,6 @@ export default function PaperDetailPage() {
               }}
             />
 
-            {/* 본문 내용 */}
             <div
               ref={(el) => {
                 contentRefs.current[index] = el;
@@ -887,7 +849,6 @@ export default function PaperDetailPage() {
                 : content.content || ""}
             </div>
 
-            {/* 이미지가 있는 경우 */}
             {content.imageUrl && (
               <div
                 style={{
@@ -927,7 +888,6 @@ export default function PaperDetailPage() {
           </div>
         ))}
 
-        {/* 피드백 섹션 */}
         <div
           style={{
             display: "flex",
@@ -943,7 +903,6 @@ export default function PaperDetailPage() {
             margin: "0 auto",
           }}
         >
-          {/* 위쪽 글자 영역 */}
           <div
             style={{
               display: "flex",
@@ -952,7 +911,6 @@ export default function PaperDetailPage() {
               gap: "var(--spacing-4)",
             }}
           >
-            {/* 논문 제목 */}
             <div
               style={{
                 color: "#322F29",
@@ -966,7 +924,6 @@ export default function PaperDetailPage() {
             >
               {paper.title}
             </div>
-            {/* 질문 */}
             <div
               style={{
                 color: "#000",
@@ -982,7 +939,6 @@ export default function PaperDetailPage() {
             </div>
           </div>
 
-          {/* 피드백 옵션들 */}
           <div
             style={{
               display: "flex",
@@ -991,7 +947,6 @@ export default function PaperDetailPage() {
               background: "var(--color-surface-subtle)",
             }}
           >
-            {/* 좋아요 */}
             <div
               onClick={async () => {
                 if (!paperId) return;
@@ -1064,7 +1019,6 @@ export default function PaperDetailPage() {
               </div>
             </div>
 
-            {/* 싫어요 */}
             <div
               onClick={async () => {
                 if (!paperId) return;
@@ -1136,7 +1090,6 @@ export default function PaperDetailPage() {
           </div>
         </div>
 
-        {/* 토론 섹션 */}
         <div
           style={{
             display: "flex",
@@ -1150,7 +1103,6 @@ export default function PaperDetailPage() {
             marginTop: "var(--spacing-32)",
           }}
         >
-          {/* 토론 제목 */}
           <div
             style={{
               color: "#322F29",
@@ -1164,7 +1116,6 @@ export default function PaperDetailPage() {
             토론
           </div>
 
-          {/* 활성화 토론 카드 */}
           <div
             style={{
               display: "flex",
@@ -1177,7 +1128,6 @@ export default function PaperDetailPage() {
               background: "var(--color-surface-subtle)",
             }}
           >
-            {/* 왼쪽 글자 영역 */}
             <div
               style={{
                 display: "flex",
@@ -1212,13 +1162,11 @@ export default function PaperDetailPage() {
               </div>
             </div>
 
-            {/* 오른쪽 버튼 */}
             <Button variant="primary" size="medium">
               토론 시작하기
             </Button>
           </div>
 
-          {/* 토론 카드들 */}
           <div
             style={{
               display: "flex",
@@ -1228,7 +1176,6 @@ export default function PaperDetailPage() {
               alignSelf: "stretch",
             }}
           >
-            {/* 토론 카드 1 */}
             <div
               style={{
                 display: "flex",
@@ -1241,7 +1188,6 @@ export default function PaperDetailPage() {
                 background: "var(--color-surface-default)",
               }}
             >
-              {/* 왼쪽 영역 */}
               <div
                 style={{
                   display: "flex",
@@ -1250,7 +1196,7 @@ export default function PaperDetailPage() {
                 }}
               >
                 <DocumentPaper size={26} />
-                {/* 글자 레이아웃 */}
+
                 <div
                   style={{
                     display: "flex",
@@ -1295,11 +1241,9 @@ export default function PaperDetailPage() {
                 </div>
               </div>
 
-              {/* 오른쪽 아이콘 */}
               <ChevronRight size={24} fillColor="#7D7D7D" />
             </div>
 
-            {/* 토론 카드 2 */}
             <div
               style={{
                 display: "flex",
@@ -1312,7 +1256,6 @@ export default function PaperDetailPage() {
                 background: "var(--color-surface-default)",
               }}
             >
-              {/* 왼쪽 영역 */}
               <div
                 style={{
                   display: "flex",
@@ -1321,7 +1264,7 @@ export default function PaperDetailPage() {
                 }}
               >
                 <DocumentPaper size={26} />
-                {/* 글자 레이아웃 */}
+
                 <div
                   style={{
                     display: "flex",
@@ -1366,11 +1309,9 @@ export default function PaperDetailPage() {
                 </div>
               </div>
 
-              {/* 오른쪽 아이콘 */}
               <ChevronRight size={24} fillColor="#7D7D7D" />
             </div>
 
-            {/* 토론 카드 3 */}
             <div
               style={{
                 display: "flex",
@@ -1383,7 +1324,6 @@ export default function PaperDetailPage() {
                 background: "var(--color-surface-default)",
               }}
             >
-              {/* 왼쪽 영역 */}
               <div
                 style={{
                   display: "flex",
@@ -1392,7 +1332,7 @@ export default function PaperDetailPage() {
                 }}
               >
                 <DocumentPaper size={26} />
-                {/* 글자 레이아웃 */}
+
                 <div
                   style={{
                     display: "flex",
@@ -1437,14 +1377,12 @@ export default function PaperDetailPage() {
                 </div>
               </div>
 
-              {/* 오른쪽 아이콘 */}
               <ChevronRight size={24} fillColor="#7D7D7D" />
             </div>
           </div>
         </div>
       </div>
 
-      {/* 텍스트 선택 팝업 */}
       {popupPosition && popupPosition.x !== 0 && popupPosition.y !== 0 && (
         <div
           ref={popupRef}
@@ -1480,7 +1418,6 @@ export default function PaperDetailPage() {
             }}
             onClick={(e) => {
               e.stopPropagation();
-              // 채팅으로 전송 기능 구현
               setSelectedTextForChat(selectedText);
               setShowAIChat(true);
               setPopupPosition(null);
@@ -1493,7 +1430,6 @@ export default function PaperDetailPage() {
         </div>
       )}
 
-      {/* AI 채팅 위젯 */}
       {showAIChat && (
         <AIChat
           onClose={() => {

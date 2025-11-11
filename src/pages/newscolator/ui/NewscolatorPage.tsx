@@ -17,17 +17,15 @@ export default function NewscolatorPage() {
         const papers = await papersApi.getLatestPapers(20);
 
         const formattedPapers = papers.map((paper) => {
-          // 이미지 URL 구성: URL 형태로 직접 제공되는 경우만 사용
+
           const imageUrl =
             paper.thumbnailUrl ||
             paper.imageUrl ||
             paper.coverImage ||
             "https://via.placeholder.com/228x128/CCCCCC/666666?text=No+Image";
 
-          // 카테고리 포맷팅 (배열을 " > "로 연결)
           const category = paper.categories.join(" > ") || "분류 없음";
 
-          // 설명(description)은 summary 사용, 없으면 빈 문자열
           const description = paper.summary || "";
 
           return {
@@ -38,7 +36,7 @@ export default function NewscolatorPage() {
             description,
             category,
             likes: paper.likeCount || 0,
-            comments: 0, // API 응답에 댓글 수가 없으므로 기본값 0
+            comments: 0,
             isLiked: paper.myReaction?.isLiked || false,
           };
         });

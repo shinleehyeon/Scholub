@@ -73,7 +73,6 @@ export const notificationsApi = {
 
     const response = await apiClient.get<NotificationsResponse>(endpoint);
 
-    // API 응답 구조에 맞게 notifications 배열을 items로 변환
     const notifications = response.data?.notifications || [];
     const total = response.data?.total || response.total || 0;
     const page = response.data?.page || response.page || 1;

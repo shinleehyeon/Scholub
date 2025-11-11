@@ -39,8 +39,7 @@ const TypographyComponent = forwardRef<HTMLElement, TypographyProps>(
   ({ className, variant, color, children, kor, as, ...props }, ref) => {
     const { language } = useLanguage();
     const Component = as || getDefaultElement(variant || "body");
-    
-    // 언어에 따라 표시할 텍스트 결정
+
     const displayText = language === "ko" && kor ? kor : children;
 
     return (

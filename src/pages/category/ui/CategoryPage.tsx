@@ -9,7 +9,7 @@ import { papersApi } from "@/shared/api/papers";
 
 export default function CategoryPage() {
   const { categoryId } = useParams<{ categoryId: string }>();
-  // URL 인코딩된 카테고리 이름을 디코딩
+
   const categoryName = categoryId ? decodeURIComponent(categoryId) : "";
 
   const [papers, setPapers] = useState<any[]>([]);

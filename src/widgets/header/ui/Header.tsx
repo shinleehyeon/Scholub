@@ -53,7 +53,6 @@ export default function Header({
     return () => clearInterval(interval);
   }, [status, onStatusChange]);
 
-  // 주기적으로 토큰이 곧 만료되면 자동으로 리프레시 (1분마다)
   useEffect(() => {
     const refreshTokenIfNeeded = async () => {
       if (authStorage.isAuthenticated()) {
@@ -67,7 +66,6 @@ export default function Header({
 
     refreshTokenIfNeeded();
 
-    // 1분마다 토큰 확인 및 리프레시
     const interval = setInterval(refreshTokenIfNeeded, 60000);
 
     return () => clearInterval(interval);
@@ -93,7 +91,6 @@ export default function Header({
     fetchUserProfile();
   }, [status, onStatusChange]);
 
-  // 읽지 않은 알림 수만 가져오기
   useEffect(() => {
     const fetchUnreadCount = async () => {
       if (status === "logined" && authStorage.isAuthenticated()) {
@@ -110,7 +107,6 @@ export default function Header({
 
     fetchUnreadCount();
 
-    // 주기적으로 읽지 않은 알림 수 업데이트 (30초마다)
     const interval = setInterval(fetchUnreadCount, 30000);
     return () => clearInterval(interval);
   }, [status]);

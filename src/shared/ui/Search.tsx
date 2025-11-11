@@ -85,13 +85,13 @@ export { Search };
 /**
  * 사용법 예제:
  *
- * // 기본 사용
+ *
  * <Search placeholder="검색어를 입력하세요" />
  *
- * // 전체 너비
+ *
  * <Search fullWidth placeholder="검색" />
  *
- * // Controlled Component
+ *
  * const [searchValue, setSearchValue] = useState("");
  * <Search
  *   value={searchValue}
@@ -99,7 +99,7 @@ export { Search };
  *   onClear={() => setSearchValue("")}
  * />
  *
- * // ref 사용
+ *
  * const searchRef = useRef<HTMLInputElement>(null);
  * <Search ref={searchRef} />
  */

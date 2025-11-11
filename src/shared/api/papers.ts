@@ -2,27 +2,27 @@ import { apiClient } from "./client";
 
 export interface Paper {
   id: string;
-  paperId?: string; // API 응답에 있을 수 있지만, 실제로는 id를 사용
+  paperId?: string;
   title: string;
   categories: string[];
-  authors?: string[]; // 선택적 필드로 변경
+  authors?: string[];
   summary: string;
-  translatedSummary?: string; // 번역된 요약 추가
-  content?: Record<string, unknown>; // 선택적 필드로 변경
+  translatedSummary?: string;
+  content?: Record<string, unknown>;
   doi?: string;
   url?: string;
   pdfUrl?: string;
-  issuedAt?: string; // 선택적 필드로 변경
+  issuedAt?: string;
   likeCount: number;
   unlikeCount: number;
-  discussionCount?: number; // 선택적 필드로 변경 (검색 응답에 없을 수 있음)
-  totalViewCount?: number; // 선택적 필드로 변경
+  discussionCount?: number;
+  totalViewCount?: number;
   thumbnailUrl?: string;
   imageUrl?: string;
   coverImage?: string;
   pdfId?: string;
-  createdAt?: string; // 선택적 필드로 변경
-  updatedAt?: string; // 선택적 필드로 변경
+  createdAt?: string;
+  updatedAt?: string;
   myReaction?: {
     isLiked: boolean;
     isUnliked: boolean;
@@ -36,7 +36,7 @@ export interface HeadlinesResponse {
   details: string;
   data: Paper[];
   errors: Record<string, unknown> | null;
-  timestamp?: string; // 선택적 필드로 변경 (실제 응답에 없을 수 있음)
+  timestamp?: string;
 }
 
 export interface PopularPapersResponse {

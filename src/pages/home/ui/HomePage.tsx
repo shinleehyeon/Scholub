@@ -38,16 +38,15 @@ export default function Home() {
         const headlines = await papersApi.getHeadlines(1000);
 
         const items: CarouselItem[] = headlines.map((paper) => {
-          // 이미지 URL 구성: URL 형태로 직접 제공되는 경우만 사용
+
           const imageUrl =
             paper.thumbnailUrl ||
             paper.imageUrl ||
             paper.coverImage ||
             "https://via.placeholder.com/1200x371/CCCCCC/666666?text=No+Image";
 
-          // 작가 정보 포맷팅
-          const authorsList = paper.authors && paper.authors.length > 0 
-            ? paper.authors.join(", ") 
+          const authorsList = paper.authors && paper.authors.length > 0
+            ? paper.authors.join(", ")
             : "작가 정보 없음";
           const year = paper.issuedAt
             ? new Date(paper.issuedAt).getFullYear()
@@ -70,7 +69,7 @@ export default function Home() {
         }
       } catch (error) {
         console.error("헤드라인 로드 실패:", error);
-        // 404 에러는 데이터가 없는 것으로 처리
+
         const errorMessage = error instanceof Error ? error.message : "";
         if (
           errorMessage.includes("404") ||
@@ -86,7 +85,7 @@ export default function Home() {
             },
           ]);
         } else {
-          // 다른 에러 발생 시 기본값 사용
+
           setCarouselItems([
             {
               id: "error",
@@ -110,17 +109,15 @@ export default function Home() {
         const papers = await papersApi.getPopularPapers(1000, 90);
 
         const formattedPapers = papers.map((paper) => {
-          // 이미지 URL 구성: URL 형태로 직접 제공되는 경우만 사용
+
           const imageUrl =
             paper.thumbnailUrl ||
             paper.imageUrl ||
             paper.coverImage ||
             "https://via.placeholder.com/300x169/CCCCCC/666666?text=No+Image";
 
-          // 카테고리 포맷팅 (배열을 " > "로 연결)
           const category = paper.categories.join(" > ") || "분류 없음";
 
-          // 요약(subtitle)은 summary 사용, 없으면 빈 문자열
           const subtitle = paper.summary || "";
 
           return {
@@ -152,17 +149,15 @@ export default function Home() {
         const papers = await papersApi.getLatestPapers(1000);
 
         const formattedPapers = papers.map((paper) => {
-          // 이미지 URL 구성: URL 형태로 직접 제공되는 경우만 사용
+
           const imageUrl =
             paper.thumbnailUrl ||
             paper.imageUrl ||
             paper.coverImage ||
             "https://via.placeholder.com/228x128/CCCCCC/666666?text=No+Image";
 
-          // 카테고리 포맷팅 (배열을 " > "로 연결)
           const category = paper.categories.join(" > ") || "분류 없음";
 
-          // 설명(description)은 summary 사용, 없으면 빈 문자열
           const description = paper.summary || "";
 
           return {
@@ -173,7 +168,7 @@ export default function Home() {
             description,
             category,
             likes: paper.likeCount || 0,
-            comments: 0, // API 응답에 댓글 수가 없으므로 기본값 0
+            comments: 0,
             isLiked: paper.myReaction?.isLiked || false,
           };
         });
@@ -191,20 +186,20 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    // 로그인 상태 확인
+
     const checkAuth = () => {
       setIsAuthenticated(authStorage.isAuthenticated());
     };
 
     checkAuth();
-    // 주기적으로 로그인 상태 확인 (1초마다)
+
     const interval = setInterval(checkAuth, 1000);
     return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
     const fetchRecommendedPapers = async () => {
-      // 로그인하지 않은 경우 API 호출하지 않음
+
       if (!authStorage.isAuthenticated()) {
         setLoadingRecommended(false);
         return;
@@ -215,17 +210,15 @@ export default function Home() {
         const papers = await papersApi.getRecommendedPapers(1000);
 
         const formattedPapers = papers.map((paper) => {
-          // 이미지 URL 구성: URL 형태로 직접 제공되는 경우만 사용
+
           const imageUrl =
             paper.thumbnailUrl ||
             paper.imageUrl ||
             paper.coverImage ||
             "https://via.placeholder.com/228x128/CCCCCC/666666?text=No+Image";
 
-          // 카테고리 포맷팅 (배열을 " > "로 연결)
           const category = paper.categories.join(" > ") || "분류 없음";
 
-          // 설명(description)은 summary 사용, 없으면 빈 문자열
           const description = paper.summary || "";
 
           return {
@@ -236,7 +229,7 @@ export default function Home() {
             description,
             category,
             likes: paper.likeCount || 0,
-            comments: 0, // API 응답에 댓글 수가 없으므로 기본값 0
+            comments: 0,
             isLiked: paper.myReaction?.isLiked || false,
           };
         });
@@ -256,9 +249,9 @@ export default function Home() {
   const nextSlide = () => {
     if (carouselItems.length === 0) return;
     setCurrentSlide((prev) => (prev + 1) % carouselItems.length);
-    // 사용자가 수동으로 클릭하면 자동 슬라이드 일시 중지
+
     setIsAutoSlidePaused(true);
-    // 5초 후 자동 슬라이드 재개
+
     setTimeout(() => {
       setIsAutoSlidePaused(false);
     }, 5000);
@@ -269,9 +262,9 @@ export default function Home() {
     setCurrentSlide(
       (prev) => (prev - 1 + carouselItems.length) % carouselItems.length
     );
-    // 사용자가 수동으로 클릭하면 자동 슬라이드 일시 중지
+
     setIsAutoSlidePaused(true);
-    // 5초 후 자동 슬라이드 재개
+
     setTimeout(() => {
       setIsAutoSlidePaused(false);
     }, 5000);

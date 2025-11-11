@@ -32,11 +32,9 @@ function isTokenExpired(token: string): boolean {
   const decoded = decodeJWT(token);
   if (!decoded || !decoded.exp) return true;
 
-  // exp는 초 단위이므로 밀리초로 변환
   const expirationTime = decoded.exp * 1000;
   const now = Date.now();
 
-  // 만료 시간이 현재 시간보다 이전이면 만료됨
   return expirationTime < now;
 }
 
@@ -47,12 +45,10 @@ function isTokenExpiringSoon(token: string): boolean {
   const decoded = decodeJWT(token);
   if (!decoded || !decoded.exp) return true;
 
-  // exp는 초 단위이므로 밀리초로 변환
   const expirationTime = decoded.exp * 1000;
   const now = Date.now();
-  const fiveMinutes = 5 * 60 * 1000; // 5분
+  const fiveMinutes = 5 * 60 * 1000;
 
-  // 만료 시간이 현재 시간 + 5분보다 이전이면 곧 만료됨
   return expirationTime < now + fiveMinutes;
 }
 
@@ -108,7 +104,6 @@ export const authStorage = {
     const token = this.getAccessToken();
     if (!token) return false;
 
-    // 토큰이 만료되었으면 인증되지 않은 것으로 처리
     if (isTokenExpired(token)) {
       return false;
     }

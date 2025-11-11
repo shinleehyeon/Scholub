@@ -37,7 +37,6 @@ export default function LatestResearchCard({
   const hasUserInteracted = useRef(false);
   const previousPaperId = useRef(paperId);
 
-  // paperId가 변경되면 상호작용 플래그 리셋 및 초기 상태 설정
   useEffect(() => {
     if (previousPaperId.current !== paperId) {
       hasUserInteracted.current = false;
@@ -47,7 +46,6 @@ export default function LatestResearchCard({
     }
   }, [paperId, initialIsLiked, initialLikes]);
 
-  // prop이 변경될 때 상태 동기화 (사용자 상호작용이 없을 때만)
   useEffect(() => {
     if (!hasUserInteracted.current) {
       setIsLiked(initialIsLiked);
@@ -61,7 +59,7 @@ export default function LatestResearchCard({
   }, [initialLikes]);
 
   const handleLikeClick = async () => {
-    // 중복 클릭 방지
+
     if (isLoading) return;
 
     if (!paperId || paperId.trim() === "") {
@@ -69,10 +67,8 @@ export default function LatestResearchCard({
       return;
     }
 
-    // 사용자 상호작용 플래그 설정
     hasUserInteracted.current = true;
 
-    // 낙관적 업데이트: 즉시 UI 반영
     const previousIsLiked = isLiked;
     const previousLikes = likes;
     const newIsLiked = !previousIsLiked;
@@ -80,40 +76,33 @@ export default function LatestResearchCard({
       ? previousLikes + 1
       : Math.max(0, previousLikes - 1);
 
-    // 즉시 로딩 상태로 변경하여 중복 클릭 방지
     setIsLoading(true);
     setIsLiked(newIsLiked);
     setLikes(newLikes);
 
-    // 부모 컴포넌트에 상태 변경 알림 (즉시)
     if (onLikeChange) {
       onLikeChange(paperId, newIsLiked);
     }
 
     try {
-      // 현재 상태에 따라 LIKE 또는 UNLIKE 전송
+
       const reactionType = previousIsLiked ? "UNLIKE" : "LIKE";
       const result = await papersApi.toggleReaction(paperId, reactionType);
 
       console.log("API 응답:", result);
 
-      // API 응답이 성공하면 낙관적 업데이트 유지
-      // 좋아요 수가 응답에 포함되어 있으면 사용
       if (result.likeCount !== undefined) {
         setLikes(result.likeCount);
       }
-      // isLiked는 낙관적 업데이트를 유지 (이미 위에서 업데이트했으므로 변경 없음)
 
-      // 부모 컴포넌트에 최종 상태 알림 (낙관적 업데이트 상태 사용)
       if (onLikeChange) {
         onLikeChange(paperId, newIsLiked);
       }
     } catch (error) {
-      // 에러 발생 시 롤백
+
       setIsLiked(previousIsLiked);
       setLikes(previousLikes);
 
-      // 부모 컴포넌트에 롤백 알림
       if (onLikeChange) {
         onLikeChange(paperId, previousIsLiked);
       }
@@ -124,7 +113,6 @@ export default function LatestResearchCard({
       if (error instanceof Error) {
         const message = error.message;
 
-        // API 에러 메시지 처리
         if (
           message.includes("Invalid reference") ||
           message.includes("does not exist")

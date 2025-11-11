@@ -12,7 +12,7 @@ export default function SubHeader() {
       try {
         setLoading(true);
         const categories = await categoriesApi.getCategories();
-        // count 기준으로 정렬하여 상위 3개 선택
+
         const sorted = [...categories].sort((a, b) => b.count - a.count);
         setTopCategories(sorted.slice(0, 3));
       } catch (error) {

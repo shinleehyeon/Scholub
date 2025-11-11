@@ -46,7 +46,6 @@ export default function AIChat({
       setContextText("");
       setIsThinking(true);
 
-      // AI 응답 시뮬레이션 (실제로는 API 호출)
       setTimeout(() => {
         setIsThinking(false);
         setMessages((prev) => [
@@ -76,7 +75,7 @@ export default function AIChat({
         zIndex: 1000,
       }}
     >
-      {/* 상단 레이아웃 */}
+
       <div
         style={{
           display: "flex",
@@ -115,7 +114,6 @@ export default function AIChat({
         </button>
       </div>
 
-      {/* 가운데 영역 */}
       {messages.length === 0 ? (
         <div
           style={{
@@ -125,7 +123,7 @@ export default function AIChat({
             gap: "10px",
           }}
         >
-          {/* 가운데 위쪽 */}
+
           <div
             style={{
               display: "flex",
@@ -160,7 +158,6 @@ export default function AIChat({
               Scholub AI에게 궁금한 것을 물어보세요
             </div>
 
-            {/* 아래 레이아웃 - 제안 질문들 */}
             <div
               style={{
                 display: "flex",
@@ -272,7 +269,6 @@ export default function AIChat({
         </div>
       )}
 
-      {/* 하단 메시지 입력 영역 */}
       <div
         style={{
           display: "flex",
@@ -282,7 +278,7 @@ export default function AIChat({
           alignSelf: "stretch",
         }}
       >
-        {/* 검색 결과 링크 */}
+
         {paperTitle && (
           <div
             style={{
@@ -319,7 +315,6 @@ export default function AIChat({
           </div>
         )}
 
-        {/* 입력 필드와 보내기 버튼 */}
         <div
           style={{
             display: "flex",
@@ -332,7 +327,7 @@ export default function AIChat({
             background: "var(--color-surface-default)",
           }}
         >
-          {/* 컨텍스트 뱃지 */}
+
           {contextText && (
             <div
               onMouseEnter={() => setIsHoveringContext(true)}

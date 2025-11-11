@@ -41,7 +41,7 @@ export default function ProfilePage() {
 
   useEffect(() => {
     const fetchProfileData = async () => {
-      // 프로필 정보는 반드시 로드
+
       try {
         setLoadingProfile(true);
         const profileData = await profileApi.getProfile();
@@ -56,26 +56,22 @@ export default function ProfilePage() {
         setLoadingProfile(false);
       }
 
-      // 반응한 논문 목록 (실패해도 계속 진행)
       try {
         setLoadingReactions(true);
         const reactions = await profileApi.getReactionPapers();
 
-        // API 응답을 Paper 형식으로 변환
         const formattedPapers = reactions.map((paper) => {
-          // 이미지 URL 구성
+
           const imageUrl =
             paper.thumbnailUrl ||
             paper.imageUrl ||
             paper.coverImage ||
             "https://via.placeholder.com/228x128/CCCCCC/666666?text=No+Image";
 
-          // 카테고리 포맷팅
           const category =
             paper.category ||
             (paper.categories ? paper.categories.join(" > ") : "분류 없음");
 
-          // 설명
           const description = paper.description || paper.summary || "";
 
           return {
@@ -95,31 +91,27 @@ export default function ProfilePage() {
       } catch (err) {
         console.error("반응한 논문 로드 실패:", err);
         setReactionPapers([]);
-        // 에러는 조용히 처리 (프로필은 표시되어야 함)
+
       } finally {
         setLoadingReactions(false);
       }
 
-      // 토론한 논문 목록 (실패해도 계속 진행)
       try {
         setLoadingComments(true);
         const discussed = await profileApi.getDiscussedPapers();
 
-        // API 응답을 Paper 형식으로 변환
         const formattedPapers = discussed.map((paper) => {
-          // 이미지 URL 구성
+
           const imageUrl =
             paper.thumbnailUrl ||
             paper.imageUrl ||
             paper.coverImage ||
             "https://via.placeholder.com/228x128/CCCCCC/666666?text=No+Image";
 
-          // 카테고리 포맷팅
           const category =
             paper.category ||
             (paper.categories ? paper.categories.join(" > ") : "분류 없음");
 
-          // 설명
           const description = paper.description || paper.summary || "";
 
           return {
@@ -139,7 +131,7 @@ export default function ProfilePage() {
       } catch (err) {
         console.error("토론한 논문 로드 실패:", err);
         setCommentPapers([]);
-        // 에러는 조용히 처리 (프로필은 표시되어야 함)
+
       } finally {
         setLoadingComments(false);
       }
@@ -148,7 +140,6 @@ export default function ProfilePage() {
     fetchProfileData();
   }, [showToast]);
 
-  // 반응한 논문 목록만 다시 불러오기
   const fetchReactionPapers = async () => {
     try {
       setLoadingReactions(true);
@@ -167,8 +158,6 @@ export default function ProfilePage() {
 
         const description = paper.description || paper.summary || "";
 
-        // "내가 반응한 논문"이므로 항상 isLiked는 true여야 함
-        // 하지만 API 응답에 myReaction이 없을 수도 있으므로 기본값을 true로 설정
         const isLiked = paper.myReaction?.isLiked ?? true;
 
         console.log("반응한 논문:", {
@@ -200,26 +189,23 @@ export default function ProfilePage() {
     }
   };
 
-  // 하트 클릭 시 호출되는 핸들러
   const handleReactionLikeChange = async (
     paperId: string,
     isLiked: boolean
   ) => {
-    // 낙관적 업데이트: 즉시 UI 반영
+
     setReactionPapers((prev) => {
       if (!isLiked) {
-        // 하트가 취소되면 목록에서 제거
+
         return prev.filter((paper) => paper.paperId !== paperId);
       } else {
-        // 하트가 추가되면 목록에 있으면 상태만 업데이트, 없으면 추가하지 않음 (이미 목록에 있으므로)
+
         return prev.map((paper) =>
           paper.paperId === paperId ? { ...paper, isLiked: true } : paper
         );
       }
     });
 
-    // API 요청이 완료된 후 서버 상태와 동기화
-    // 하트가 취소되면 목록을 다시 불러와서 최신 상태 확인
     if (!isLiked) {
       try {
         await fetchReactionPapers();

@@ -44,4 +44,3 @@ const Send = ({ size = 16, className = "", color, style, ...props }: SendProps) 
 };
 
 export default Send;
-

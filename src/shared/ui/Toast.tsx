@@ -21,7 +21,6 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       const id = Math.random().toString(36).substr(2, 9);
       setToasts((prev) => [...prev, { id, message, type }]);
 
-      // 5초 후 자동 제거
       setTimeout(() => {
         setToasts((prev) => prev.filter((toast) => toast.id !== id));
       }, 5000);
@@ -127,4 +126,3 @@ export function useToast() {
   }
   return context;
 }
-

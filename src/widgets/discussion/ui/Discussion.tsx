@@ -29,7 +29,7 @@ export default function Discussion({
         background: "var(--color-surface-default)",
       }}
     >
-      {/* 헤더 */}
+
       <div
         style={{
           display: "flex",
@@ -99,7 +99,6 @@ export default function Discussion({
         </button>
       </div>
 
-      {/* 메시지 영역 */}
       <div
         style={{
           display: "flex",
@@ -112,7 +111,7 @@ export default function Discussion({
           overflowY: "auto",
         }}
       >
-        {/* 내가 보낸 메시지 */}
+
         <div
           style={{
             display: "flex",
@@ -161,7 +160,6 @@ export default function Discussion({
           </div>
         </div>
 
-        {/* 상대가 보낸 메시지 */}
         <div
           style={{
             display: "flex",
@@ -244,7 +242,6 @@ export default function Discussion({
         </div>
       </div>
 
-      {/* 입력 영역 */}
       <div
         style={{
           display: "flex",

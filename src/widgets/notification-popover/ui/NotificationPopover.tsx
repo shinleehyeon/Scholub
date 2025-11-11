@@ -30,7 +30,6 @@ export default function NotificationPopover({
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // 타임스탬프 포맷팅 함수
   const formatTimestamp = (dateString: string): string => {
     const date = new Date(dateString);
     const now = new Date();
@@ -46,7 +45,6 @@ export default function NotificationPopover({
     return date.toLocaleDateString("ko-KR");
   };
 
-  // 알림 목록 가져오기
   useEffect(() => {
     const fetchNotifications = async () => {
       if (isOpen) {
