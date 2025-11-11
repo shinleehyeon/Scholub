@@ -1,7 +1,7 @@
 import { Header } from "@/widgets/header";
 import { SubHeader } from "@/widgets/sub-header";
 import { AIChat } from "@/widgets/ai-chat";
-import { Button } from "@/shared/ui";
+import { Button, Typography } from "@/shared/ui";
 import Sparkles from "@/shared/ui/icons/Sparkles";
 import SmileLike from "@/shared/ui/icons/SmileLike";
 import FrownDislike from "@/shared/ui/icons/FrownDislike";
@@ -13,6 +13,8 @@ import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { papersApi } from "@/shared/api/papers";
 import type { Paper } from "@/shared/api/papers";
+import { useLanguage } from "@/shared/lib/language";
+import { useToast } from "@/shared/ui/Toast";
 
 // 목차 항목 타입 (실제 API 응답 구조)
 interface TableOfContentsItem {
@@ -73,18 +75,14 @@ const TableOfContentsItem = ({
           {numbering}
         </div>
         {/* 제목 */}
-        <div
+        <Typography.Body
+          kor={item.translatedLabel}
           style={{
             color: "#000",
-            fontFamily: "Pretendard",
-            fontSize: "17px",
-            fontStyle: "normal",
-            fontWeight: 500,
-            lineHeight: "24px",
           }}
         >
-          {item.translatedLabel}
-        </div>
+          {item.label}
+        </Typography.Body>
       </div>
       {item.subContents && item.subContents.length > 0 && (
         <div
@@ -127,6 +125,8 @@ interface PaperContent {
 
 export default function PaperDetailPage() {
   const { paperId } = useParams<{ paperId: string }>();
+  const { language, setLanguage } = useLanguage();
+  const { showToast } = useToast();
   const [paper, setPaper] = useState<Paper | null>(null);
   const [loading, setLoading] = useState(true);
   // 텍스트 선택 시 좌우 오렌지 바 표시를 위한 ref
@@ -140,6 +140,8 @@ export default function PaperDetailPage() {
   const [selectedText, setSelectedText] = useState<string>("");
   const [showAIChat, setShowAIChat] = useState<boolean>(false);
   const [selectedTextForChat, setSelectedTextForChat] = useState<string>("");
+  const [isLiked, setIsLiked] = useState(false);
+  const [isUnliked, setIsUnliked] = useState(false);
   const popupPositionRef = useRef(popupPosition);
   const selectedTextRef = useRef(selectedText);
 
@@ -157,6 +159,9 @@ export default function PaperDetailPage() {
         window.scrollTo(0, 0);
         const paperData = await papersApi.getPaperDetail(paperId);
         setPaper(paperData);
+        // 좋아요/싫어요 상태 초기화
+        setIsLiked(paperData.myReaction?.isLiked || false);
+        setIsUnliked(paperData.myReaction?.isUnliked || false);
       } catch (error) {
         console.error("논문 상세 정보 로드 실패:", error);
         setPaper(null);
@@ -752,6 +757,23 @@ export default function PaperDetailPage() {
               >
                 토론하러가기
               </Button>
+              <div style={{ marginLeft: "auto" }}>
+                <Button
+                  variant="secondary"
+                  size="medium"
+                  onClick={() => setLanguage(language === "ko" ? "en" : "ko")}
+                  style={{
+                    color: "#F7971D",
+                    background: "transparent",
+                    border: "none",
+                    textDecoration: "underline",
+                    textDecorationColor: "#F7971D",
+                    textUnderlineOffset: "4px",
+                  }}
+                >
+                  전체 번역
+                </Button>
+              </div>
             </div>
           </div>
         </div>
@@ -825,18 +847,14 @@ export default function PaperDetailPage() {
             }}
           >
             {/* 본문 제목 */}
-            <div
+            <Typography.Headline
+              kor={content.translatedLabel}
               style={{
                 color: "#322F29",
-                fontFamily: "Pretendard",
-                fontSize: "24px",
-                fontStyle: "normal",
-                fontWeight: 600,
-                lineHeight: "30px",
               }}
             >
-              {content.translatedLabel}
-            </div>
+              {content.label || ""}
+            </Typography.Headline>
 
             <div
               style={{
@@ -853,7 +871,7 @@ export default function PaperDetailPage() {
                 contentRefs.current[index] = el;
               }}
               style={{
-                color: "#000",
+                color: "#322F29",
                 fontFamily: "Pretendard",
                 fontSize: "17px",
                 fontStyle: "normal",
@@ -864,7 +882,9 @@ export default function PaperDetailPage() {
                 position: "relative",
               }}
             >
-              {content.translatedContent}
+              {language === "ko" && content.translatedContent
+                ? content.translatedContent
+                : content.content || ""}
             </div>
 
             {/* 이미지가 있는 경우 */}
@@ -973,12 +993,43 @@ export default function PaperDetailPage() {
           >
             {/* 좋아요 */}
             <div
+              onClick={async () => {
+                if (!paperId) return;
+                try {
+                  const result = await papersApi.toggleReaction(
+                    paperId,
+                    "LIKE"
+                  );
+                  setIsLiked(result.isReacted);
+                  if (result.isReacted) {
+                    setIsUnliked(false);
+                  }
+                  if (paper && result.likeCount !== undefined) {
+                    setPaper({ ...paper, likeCount: result.likeCount });
+                  }
+                } catch (error) {
+                  console.error("좋아요 토글 실패:", error);
+                  let errorMessage = "좋아요 처리에 실패했습니다.";
+                  if (error instanceof Error) {
+                    if (
+                      error.message.includes("Invalid reference") ||
+                      error.message.includes("does not exist")
+                    ) {
+                      errorMessage = "해당 논문을 찾을 수 없습니다.";
+                    } else {
+                      errorMessage = error.message;
+                    }
+                  }
+                  showToast(errorMessage, "error");
+                }
+              }}
               style={{
                 display: "flex",
                 width: "110px",
                 flexDirection: "column",
                 alignItems: "center",
                 gap: "4px",
+                cursor: "pointer",
               }}
             >
               <div
@@ -994,7 +1045,10 @@ export default function PaperDetailPage() {
               >
                 좋아요
               </div>
-              <SmileLike size={50} />
+              <SmileLike
+                size={50}
+                color={isLiked ? "var(--color-brand-default)" : "#A9A8A6"}
+              />
               <div
                 style={{
                   color: "#322F29",
@@ -1006,18 +1060,46 @@ export default function PaperDetailPage() {
                   lineHeight: "20px",
                 }}
               >
-                13명
+                {paper?.likeCount || 0}명
               </div>
             </div>
 
             {/* 싫어요 */}
             <div
+              onClick={async () => {
+                if (!paperId) return;
+                try {
+                  const result = await papersApi.toggleReaction(
+                    paperId,
+                    "UNLIKE"
+                  );
+                  setIsUnliked(result.isReacted);
+                  if (result.isReacted) {
+                    setIsLiked(false);
+                  }
+                } catch (error) {
+                  console.error("싫어요 토글 실패:", error);
+                  let errorMessage = "싫어요 처리에 실패했습니다.";
+                  if (error instanceof Error) {
+                    if (
+                      error.message.includes("Invalid reference") ||
+                      error.message.includes("does not exist")
+                    ) {
+                      errorMessage = "해당 논문을 찾을 수 없습니다.";
+                    } else {
+                      errorMessage = error.message;
+                    }
+                  }
+                  showToast(errorMessage, "error");
+                }
+              }}
               style={{
                 display: "flex",
                 width: "110px",
                 flexDirection: "column",
                 alignItems: "center",
                 gap: "4px",
+                cursor: "pointer",
               }}
             >
               <div
@@ -1033,7 +1115,10 @@ export default function PaperDetailPage() {
               >
                 싫어요
               </div>
-              <FrownDislike size={50} />
+              <FrownDislike
+                size={50}
+                color={isUnliked ? "var(--color-brand-default)" : "#322F29"}
+              />
               <div
                 style={{
                   color: "#322F29",
@@ -1045,7 +1130,7 @@ export default function PaperDetailPage() {
                   lineHeight: "20px",
                 }}
               >
-                1명
+                {paper?.unlikeCount || 0}명
               </div>
             </div>
           </div>

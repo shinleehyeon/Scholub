@@ -188,7 +188,9 @@ export const papersApi = {
         isReacted: boolean;
         likeCount?: number;
       };
-    }>(`/papers/${paperId}/reactions`, { type });
+    }>(`/papers/${paperId}/reactions?paperId=${encodeURIComponent(paperId)}`, {
+      type,
+    });
 
     console.log("toggleReaction API 응답:", response);
 

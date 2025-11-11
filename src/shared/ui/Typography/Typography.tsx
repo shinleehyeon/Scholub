@@ -2,6 +2,7 @@ import { forwardRef } from "react";
 import type { HTMLAttributes, ReactNode } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/shared/lib/utils";
+import { useLanguage } from "@/shared/lib/language";
 
 const typographyVariants = cva("font-[Pretendard] m-0 tracking-[0%]", {
   variants: {
@@ -30,12 +31,17 @@ export interface TypographyProps
   extends Omit<HTMLAttributes<HTMLElement>, "color">,
     VariantProps<typeof typographyVariants> {
   children: ReactNode;
+  kor?: string;
   as?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "p" | "span" | "div";
 }
 
 const TypographyComponent = forwardRef<HTMLElement, TypographyProps>(
-  ({ className, variant, color, children, as, ...props }, ref) => {
+  ({ className, variant, color, children, kor, as, ...props }, ref) => {
+    const { language } = useLanguage();
     const Component = as || getDefaultElement(variant || "body");
+    
+    // 언어에 따라 표시할 텍스트 결정
+    const displayText = language === "ko" && kor ? kor : children;
 
     return (
       <Component
@@ -43,7 +49,7 @@ const TypographyComponent = forwardRef<HTMLElement, TypographyProps>(
         ref={ref as any}
         {...props}
       >
-        {children}
+        {displayText}
       </Component>
     );
   }
