@@ -1,5 +1,6 @@
 import { Header } from "@/widgets/header";
 import { SubHeader } from "@/widgets/sub-header";
+import { AIChat } from "@/widgets/ai-chat";
 import { Button } from "@/shared/ui";
 import Sparkles from "@/shared/ui/icons/Sparkles";
 import SmileLike from "@/shared/ui/icons/SmileLike";
@@ -8,7 +9,7 @@ import DocumentPaper from "@/shared/ui/icons/DocumentPaper";
 import DocumentIcon from "@/shared/ui/icons/DocumentIcon";
 import MessageBubble from "@/shared/ui/icons/MessageBubble";
 import ChevronRight from "@/shared/ui/icons/ChevronRight";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 // 목차 항목 타입 (실제 API 응답 구조)
 interface TableOfContentsItem {
@@ -113,108 +114,224 @@ export default function PaperDetailTestPage() {
   // 텍스트 선택 시 좌우 오렌지 바 표시를 위한 ref
   const contentRefs = useRef<(HTMLDivElement | null)[]>([]);
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const [popupPosition, setPopupPosition] = useState<{
+    x: number;
+    y: number;
+  } | null>(null);
+  const [selectedText, setSelectedText] = useState<string>("");
+  const [showAIChat, setShowAIChat] = useState<boolean>(false);
+  const popupPositionRef = useRef(popupPosition);
+  const selectedTextRef = useRef(selectedText);
+
+  // ref 업데이트
+  useEffect(() => {
+    popupPositionRef.current = popupPosition;
+    selectedTextRef.current = selectedText;
+  }, [popupPosition, selectedText]);
 
   useEffect(() => {
-    const handleSelection = () => {
+    // 텍스트 선택 위치 계산 함수
+    const getIconPosition = () => {
       const selection = window.getSelection();
-      if (!selection || selection.rangeCount === 0) {
-        // 선택이 없으면 모든 바 제거
-        if (containerRef.current) {
-          containerRef.current
-            .querySelectorAll(".selection-border-left, .selection-border-right")
-            .forEach((el) => el.remove());
+
+      if (selection && selection.rangeCount > 0 && !selection.isCollapsed) {
+        // 현재 선택한 범위
+        const range = selection.getRangeAt(0);
+
+        if (selection.focusNode) {
+          // 반대 방향 드래그 여부
+          const isBackward =
+            selection.anchorNode === selection.focusNode
+              ? selection.anchorOffset > selection.focusOffset
+              : selection.anchorNode?.compareDocumentPosition(
+                  selection.focusNode
+                ) === Node.DOCUMENT_POSITION_PRECEDING;
+
+          const rects = range.getClientRects();
+          const rect = rects[isBackward ? 0 : rects.length - 1];
+
+          return {
+            x: isBackward ? rect.left : rect.left + rect.width, // X 좌표
+            y: rect.top, // Y 좌표
+          };
         }
-        return;
-      }
-
-      const range = selection.getRangeAt(0);
-      const selectedText = selection.toString().trim();
-
-      if (!selectedText) {
-        if (containerRef.current) {
-          containerRef.current
-            .querySelectorAll(".selection-border-left, .selection-border-right")
-            .forEach((el) => el.remove());
-        }
-        return;
-      }
-
-      // 선택된 요소가 이 페이지의 본문 영역인지 확인
-      const container = range.commonAncestorContainer.parentElement;
-      if (
-        !container ||
-        !containerRef.current ||
-        !containerRef.current.contains(container)
-      ) {
-        // 이 페이지의 본문 영역이 아니면 바 제거
-        if (containerRef.current) {
-          containerRef.current
-            .querySelectorAll(".selection-border-left, .selection-border-right")
-            .forEach((el) => el.remove());
-        }
-        return;
-      }
-
-      // 기존 바 제거
-      containerRef.current
-        .querySelectorAll(".selection-border-left, .selection-border-right")
-        .forEach((el) => el.remove());
-
-      try {
-        const containerRect = container.getBoundingClientRect();
-
-        // 시작 위치 계산
-        const startRange = range.cloneRange();
-        startRange.collapse(true);
-        const startRect = startRange.getBoundingClientRect();
-
-        // 끝 위치 계산
-        const endRange = range.cloneRange();
-        endRange.collapse(false);
-        const endRect = endRange.getBoundingClientRect();
-
-        // 왼쪽 바 생성
-        const leftBar = document.createElement("div");
-        leftBar.className = "selection-border-left";
-        leftBar.style.cssText = `
-          position: absolute;
-          left: ${startRect.left - containerRect.left}px;
-          top: ${startRect.top - containerRect.top}px;
-          bottom: ${containerRect.bottom - startRect.bottom}px;
-          width: 1.5px;
-          background: #F7971D;
-          pointer-events: none;
-          z-index: 1000;
-        `;
-        container.style.position = "relative";
-        container.appendChild(leftBar);
-
-        // 오른쪽 바 생성
-        const rightBar = document.createElement("div");
-        rightBar.className = "selection-border-right";
-        rightBar.style.cssText = `
-          position: absolute;
-          left: ${endRect.right - containerRect.left}px;
-          top: ${endRect.top - containerRect.top}px;
-          bottom: ${containerRect.bottom - endRect.bottom}px;
-          width: 1.5px;
-          background: #F7971D;
-          pointer-events: none;
-          z-index: 1000;
-        `;
-        container.appendChild(rightBar);
-      } catch (e) {
-        // 에러 발생 시 무시
-        console.error("Selection highlight error:", e);
+      } else {
+        return {
+          x: 0,
+          y: 0,
+        };
       }
     };
 
-    document.addEventListener("selectionchange", handleSelection);
-    document.addEventListener("mouseup", handleSelection);
+    let scrollAnimationFrame: number | null = null;
+
+    const handleMouseDown = () => {
+      setPopupPosition(null);
+      setSelectedText("");
+      if (containerRef.current) {
+        containerRef.current
+          .querySelectorAll(".selection-border-left, .selection-border-right")
+          .forEach((el) => el.remove());
+      }
+    };
+
+    const handleScroll = () => {
+      // 팝업이 없으면 무시
+      if (!popupPositionRef.current || !selectedTextRef.current) {
+        return;
+      }
+
+      // 이미 애니메이션 프레임이 예약되어 있으면 무시 (throttle 효과)
+      if (scrollAnimationFrame !== null) {
+        return;
+      }
+
+      scrollAnimationFrame = requestAnimationFrame(() => {
+        const selection = window.getSelection();
+
+        if (
+          selection &&
+          selection.rangeCount > 0 &&
+          !selection.isCollapsed &&
+          selection.toString().trim() === selectedTextRef.current
+        ) {
+          // 선택된 텍스트 위치 업데이트
+          const position = getIconPosition();
+          if (position && position.x !== 0 && position.y !== 0) {
+            setPopupPosition(position);
+          }
+        }
+
+        scrollAnimationFrame = null;
+      });
+    };
+
+    const handleMouseUp = () => {
+      setTimeout(() => {
+        const selection = window.getSelection();
+
+        if (!selection || selection.rangeCount === 0 || selection.isCollapsed) {
+          if (containerRef.current) {
+            containerRef.current
+              .querySelectorAll(
+                ".selection-border-left, .selection-border-right"
+              )
+              .forEach((el) => el.remove());
+          }
+          return;
+        }
+
+        const selectedTextValue = selection.toString().trim();
+        if (!selectedTextValue) {
+          if (containerRef.current) {
+            containerRef.current
+              .querySelectorAll(
+                ".selection-border-left, .selection-border-right"
+              )
+              .forEach((el) => el.remove());
+          }
+          return;
+        }
+
+        const range = selection.getRangeAt(0);
+        const container = range.commonAncestorContainer.parentElement;
+
+        if (
+          !container ||
+          !containerRef.current ||
+          !containerRef.current.contains(container)
+        ) {
+          if (containerRef.current) {
+            containerRef.current
+              .querySelectorAll(
+                ".selection-border-left, .selection-border-right"
+              )
+              .forEach((el) => el.remove());
+          }
+          return;
+        }
+
+        // 기존 바 제거
+        containerRef.current
+          .querySelectorAll(".selection-border-left, .selection-border-right")
+          .forEach((el) => el.remove());
+
+        // 바 그리기
+        try {
+          const containerRect = container.getBoundingClientRect();
+
+          const startRange = range.cloneRange();
+          startRange.collapse(true);
+          const startRect = startRange.getBoundingClientRect();
+
+          const endRange = range.cloneRange();
+          endRange.collapse(false);
+          const endRect = endRange.getBoundingClientRect();
+
+          const leftBar = document.createElement("div");
+          leftBar.className = "selection-border-left";
+          leftBar.style.cssText = `
+            position: absolute;
+            left: ${startRect.left - containerRect.left}px;
+            top: ${startRect.top - containerRect.top}px;
+            bottom: ${containerRect.bottom - startRect.bottom}px;
+            width: 1.5px;
+            background: #F7971D;
+            pointer-events: none;
+            z-index: 1000;
+          `;
+          container.style.position = "relative";
+          container.appendChild(leftBar);
+
+          const rightBar = document.createElement("div");
+          rightBar.className = "selection-border-right";
+          rightBar.style.cssText = `
+            position: absolute;
+            left: ${endRect.right - containerRect.left}px;
+            top: ${endRect.top - containerRect.top}px;
+            bottom: ${containerRect.bottom - endRect.bottom}px;
+            width: 1.5px;
+            background: #F7971D;
+            pointer-events: none;
+            z-index: 1000;
+          `;
+          container.appendChild(rightBar);
+        } catch (e) {
+          console.error("Selection highlight error:", e);
+        }
+
+        // 팝업 표시 (최소 2글자)
+        if (selectedTextValue.length >= 2) {
+          const position = getIconPosition();
+          if (position && position.x !== 0 && position.y !== 0) {
+            setPopupPosition(position);
+            setSelectedText(selectedTextValue);
+          }
+        }
+      }, 10);
+    };
+
+    document.addEventListener("mousedown", handleMouseDown);
+    document.addEventListener("mouseup", handleMouseUp);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    document.addEventListener("scroll", handleScroll, { passive: true });
+
+    const container = containerRef.current;
+    if (container) {
+      container.addEventListener("scroll", handleScroll, { passive: true });
+    }
 
     return () => {
-      document.removeEventListener("selectionchange", handleSelection);
-      document.removeEventListener("mouseup", handleSelection);
+      document.removeEventListener("mousedown", handleMouseDown);
+      document.removeEventListener("mouseup", handleMouseUp);
+      window.removeEventListener("scroll", handleScroll);
+      document.removeEventListener("scroll", handleScroll);
+      if (container) {
+        container.removeEventListener("scroll", handleScroll);
+      }
+      if (scrollAnimationFrame !== null) {
+        cancelAnimationFrame(scrollAnimationFrame);
+      }
       if (containerRef.current) {
         containerRef.current
           .querySelectorAll(".selection-border-left, .selection-border-right")
@@ -322,6 +439,8 @@ export default function PaperDetailTestPage() {
           alignItems: "center",
           gap: "var(--spacing-32)",
           alignSelf: "stretch",
+          marginTop: "121px",
+          paddingRight: showAIChat ? "532px" : "var(--padding)",
         }}
       >
         {/* 이미지와 글자 레이아웃 */}
@@ -565,6 +684,7 @@ export default function PaperDetailTestPage() {
                 variant="primary"
                 size="medium"
                 leadingIcon={<Sparkles color="#ffffff" />}
+                onClick={() => setShowAIChat(true)}
               >
                 AI 뷰어
               </Button>
@@ -1188,6 +1308,55 @@ export default function PaperDetailTestPage() {
           </div>
         </div>
       </div>
+
+      {/* 텍스트 선택 팝업 */}
+      {popupPosition && popupPosition.x !== 0 && popupPosition.y !== 0 && (
+        <div
+          style={{
+            position: "fixed",
+            left: `${popupPosition.x + 20}px`,
+            top: `${popupPosition.y - 40}px`,
+            display: "flex",
+            padding: "var(--spacing-6) var(--spacing-10)",
+            alignItems: "center",
+            gap: "var(--spacing-8)",
+            borderRadius: "var(--radius-10)",
+            border: "1px solid var(--color-border-default)",
+            background: "var(--color-surface-default)",
+            boxShadow: "0 2px 4px 0 rgba(0, 0, 0, 0.10)",
+            zIndex: 10000,
+            transform: "translateX(-50%)",
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "var(--spacing-4)",
+              color: "var(--color-text-subtle)",
+              fontFamily: "Pretendard",
+              fontSize: "14px",
+              fontStyle: "normal",
+              fontWeight: 500,
+              lineHeight: "20px",
+              cursor: "pointer",
+            }}
+            onClick={() => {
+              // 채팅으로 전송 기능 구현
+              setShowAIChat(true);
+              setPopupPosition(null);
+              setSelectedText("");
+            }}
+          >
+            <MessageBubble size={14} color="#7D7D7D" />
+            채팅으로 전송
+          </div>
+        </div>
+      )}
+
+      {/* AI 채팅 위젯 */}
+      {showAIChat && <AIChat onClose={() => setShowAIChat(false)} />}
     </div>
   );
 }

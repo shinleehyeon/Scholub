@@ -172,7 +172,10 @@ export default function Header({
   return (
     <header
       style={{
-        position: "relative",
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
         display: "flex",
         height: "71px",
         padding: "0 var(--spacing-24)",
@@ -181,6 +184,7 @@ export default function Header({
         alignSelf: "stretch",
         borderBottom: "1px solid var(--color-border-default)",
         background: "var(--color-surface-default)",
+        zIndex: 100,
       }}
     >
       <Link to="/" style={{ flexShrink: 0 }}>

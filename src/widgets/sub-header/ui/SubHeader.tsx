@@ -29,6 +29,10 @@ export default function SubHeader() {
   return (
     <div
       style={{
+        position: "fixed",
+        top: "71px",
+        left: 0,
+        right: 0,
         display: "flex",
         height: "50px",
         padding: "0 var(--spacing-24)",
@@ -37,6 +41,7 @@ export default function SubHeader() {
         alignSelf: "stretch",
         borderBottom: "1px solid var(--color-border-default)",
         background: "var(--color-surface-default)",
+        zIndex: 100,
       }}
     >
       <div

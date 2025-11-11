@@ -2,6 +2,7 @@
 
 /* Text Selection Styles - Removed global selection styles */
 /* Selection styles are now scoped to PaperDetailTestPage only */
+/* Other pages will use default browser selection styles */
 
 @theme {
   /* Layout */
