@@ -5,15 +5,10 @@ import LatestResearchCard from "@/entities/paper/ui/LatestResearchCard";
 import Tag from "@/shared/ui/icons/Tag";
 import { Typography } from "@/shared/ui";
 
-const categoryMap: Record<string, string> = {
-  ai: "인공지능",
-  "computer-science": "컴퓨터과학",
-  network: "네트워크 및 통신",
-};
-
 export default function CategoryPage() {
   const { categoryId } = useParams<{ categoryId: string }>();
-  const categoryName = categoryId ? categoryMap[categoryId] || categoryId : "";
+  // URL 인코딩된 카테고리 이름을 디코딩
+  const categoryName = categoryId ? decodeURIComponent(categoryId) : "";
 
   return (
     <div className="min-h-screen bg-white">

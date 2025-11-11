@@ -1,7 +1,31 @@
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Typography } from "@/shared/ui";
+import { categoriesApi, type Category } from "@/shared/api/categories";
 
 export default function SubHeader() {
+  const [topCategories, setTopCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        setLoading(true);
+        const categories = await categoriesApi.getCategories();
+        // count 기준으로 정렬하여 상위 3개 선택
+        const sorted = [...categories].sort((a, b) => b.count - a.count);
+        setTopCategories(sorted.slice(0, 3));
+      } catch (error) {
+        console.error("카테고리 로드 실패:", error);
+        setTopCategories([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
   return (
     <div
       style={{
@@ -30,39 +54,52 @@ export default function SubHeader() {
         >
           <Typography.Subtext color="default">최신연구</Typography.Subtext>
         </Link>
-        <div
-          style={{
-            background: "var(--color-border-default)",
-            width: "1px",
-            height: "var(--spacing-12)",
-          }}
-        />
-        <Link
-          to="/category/computer-science"
-          style={{
-            textDecoration: "none",
-          }}
-        >
-          <Typography.Subtext color="default">컴퓨터과학</Typography.Subtext>
-        </Link>
-        <Link
-          to="/category/network"
-          style={{
-            textDecoration: "none",
-          }}
-        >
-          <Typography.Subtext color="default">
-            네트워크 및 통신
-          </Typography.Subtext>
-        </Link>
-        <Link
-          to="/category/ai"
-          style={{
-            textDecoration: "none",
-          }}
-        >
-          <Typography.Subtext color="default">인공지능</Typography.Subtext>
-        </Link>
+        {topCategories.length > 0 && (
+          <>
+            <div
+              style={{
+                background: "var(--color-border-default)",
+                width: "1px",
+                height: "var(--spacing-12)",
+              }}
+            />
+            {topCategories.map((category, index) => (
+              <div key={category.category} style={{ display: "contents" }}>
+                <Link
+                  to={`/category/${encodeURIComponent(category.category)}`}
+                  style={{
+                    textDecoration: "none",
+                  }}
+                >
+                  <Typography.Subtext color="default">
+                    {category.category}
+                  </Typography.Subtext>
+                </Link>
+                {index < topCategories.length - 1 && (
+                  <div
+                    style={{
+                      background: "var(--color-border-default)",
+                      width: "1px",
+                      height: "var(--spacing-12)",
+                    }}
+                  />
+                )}
+              </div>
+            ))}
+          </>
+        )}
+        {loading && (
+          <>
+            <div
+              style={{
+                background: "var(--color-border-default)",
+                width: "1px",
+                height: "var(--spacing-12)",
+              }}
+            />
+            <Typography.Subtext color="subtle">로딩 중...</Typography.Subtext>
+          </>
+        )}
       </div>
     </div>
   );
