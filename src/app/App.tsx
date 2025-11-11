@@ -10,6 +10,7 @@ import { CategoryPage } from "@/pages/category";
 import { ProfilePage } from "@/pages/profile";
 import { SettingsPage } from "@/pages/settings";
 import { ProfilePhotoPage } from "@/pages/profile-photo";
+import { SearchPage } from "@/pages/search";
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
         <Route path="/category/:categoryId" element={<CategoryPage />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/search" element={<SearchPage />} />
       </Routes>
     </BrowserRouter>
     </ToastProvider>

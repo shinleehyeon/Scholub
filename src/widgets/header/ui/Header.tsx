@@ -33,6 +33,7 @@ export default function Header({
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     const checkAuthStatus = () => {
@@ -199,7 +200,13 @@ export default function Header({
           flexShrink: 0,
         }}
       >
-        <div
+        <button
+          type="button"
+          onClick={() => {
+            if (searchQuery.trim()) {
+              navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+            }
+          }}
           style={{
             display: "flex",
             width: "var(--spacing-16)",
@@ -208,13 +215,24 @@ export default function Header({
             gap: "var(--spacing-10)",
             aspectRatio: "1/1",
             color: "var(--color-text-default)",
+            background: "transparent",
+            border: "none",
+            cursor: "pointer",
+            padding: 0,
           }}
         >
           <SearchIcon size={16} />
-        </div>
+        </button>
         <input
           type="text"
           placeholder="검색어를 입력하세요"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && searchQuery.trim()) {
+              navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+            }
+          }}
           style={{
             flex: 1,
             border: "none",
