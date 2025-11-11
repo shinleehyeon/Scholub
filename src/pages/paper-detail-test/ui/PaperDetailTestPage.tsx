@@ -2,6 +2,8 @@ import { Header } from "@/widgets/header";
 import { SubHeader } from "@/widgets/sub-header";
 import { Button } from "@/shared/ui";
 import { Zap } from "lucide-react";
+import SmileLike from "@/shared/ui/icons/SmileLike";
+import FrownDislike from "@/shared/ui/icons/FrownDislike";
 
 // 문서 아이콘 SVG 컴포넌트
 const DocumentIcon = () => (
@@ -613,6 +615,189 @@ export default function PaperDetailTestPage() {
             )}
           </div>
         ))}
+
+        {/* 피드백 섹션 */}
+        <div
+          style={{
+            display: "flex",
+            padding: "var(--spacing-24) var(--spacing-12)",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: "var(--spacing-24)",
+            alignSelf: "stretch",
+            borderRadius: "var(--radius-14)",
+            background: "var(--color-surface-subtle)",
+            maxWidth: "1200px",
+            width: "100%",
+            margin: "0 auto",
+          }}
+        >
+          {/* 위쪽 글자 영역 */}
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: "var(--spacing-4)",
+            }}
+          >
+            {/* 논문 제목 */}
+            <div
+              style={{
+                color: "#322F29",
+                fontFamily: "Pretendard",
+                fontSize: "14px",
+                fontStyle: "normal",
+                fontWeight: 500,
+                lineHeight: "20px",
+                textAlign: "center",
+              }}
+            >
+              {testPaper.title}
+            </div>
+            {/* 질문 */}
+            <div
+              style={{
+                color: "#000",
+                fontFamily: "Pretendard",
+                fontSize: "17px",
+                fontStyle: "normal",
+                fontWeight: 500,
+                lineHeight: "24px",
+                textAlign: "center",
+              }}
+            >
+              논문 잘 읽으셨나요?
+            </div>
+          </div>
+
+          {/* 피드백 옵션들 */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "flex-start",
+              gap: "-1px",
+              background: "var(--color-surface-subtle)",
+            }}
+          >
+            {/* 좋아요 */}
+            <div
+              style={{
+                display: "flex",
+                width: "110px",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: "4px",
+              }}
+            >
+              <div
+                style={{
+                  color: "#322F29",
+                  textAlign: "center",
+                  fontFamily: "Pretendard",
+                  fontSize: "14px",
+                  fontStyle: "normal",
+                  fontWeight: 500,
+                  lineHeight: "20px",
+                }}
+              >
+                좋아요
+              </div>
+              <SmileLike size={50} />
+              <div
+                style={{
+                  color: "#322F29",
+                  textAlign: "center",
+                  fontFamily: "Pretendard",
+                  fontSize: "14px",
+                  fontStyle: "normal",
+                  fontWeight: 500,
+                  lineHeight: "20px",
+                }}
+              >
+                13명
+              </div>
+            </div>
+
+            {/* 싫어요 */}
+            <div
+              style={{
+                display: "flex",
+                width: "110px",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: "4px",
+              }}
+            >
+              <div
+                style={{
+                  color: "#322F29",
+                  textAlign: "center",
+                  fontFamily: "Pretendard",
+                  fontSize: "14px",
+                  fontStyle: "normal",
+                  fontWeight: 500,
+                  lineHeight: "20px",
+                }}
+              >
+                싫어요
+              </div>
+              <FrownDislike size={50} />
+              <div
+                style={{
+                  color: "#322F29",
+                  textAlign: "center",
+                  fontFamily: "Pretendard",
+                  fontSize: "14px",
+                  fontStyle: "normal",
+                  fontWeight: 500,
+                  lineHeight: "20px",
+                }}
+              >
+                1명
+              </div>
+            </div>
+
+            {/* 후속 논문 원해요 */}
+            <div
+              style={{
+                display: "flex",
+                width: "110px",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: "4px",
+              }}
+            >
+              <div
+                style={{
+                  color: "#322F29",
+                  textAlign: "center",
+                  fontFamily: "Pretendard",
+                  fontSize: "14px",
+                  fontStyle: "normal",
+                  fontWeight: 500,
+                  lineHeight: "20px",
+                }}
+              >
+                후속 논문 원해요
+              </div>
+              <SmileLike size={50} />
+              <div
+                style={{
+                  color: "#322F29",
+                  textAlign: "center",
+                  fontFamily: "Pretendard",
+                  fontSize: "14px",
+                  fontStyle: "normal",
+                  fontWeight: 500,
+                  lineHeight: "20px",
+                }}
+              >
+                13명
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
