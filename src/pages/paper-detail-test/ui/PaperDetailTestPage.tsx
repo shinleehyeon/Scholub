@@ -1,27 +1,13 @@
 import { Header } from "@/widgets/header";
 import { SubHeader } from "@/widgets/sub-header";
 import { Button } from "@/shared/ui";
-import { Zap } from "lucide-react";
+import Sparkles from "@/shared/ui/icons/Sparkles";
 import SmileLike from "@/shared/ui/icons/SmileLike";
 import FrownDislike from "@/shared/ui/icons/FrownDislike";
-
-// 문서 아이콘 SVG 컴포넌트
-const DocumentIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="16"
-    height="16"
-    viewBox="0 0 16 16"
-    fill="none"
-  >
-    <path
-      fillRule="evenodd"
-      clipRule="evenodd"
-      d="M4.33333 1.99999C4.06812 1.99999 3.81376 2.10535 3.62623 2.29288C3.43869 2.48042 3.33333 2.73478 3.33333 2.99999V10.8918C3.64295 10.7449 3.98411 10.6667 4.33333 10.6667H12.6667V1.99999H4.33333ZM14 1.99999C14 1.64637 13.8595 1.30723 13.6095 1.05718C13.3594 0.80713 13.0203 0.666656 12.6667 0.666656H4.33333C3.71449 0.666656 3.121 0.91249 2.68342 1.35008C2.24583 1.78766 2 2.38115 2 2.99999V13C2 13.6189 2.24583 14.2123 2.68342 14.6499C3.121 15.0875 3.71449 15.3333 4.33333 15.3333H12.6667C13.0203 15.3333 13.3594 15.1929 13.6095 14.9428C13.8595 14.6927 14 14.3536 14 14V1.99999ZM12.6667 12H4.33333C4.06812 12 3.81376 12.1053 3.62623 12.2929C3.43869 12.4804 3.33333 12.7348 3.33333 13C3.33333 13.2652 3.43869 13.5196 3.62623 13.7071C3.81376 13.8947 4.06812 14 4.33333 14H12.6667V12Z"
-      fill="#7D7D7D"
-    />
-  </svg>
-);
+import DocumentPaper from "@/shared/ui/icons/DocumentPaper";
+import DocumentIcon from "@/shared/ui/icons/DocumentIcon";
+import MessageBubble from "@/shared/ui/icons/MessageBubble";
+import ChevronRight from "@/shared/ui/icons/ChevronRight";
 
 // 목차 항목 타입 (실제 API 응답 구조)
 interface TableOfContentsItem {
@@ -450,7 +436,11 @@ export default function PaperDetailTestPage() {
                 marginTop: "var(--spacing-8)",
               }}
             >
-              <Button variant="primary" size="medium" leadingIcon={<Zap />}>
+              <Button
+                variant="primary"
+                size="medium"
+                leadingIcon={<Sparkles color="#ffffff" />}
+              >
                 AI 뷰어
               </Button>
               <Button
@@ -502,8 +492,9 @@ export default function PaperDetailTestPage() {
           <div
             style={{
               background: "var(--color-border-default)",
-              width: "700px",
+              width: "100%",
               height: "1px",
+              alignSelf: "stretch",
             }}
           />
 
@@ -555,8 +546,9 @@ export default function PaperDetailTestPage() {
             <div
               style={{
                 background: "var(--color-border-default)",
-                width: "700px",
+                width: "100%",
                 height: "1px",
+                alignSelf: "stretch",
               }}
             />
 
@@ -757,45 +749,6 @@ export default function PaperDetailTestPage() {
                 1명
               </div>
             </div>
-
-            {/* 후속 논문 원해요 */}
-            <div
-              style={{
-                display: "flex",
-                width: "110px",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: "4px",
-              }}
-            >
-              <div
-                style={{
-                  color: "#322F29",
-                  textAlign: "center",
-                  fontFamily: "Pretendard",
-                  fontSize: "14px",
-                  fontStyle: "normal",
-                  fontWeight: 500,
-                  lineHeight: "20px",
-                }}
-              >
-                후속 논문 원해요
-              </div>
-              <SmileLike size={50} />
-              <div
-                style={{
-                  color: "#322F29",
-                  textAlign: "center",
-                  fontFamily: "Pretendard",
-                  fontSize: "14px",
-                  fontStyle: "normal",
-                  fontWeight: 500,
-                  lineHeight: "20px",
-                }}
-              >
-                13명
-              </div>
-            </div>
           </div>
         </div>
 
@@ -879,6 +832,230 @@ export default function PaperDetailTestPage() {
             <Button variant="primary" size="medium">
               토론 시작하기
             </Button>
+          </div>
+
+          {/* 토론 카드들 */}
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "flex-start",
+              gap: "var(--spacing-14)",
+              alignSelf: "stretch",
+            }}
+          >
+            {/* 토론 카드 1 */}
+            <div
+              style={{
+                display: "flex",
+                padding: "var(--spacing-16) var(--spacing-20)",
+                justifyContent: "space-between",
+                alignItems: "center",
+                alignSelf: "stretch",
+                borderRadius: "var(--radius-16)",
+                border: "1px solid var(--color-border-default)",
+                background: "var(--color-surface-default)",
+              }}
+            >
+              {/* 왼쪽 영역 */}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "var(--spacing-14)",
+                }}
+              >
+                <DocumentPaper size={26} />
+                {/* 글자 레이아웃 */}
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "flex-start",
+                    gap: "var(--spacing-4)",
+                  }}
+                >
+                  <div
+                    style={{
+                      color: "#322F29",
+                      fontFamily: "Pretendard",
+                      fontSize: "17px",
+                      fontStyle: "normal",
+                      fontWeight: 500,
+                      lineHeight: "24px",
+                    }}
+                  >
+                    구글 브레인은 해당 연구를 하기에 타당한가?
+                  </div>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "var(--spacing-4)",
+                    }}
+                  >
+                    <MessageBubble size={16} color="#7D7D7D" />
+                    <div
+                      style={{
+                        color: "var(--color-text-subtle)",
+                        fontFamily: "Pretendard",
+                        fontSize: "14px",
+                        fontStyle: "normal",
+                        fontWeight: 500,
+                        lineHeight: "20px",
+                      }}
+                    >
+                      130+ 대화
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 오른쪽 아이콘 */}
+              <ChevronRight size={24} fillColor="#7D7D7D" />
+            </div>
+
+            {/* 토론 카드 2 */}
+            <div
+              style={{
+                display: "flex",
+                padding: "var(--spacing-16) var(--spacing-20)",
+                justifyContent: "space-between",
+                alignItems: "center",
+                alignSelf: "stretch",
+                borderRadius: "var(--radius-16)",
+                border: "1px solid var(--color-border-default)",
+                background: "var(--color-surface-default)",
+              }}
+            >
+              {/* 왼쪽 영역 */}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "var(--spacing-14)",
+                }}
+              >
+                <DocumentPaper size={26} />
+                {/* 글자 레이아웃 */}
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "flex-start",
+                    gap: "var(--spacing-4)",
+                  }}
+                >
+                  <div
+                    style={{
+                      color: "#322F29",
+                      fontFamily: "Pretendard",
+                      fontSize: "17px",
+                      fontStyle: "normal",
+                      fontWeight: 500,
+                      lineHeight: "24px",
+                    }}
+                  >
+                    구글 브레인은 해당 연구를 하기에 타당한가?
+                  </div>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "var(--spacing-4)",
+                    }}
+                  >
+                    <MessageBubble size={16} color="#7D7D7D" />
+                    <div
+                      style={{
+                        color: "var(--color-text-subtle)",
+                        fontFamily: "Pretendard",
+                        fontSize: "14px",
+                        fontStyle: "normal",
+                        fontWeight: 500,
+                        lineHeight: "20px",
+                      }}
+                    >
+                      130+ 대화
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 오른쪽 아이콘 */}
+              <ChevronRight size={24} fillColor="#7D7D7D" />
+            </div>
+
+            {/* 토론 카드 3 */}
+            <div
+              style={{
+                display: "flex",
+                padding: "var(--spacing-16) var(--spacing-20)",
+                justifyContent: "space-between",
+                alignItems: "center",
+                alignSelf: "stretch",
+                borderRadius: "var(--radius-16)",
+                border: "1px solid var(--color-border-default)",
+                background: "var(--color-surface-default)",
+              }}
+            >
+              {/* 왼쪽 영역 */}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "var(--spacing-14)",
+                }}
+              >
+                <DocumentPaper size={26} />
+                {/* 글자 레이아웃 */}
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "flex-start",
+                    gap: "var(--spacing-4)",
+                  }}
+                >
+                  <div
+                    style={{
+                      color: "#322F29",
+                      fontFamily: "Pretendard",
+                      fontSize: "17px",
+                      fontStyle: "normal",
+                      fontWeight: 500,
+                      lineHeight: "24px",
+                    }}
+                  >
+                    구글 브레인은 해당 연구를 하기에 타당한가?
+                  </div>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "var(--spacing-4)",
+                    }}
+                  >
+                    <MessageBubble size={16} color="#7D7D7D" />
+                    <div
+                      style={{
+                        color: "var(--color-text-subtle)",
+                        fontFamily: "Pretendard",
+                        fontSize: "14px",
+                        fontStyle: "normal",
+                        fontWeight: 500,
+                        lineHeight: "20px",
+                      }}
+                    >
+                      130+ 대화
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 오른쪽 아이콘 */}
+              <ChevronRight size={24} fillColor="#7D7D7D" />
+            </div>
           </div>
         </div>
       </div>
