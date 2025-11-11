@@ -236,7 +236,8 @@ export default function Discussion({
                 }}
               >
                 RNN(Recurrent Neural Network, 순환 신경망)은 순서가 있는
-                데이터(시퀀스 데이터)를 처리하기 위한 인공신경망의 한 종류입니다.
+                데이터(시퀀스 데이터)를 처리하기 위한 인공신경망의 한
+                종류입니다.
               </div>
             </div>
           </div>
@@ -329,4 +330,3 @@ export default function Discussion({
     </div>
   );
 }
-

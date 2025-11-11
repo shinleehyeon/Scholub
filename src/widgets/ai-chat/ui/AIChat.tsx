@@ -1,19 +1,34 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Sparkles from "@/shared/ui/icons/Sparkles";
 import Close from "@/shared/ui/icons/Close";
 import Send from "@/shared/ui/icons/Send";
-import ChevronRight from "@/shared/ui/icons/ChevronRight";
+import X from "@/shared/ui/icons/X";
+import ExternalLink from "@/shared/ui/icons/ExternalLink";
 
 interface AIChatProps {
   onClose?: () => void;
+  initialMessage?: string;
+  paperTitle?: string;
 }
 
-export default function AIChat({ onClose }: AIChatProps) {
+export default function AIChat({
+  onClose,
+  initialMessage,
+  paperTitle,
+}: AIChatProps) {
   const [message, setMessage] = useState("");
+  const [contextText, setContextText] = useState<string>("");
+  const [isHoveringContext, setIsHoveringContext] = useState(false);
   const [messages, setMessages] = useState<
     Array<{ text: string; isUser: boolean }>
   >([]);
   const [isThinking, setIsThinking] = useState(false);
+
+  useEffect(() => {
+    if (initialMessage) {
+      setContextText(initialMessage);
+    }
+  }, [initialMessage]);
 
   const suggestedQuestions = [
     "RNN이 무엇인가요?",
@@ -22,9 +37,13 @@ export default function AIChat({ onClose }: AIChatProps) {
   ];
 
   const handleSendMessage = () => {
-    if (message.trim()) {
-      setMessages([...messages, { text: message, isUser: true }]);
+    const fullMessage = contextText
+      ? `${contextText}\n${message}`.trim()
+      : message.trim();
+    if (fullMessage) {
+      setMessages([...messages, { text: fullMessage, isUser: true }]);
       setMessage("");
+      setContextText("");
       setIsThinking(true);
 
       // AI 응답 시뮬레이션 (실제로는 API 호출)
@@ -264,31 +283,41 @@ export default function AIChat({ onClose }: AIChatProps) {
         }}
       >
         {/* 검색 결과 링크 */}
-        <div
-          style={{
-            display: "flex",
-            padding: "var(--spacing-10) var(--spacing-12)",
-            alignItems: "center",
-            gap: "var(--spacing-8)",
-            borderRadius: "var(--radius-8)",
-            background: "var(--color-surface-subtle)",
-            alignSelf: "stretch",
-            cursor: "pointer",
-          }}
-        >
-          <ChevronRight size={16} fillColor="var(--color-text-subtle)" />
+        {paperTitle && (
           <div
             style={{
-              color: "var(--color-text-subtle)",
-              fontFamily: "Pretendard",
-              fontSize: "14px",
-              fontStyle: "normal",
-              fontWeight: 500,
-              lineHeight: "20px",
-              flex: 1,
+              display: "flex",
+              padding: "var(--spacing-14) var(--spacing-16)",
+              alignItems: "center",
+              gap: "var(--spacing-4)",
+              alignSelf: "stretch",
+              borderRadius: "var(--radius-14)",
+              border: "1px solid var(--color-border-default)",
+              background: "var(--color-surface-default)",
+              overflow: "hidden",
             }}
-          ></div>
-        </div>
+          >
+            <div
+              style={{
+                color: "var(--color-text-subtle)",
+                textOverflow: "ellipsis",
+                fontFamily: "Pretendard",
+                fontSize: "14px",
+                fontStyle: "normal",
+                fontWeight: 500,
+                lineHeight: "20px",
+                display: "-webkit-box",
+                WebkitBoxOrient: "vertical",
+                WebkitLineClamp: 1,
+                flex: "1 0 0",
+                overflow: "hidden",
+              }}
+            >
+              {paperTitle}
+            </div>
+            <ExternalLink size={20} color="var(--color-text-subtle)" />
+          </div>
+        )}
 
         {/* 입력 필드와 보내기 버튼 */}
         <div
@@ -303,6 +332,59 @@ export default function AIChat({ onClose }: AIChatProps) {
             background: "var(--color-surface-default)",
           }}
         >
+          {/* 컨텍스트 뱃지 */}
+          {contextText && (
+            <div
+              onMouseEnter={() => setIsHoveringContext(true)}
+              onMouseLeave={() => setIsHoveringContext(false)}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "var(--spacing-8)",
+                padding: "var(--spacing-8) var(--spacing-12)",
+                borderRadius: "var(--radius-8)",
+                background: "var(--color-surface-brand-subtle)",
+                width: "fit-content",
+                maxWidth: "100%",
+                cursor: "pointer",
+              }}
+              onClick={() => setContextText("")}
+            >
+              {isHoveringContext ? (
+                <X size={16} color="var(--color-brand-default)" />
+              ) : (
+                <div
+                  style={{
+                    color: "var(--color-brand-default)",
+                    fontFamily: "Pretendard",
+                    fontSize: "16px",
+                    fontStyle: "normal",
+                    fontWeight: 600,
+                    lineHeight: "20px",
+                    flexShrink: 0,
+                  }}
+                >
+                  @
+                </div>
+              )}
+              <div
+                style={{
+                  color: "var(--color-text-default)",
+                  fontFamily: "Pretendard",
+                  fontSize: "14px",
+                  fontStyle: "normal",
+                  fontWeight: 500,
+                  lineHeight: "20px",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                  maxWidth: "300px",
+                }}
+              >
+                {contextText}
+              </div>
+            </div>
+          )}
           <textarea
             value={message}
             onChange={(e) => setMessage(e.target.value)}

@@ -114,12 +114,14 @@ export default function PaperDetailTestPage() {
   // 텍스트 선택 시 좌우 오렌지 바 표시를 위한 ref
   const contentRefs = useRef<(HTMLDivElement | null)[]>([]);
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const popupRef = useRef<HTMLDivElement | null>(null);
   const [popupPosition, setPopupPosition] = useState<{
     x: number;
     y: number;
   } | null>(null);
   const [selectedText, setSelectedText] = useState<string>("");
   const [showAIChat, setShowAIChat] = useState<boolean>(false);
+  const [selectedTextForChat, setSelectedTextForChat] = useState<string>("");
   const popupPositionRef = useRef(popupPosition);
   const selectedTextRef = useRef(selectedText);
 
@@ -165,7 +167,11 @@ export default function PaperDetailTestPage() {
 
     let scrollAnimationFrame: number | null = null;
 
-    const handleMouseDown = () => {
+    const handleMouseDown = (e: MouseEvent) => {
+      // 팝업 내부 클릭은 무시
+      if (popupRef.current && popupRef.current.contains(e.target as Node)) {
+        return;
+      }
       setPopupPosition(null);
       setSelectedText("");
       if (containerRef.current) {
@@ -1312,6 +1318,7 @@ export default function PaperDetailTestPage() {
       {/* 텍스트 선택 팝업 */}
       {popupPosition && popupPosition.x !== 0 && popupPosition.y !== 0 && (
         <div
+          ref={popupRef}
           style={{
             position: "fixed",
             left: `${popupPosition.x + 20}px`,
@@ -1342,8 +1349,10 @@ export default function PaperDetailTestPage() {
               lineHeight: "20px",
               cursor: "pointer",
             }}
-            onClick={() => {
+            onClick={(e) => {
+              e.stopPropagation();
               // 채팅으로 전송 기능 구현
+              setSelectedTextForChat(selectedText);
               setShowAIChat(true);
               setPopupPosition(null);
               setSelectedText("");
@@ -1356,7 +1365,16 @@ export default function PaperDetailTestPage() {
       )}
 
       {/* AI 채팅 위젯 */}
-      {showAIChat && <AIChat onClose={() => setShowAIChat(false)} />}
+      {showAIChat && (
+        <AIChat
+          onClose={() => {
+            setShowAIChat(false);
+            setSelectedTextForChat("");
+          }}
+          initialMessage={selectedTextForChat}
+          paperTitle={testPaper.title}
+        />
+      )}
     </div>
   );
 }
