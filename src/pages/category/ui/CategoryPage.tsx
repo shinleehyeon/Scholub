@@ -1,14 +1,74 @@
+import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { Header } from "@/widgets/header";
 import { SubHeader } from "@/widgets/sub-header";
 import LatestResearchCard from "@/entities/paper/ui/LatestResearchCard";
 import Tag from "@/shared/ui/icons/Tag";
 import { Typography } from "@/shared/ui";
+import { papersApi } from "@/shared/api/papers";
 
 export default function CategoryPage() {
   const { categoryId } = useParams<{ categoryId: string }>();
   // URL 인코딩된 카테고리 이름을 디코딩
   const categoryName = categoryId ? decodeURIComponent(categoryId) : "";
+
+  const [papers, setPapers] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(1);
+  const [displayedCount, setDisplayedCount] = useState(7);
+
+  useEffect(() => {
+    const fetchPapers = async () => {
+      if (!categoryName) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        const result = await papersApi.getPapersByCategory(categoryName, {
+          page: 1,
+          limit: 1000,
+        });
+
+        const formattedPapers = result.papers.map((paper) => {
+          const imageUrl =
+            paper.thumbnailUrl ||
+            paper.imageUrl ||
+            paper.coverImage ||
+            "https://via.placeholder.com/228x128/CCCCCC/666666?text=No+Image";
+
+          const category = paper.categories.join(" > ") || "분류 없음";
+          const description = paper.summary || "";
+
+          return {
+            id: paper.id,
+            paperId: paper.id,
+            imageUrl,
+            title: paper.title,
+            description,
+            category,
+            likes: paper.likeCount || 0,
+            comments: paper.discussionCount || 0,
+            isLiked: paper.myReaction?.isLiked || false,
+          };
+        });
+
+        setPapers(formattedPapers);
+        setTotal(result.total);
+        setPage(result.page);
+      } catch (error) {
+        console.error("카테고리 논문 로드 실패:", error);
+        setPapers([]);
+        setTotal(0);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPapers();
+  }, [categoryName]);
 
   return (
     <div className="min-h-screen bg-white">
@@ -107,7 +167,7 @@ export default function CategoryPage() {
                 lineHeight: "24px",
               }}
             >
-              52개
+              {total}개
             </Typography.BodyLarge>
           </div>
         </div>
@@ -120,17 +180,51 @@ export default function CategoryPage() {
             width: "100%",
           }}
         >
-          {Array.from({ length: 20 }, (_, index) => (
-            <LatestResearchCard
-              key={index}
-              imageUrl="https://via.placeholder.com/228x128/CCCCCC/666666?text=No+Image"
-              category={`${categoryName} > 머신러닝`}
-              title="Deaminative cross-coupling of amines by boryl radical β-scission"
-              description="Amines are among the most common functional groups in bioactive molecules and pharmaceuticals,1-3 yet they are almost universally treated as synthetic endpoint..."
-              likes={32}
-              comments={32}
-            />
-          ))}
+          {loading ? (
+            <div>로딩 중...</div>
+          ) : papers.length > 0 ? (
+            <>
+              {papers.slice(0, displayedCount).map((paper) => (
+                <LatestResearchCard
+                  key={paper.id}
+                  paperId={paper.paperId}
+                  imageUrl={paper.imageUrl}
+                  category={paper.category}
+                  title={paper.title}
+                  description={paper.description}
+                  likes={paper.likes}
+                  comments={paper.comments}
+                  isLiked={paper.isLiked}
+                />
+              ))}
+              {papers.length > displayedCount && (
+                <button
+                  onClick={() => setDisplayedCount((prev) => prev + 7)}
+                  style={{
+                    display: "flex",
+                    padding: "var(--spacing-12) var(--spacing-24)",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    gap: "var(--spacing-8)",
+                    borderRadius: "var(--radius-8)",
+                    background: "transparent",
+                    border: "1px solid var(--color-border-default)",
+                    cursor: "pointer",
+                    alignSelf: "center",
+                    fontFamily: "Pretendard",
+                    fontSize: "14px",
+                    fontWeight: 500,
+                    lineHeight: "20px",
+                    color: "var(--color-text-default)",
+                  }}
+                >
+                  더보기
+                </button>
+              )}
+            </>
+          ) : (
+            <div>논문이 없습니다.</div>
+          )}
         </div>
       </div>
     </div>

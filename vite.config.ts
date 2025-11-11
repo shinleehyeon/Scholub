@@ -12,7 +12,7 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: "https://scholub-api.alpa.dev",
+        target: "https://supporting-acceptance-jenny-magnet.trycloudflare.com/",
         changeOrigin: true,
         secure: true,
         rewrite: (path) => path.replace(/^\/api/, "/api"),

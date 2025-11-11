@@ -91,6 +91,33 @@ export interface SearchPapersParams {
   limit?: number;
 }
 
+export interface CategoryPapersResponse {
+  status: number;
+  method: string;
+  instance: string;
+  details: string;
+  data: {
+    papers: Paper[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+  errors: Record<string, unknown> | null;
+  timestamp?: string;
+}
+
+export interface CategoryPapersParams {
+  page?: number;
+  limit?: number;
+  sortBy?: "createdAt" | "issuedAt" | "likeCount" | "totalViewCount";
+  sortOrder?: "asc" | "desc";
+  categories?: string[];
+  authors?: string[];
+  year?: number;
+  searchQuery?: string;
+}
+
 export const papersApi = {
   async getHeadlines(limit: number = 4): Promise<Paper[]> {
     try {
@@ -176,6 +203,63 @@ export const papersApi = {
 
     const response = await apiClient.get<SearchPapersResponse>(
       `/papers/search?${queryParams.toString()}`
+    );
+
+    return (
+      response.data || {
+        papers: [],
+        total: 0,
+        page: 1,
+        limit: 20,
+        totalPages: 0,
+      }
+    );
+  },
+
+  async getPapersByCategory(
+    category: string,
+    params?: CategoryPapersParams
+  ): Promise<{
+    papers: Paper[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  }> {
+    const queryParams = new URLSearchParams();
+
+    if (params?.page) {
+      queryParams.append("page", params.page.toString());
+    }
+    if (params?.limit) {
+      queryParams.append("limit", params.limit.toString());
+    }
+    if (params?.sortBy) {
+      queryParams.append("sortBy", params.sortBy);
+    }
+    if (params?.sortOrder) {
+      queryParams.append("sortOrder", params.sortOrder);
+    }
+    if (params?.categories && params.categories.length > 0) {
+      params.categories.forEach((cat) => {
+        queryParams.append("categories", cat);
+      });
+    }
+    if (params?.authors && params.authors.length > 0) {
+      params.authors.forEach((author) => {
+        queryParams.append("authors", author);
+      });
+    }
+    if (params?.year) {
+      queryParams.append("year", params.year.toString());
+    }
+    if (params?.searchQuery) {
+      queryParams.append("searchQuery", params.searchQuery);
+    }
+
+    const encodedCategory = encodeURIComponent(category);
+    const response = await apiClient.get<CategoryPapersResponse>(
+      `/papers/categories/${encodedCategory}?${queryParams.toString()}`
     );
 
     return (
