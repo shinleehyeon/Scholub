@@ -41,7 +41,6 @@ export default function ProfilePage() {
 
   useEffect(() => {
     const fetchProfileData = async () => {
-
       try {
         setLoadingProfile(true);
         const profileData = await profileApi.getProfile();
@@ -61,7 +60,6 @@ export default function ProfilePage() {
         const reactions = await profileApi.getReactionPapers();
 
         const formattedPapers = reactions.map((paper) => {
-
           const imageUrl =
             paper.thumbnailUrl ||
             paper.imageUrl ||
@@ -91,7 +89,6 @@ export default function ProfilePage() {
       } catch (err) {
         console.error("반응한 논문 로드 실패:", err);
         setReactionPapers([]);
-
       } finally {
         setLoadingReactions(false);
       }
@@ -101,7 +98,6 @@ export default function ProfilePage() {
         const discussed = await profileApi.getDiscussedPapers();
 
         const formattedPapers = discussed.map((paper) => {
-
           const imageUrl =
             paper.thumbnailUrl ||
             paper.imageUrl ||
@@ -131,7 +127,6 @@ export default function ProfilePage() {
       } catch (err) {
         console.error("토론한 논문 로드 실패:", err);
         setCommentPapers([]);
-
       } finally {
         setLoadingComments(false);
       }
@@ -193,13 +188,10 @@ export default function ProfilePage() {
     paperId: string,
     isLiked: boolean
   ) => {
-
     setReactionPapers((prev) => {
       if (!isLiked) {
-
         return prev.filter((paper) => paper.paperId !== paperId);
       } else {
-
         return prev.map((paper) =>
           paper.paperId === paperId ? { ...paper, isLiked: true } : paper
         );
@@ -238,7 +230,7 @@ export default function ProfilePage() {
         <div
           style={{
             display: "flex",
-            width: "721px",
+            width: "1000px",
             flexDirection: "column",
             alignItems: "flex-start",
             gap: "var(--spacing-32)",
@@ -357,129 +349,138 @@ export default function ProfilePage() {
           <div
             style={{
               display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
+              alignItems: "flex-start",
+              gap: "48px",
               alignSelf: "stretch",
             }}
           >
-            <Typography.BodyLarge
-              color="default"
+            <div
               style={{
-                alignSelf: "stretch",
-                textAlign: "left",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                flex: 1,
               }}
             >
-              내가 반응한 논문
-            </Typography.BodyLarge>
+              <Typography.BodyLarge
+                color="default"
+                style={{
+                  alignSelf: "stretch",
+                  textAlign: "left",
+                }}
+              >
+                내가 반응한 논문
+              </Typography.BodyLarge>
+
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "var(--spacing-24)",
+                  width: "100%",
+                  marginTop: "var(--spacing-12)",
+                }}
+              >
+                {loadingReactions ? (
+                  <Typography.Body color="subtle">로딩 중...</Typography.Body>
+                ) : reactionPapers.length > 0 ? (
+                  reactionPapers.map((paper) => (
+                    <LatestResearchCard
+                      key={paper.id}
+                      paperId={paper.paperId || paper.id}
+                      imageUrl={paper.imageUrl || ""}
+                      category={paper.category || "분류 없음"}
+                      title={paper.title || ""}
+                      description={paper.description || ""}
+                      likes={paper.likes || 0}
+                      comments={paper.comments || 0}
+                      isLiked={paper.isLiked || false}
+                      onLikeChange={handleReactionLikeChange}
+                    />
+                  ))
+                ) : (
+                  <Typography.Body color="subtle">
+                    반응한 논문이 없습니다.
+                  </Typography.Body>
+                )}
+              </div>
+
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  width: "100%",
+                  marginTop: "var(--spacing-24)",
+                }}
+              >
+                <Button variant="secondary" size="medium">
+                  더보기
+                </Button>
+              </div>
+            </div>
 
             <div
               style={{
                 display: "flex",
                 flexDirection: "column",
-                gap: "var(--spacing-24)",
-                width: "100%",
-                marginTop: "var(--spacing-12)",
+                alignItems: "center",
+                flex: 1,
               }}
             >
-              {loadingReactions ? (
-                <Typography.Body color="subtle">로딩 중...</Typography.Body>
-              ) : reactionPapers.length > 0 ? (
-                reactionPapers.map((paper) => (
-                  <LatestResearchCard
-                    key={paper.id}
-                    paperId={paper.paperId || paper.id}
-                    imageUrl={paper.imageUrl || ""}
-                    category={paper.category || "분류 없음"}
-                    title={paper.title || ""}
-                    description={paper.description || ""}
-                    likes={paper.likes || 0}
-                    comments={paper.comments || 0}
-                    isLiked={paper.isLiked || false}
-                    onLikeChange={handleReactionLikeChange}
-                  />
-                ))
-              ) : (
-                <Typography.Body color="subtle">
-                  반응한 논문이 없습니다.
-                </Typography.Body>
-              )}
-            </div>
+              <Typography.BodyLarge
+                color="default"
+                style={{
+                  alignSelf: "stretch",
+                  textAlign: "left",
+                }}
+              >
+                내가 토론한 논문
+              </Typography.BodyLarge>
 
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                width: "100%",
-                marginTop: "var(--spacing-24)",
-              }}
-            >
-              <Button variant="secondary" size="medium">
-                더보기
-              </Button>
-            </div>
-          </div>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "var(--spacing-24)",
+                  width: "100%",
+                  marginTop: "var(--spacing-12)",
+                }}
+              >
+                {loadingComments ? (
+                  <Typography.Body color="subtle">로딩 중...</Typography.Body>
+                ) : commentPapers.length > 0 ? (
+                  commentPapers.map((paper) => (
+                    <LatestResearchCard
+                      key={paper.id}
+                      paperId={paper.paperId || paper.id}
+                      imageUrl={paper.imageUrl || ""}
+                      category={paper.category || "분류 없음"}
+                      title={paper.title || ""}
+                      description={paper.description || ""}
+                      likes={paper.likes || 0}
+                      comments={paper.comments || 0}
+                      isLiked={paper.isLiked || false}
+                    />
+                  ))
+                ) : (
+                  <Typography.Body color="subtle">
+                    댓글 작성한 논문이 없습니다.
+                  </Typography.Body>
+                )}
+              </div>
 
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              alignSelf: "stretch",
-            }}
-          >
-            <Typography.BodyLarge
-              color="default"
-              style={{
-                alignSelf: "stretch",
-                textAlign: "left",
-              }}
-            >
-              내가 토론한 논문
-            </Typography.BodyLarge>
-
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: "var(--spacing-24)",
-                width: "100%",
-                marginTop: "var(--spacing-12)",
-              }}
-            >
-              {loadingComments ? (
-                <Typography.Body color="subtle">로딩 중...</Typography.Body>
-              ) : commentPapers.length > 0 ? (
-                commentPapers.map((paper) => (
-                  <LatestResearchCard
-                    key={paper.id}
-                    paperId={paper.paperId || paper.id}
-                    imageUrl={paper.imageUrl || ""}
-                    category={paper.category || "분류 없음"}
-                    title={paper.title || ""}
-                    description={paper.description || ""}
-                    likes={paper.likes || 0}
-                    comments={paper.comments || 0}
-                    isLiked={paper.isLiked || false}
-                  />
-                ))
-              ) : (
-                <Typography.Body color="subtle">
-                  댓글 작성한 논문이 없습니다.
-                </Typography.Body>
-              )}
-            </div>
-
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                width: "100%",
-                marginTop: "var(--spacing-24)",
-              }}
-            >
-              <Button variant="secondary" size="medium">
-                더보기
-              </Button>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  width: "100%",
+                  marginTop: "var(--spacing-24)",
+                }}
+              >
+                <Button variant="secondary" size="medium">
+                  더보기
+                </Button>
+              </div>
             </div>
           </div>
         </div>
