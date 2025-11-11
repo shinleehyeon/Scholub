@@ -3,7 +3,7 @@ import { authStorage } from "@/shared/lib/auth";
 
 const API_BASE_URL = import.meta.env.DEV
   ? "/api"
-  : "https://classification-gras-sometimes-promo.trycloudflare.com/api";
+  : "https://scholub-api.alpa.dev/api/";
 
 export class ApiClient {
   private baseUrl: string;

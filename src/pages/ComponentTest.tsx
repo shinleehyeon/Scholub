@@ -2,6 +2,7 @@ import { Input, Checkbox, Button, Search, Chip } from "@/shared/ui";
 import { useState } from "react";
 import { ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { Discussion } from "@/widgets/discussion";
 import MessageBubble from "@/shared/ui/icons/MessageBubble";
 
 export default function ComponentTest() {
@@ -218,6 +219,14 @@ export default function ComponentTest() {
               큰 선택된 태그
             </Chip>
           </div>
+        </div>
+
+        <div className="border-2 border-dashed border-purple-500 rounded-3xl p-12">
+          <div className="flex items-center gap-2 mb-8">
+            <span className="text-purple-500 font-semibold">Discussion</span>
+          </div>
+
+          <Discussion />
         </div>
       </div>
     </div>
