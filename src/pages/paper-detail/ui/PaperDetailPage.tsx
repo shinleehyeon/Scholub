@@ -140,6 +140,32 @@ export default function PaperDetailPage() {
   const [isUnliked, setIsUnliked] = useState(false);
   const popupPositionRef = useRef(popupPosition);
   const selectedTextRef = useRef(selectedText);
+  const viewRecordedRef = useRef(false);
+
+  // 5분 후 논문 조회 기록 API 호출
+  useEffect(() => {
+    if (!paperId || !paper || viewRecordedRef.current) {
+      return;
+    }
+
+    const timer = setTimeout(
+      async () => {
+        try {
+          await papersApi.recordPaperView(paperId);
+          viewRecordedRef.current = true;
+          console.log("논문 조회 기록 완료:", paperId);
+        } catch (error) {
+          console.error("논문 조회 기록 실패:", error);
+          // 실패해도 사용자에게 알리지 않음 (백그라운드 작업)
+        }
+      },
+      5 * 60 * 1000
+    ); // 5분 = 300000ms
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [paperId, paper]);
 
   useEffect(() => {
     const fetchPaperDetail = async () => {
@@ -1095,12 +1121,31 @@ export default function PaperDetailPage() {
             >
               <div
                 onClick={async () => {
-                  if (!paperId) return;
+                  if (!paper?.id) return;
+
+                  // 낙관적 업데이트: 즉시 UI 업데이트
+                  const previousIsLiked = isLiked;
+                  const previousIsUnliked = isUnliked;
+                  const previousLikeCount = paper.likeCount || 0;
+
+                  const newIsLiked = !isLiked;
+                  setIsLiked(newIsLiked);
+                  if (newIsLiked) {
+                    setIsUnliked(false);
+                  }
+
+                  // 카운트 낙관적 업데이트
+                  const newLikeCount = newIsLiked
+                    ? previousLikeCount + 1
+                    : previousLikeCount - 1;
+                  setPaper({ ...paper, likeCount: Math.max(0, newLikeCount) });
+
                   try {
                     const result = await papersApi.toggleReaction(
-                      paperId,
+                      paper.id,
                       "LIKE"
                     );
+                    // 서버 응답으로 최종 상태 업데이트
                     setIsLiked(result.isReacted);
                     if (result.isReacted) {
                       setIsUnliked(false);
@@ -1109,6 +1154,11 @@ export default function PaperDetailPage() {
                       setPaper({ ...paper, likeCount: result.likeCount });
                     }
                   } catch (error) {
+                    // 실패 시 이전 상태로 롤백
+                    setIsLiked(previousIsLiked);
+                    setIsUnliked(previousIsUnliked);
+                    setPaper({ ...paper, likeCount: previousLikeCount });
+
                     console.error("좋아요 토글 실패:", error);
                     let errorMessage = "좋아요 처리에 실패했습니다.";
                     if (error instanceof Error) {
@@ -1167,17 +1217,44 @@ export default function PaperDetailPage() {
 
               <div
                 onClick={async () => {
-                  if (!paperId) return;
+                  if (!paper?.id) return;
+
+                  // 낙관적 업데이트: 즉시 UI 업데이트
+                  const previousIsLiked = isLiked;
+                  const previousIsUnliked = isUnliked;
+                  const previousUnlikeCount = paper.unlikeCount || 0;
+
+                  const newIsUnliked = !isUnliked;
+                  setIsUnliked(newIsUnliked);
+                  if (newIsUnliked) {
+                    setIsLiked(false);
+                  }
+
+                  // 카운트 낙관적 업데이트
+                  const newUnlikeCount = newIsUnliked
+                    ? previousUnlikeCount + 1
+                    : previousUnlikeCount - 1;
+                  setPaper({
+                    ...paper,
+                    unlikeCount: Math.max(0, newUnlikeCount),
+                  });
+
                   try {
                     const result = await papersApi.toggleReaction(
-                      paperId,
+                      paper.id,
                       "UNLIKE"
                     );
+                    // 서버 응답으로 최종 상태 업데이트
                     setIsUnliked(result.isReacted);
                     if (result.isReacted) {
                       setIsLiked(false);
                     }
                   } catch (error) {
+                    // 실패 시 이전 상태로 롤백
+                    setIsLiked(previousIsLiked);
+                    setIsUnliked(previousIsUnliked);
+                    setPaper({ ...paper, unlikeCount: previousUnlikeCount });
+
                     console.error("싫어요 토글 실패:", error);
                     let errorMessage = "싫어요 처리에 실패했습니다.";
                     if (error instanceof Error) {

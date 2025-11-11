@@ -307,4 +307,23 @@ export const papersApi = {
     );
     return response.data;
   },
+
+  async recordPaperView(
+    paperId: string
+  ): Promise<{ success: boolean; paperViewId?: string }> {
+    const response = await apiClient.post<{
+      status: number;
+      method: string;
+      instance: string;
+      details: string;
+      data: {
+        success: boolean;
+        paperViewId?: string;
+      };
+      errors: Record<string, unknown>;
+      timestamp: string;
+    }>(`/papers/${encodeURIComponent(paperId)}/view`);
+
+    return response.data || { success: false };
+  },
 };
