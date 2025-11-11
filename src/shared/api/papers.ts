@@ -91,6 +91,16 @@ export interface SearchPapersParams {
   limit?: number;
 }
 
+export interface PaperDetailResponse {
+  status: number;
+  method: string;
+  instance: string;
+  details: string;
+  data: Paper;
+  errors: Record<string, unknown> | null;
+  timestamp?: string;
+}
+
 export interface CategoryPapersResponse {
   status: number;
   method: string;
@@ -271,5 +281,12 @@ export const papersApi = {
         totalPages: 0,
       }
     );
+  },
+
+  async getPaperDetail(paperId: string): Promise<Paper> {
+    const response = await apiClient.get<PaperDetailResponse>(
+      `/papers/${paperId}`
+    );
+    return response.data;
   },
 };

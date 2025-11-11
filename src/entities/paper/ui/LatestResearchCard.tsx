@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import Heart from "@/shared/ui/icons/Heart";
 import Message from "@/shared/ui/icons/Message";
 import { Typography } from "@/shared/ui";
@@ -29,6 +30,7 @@ export default function LatestResearchCard({
   onLikeChange,
 }: LatestResearchCardProps) {
   const { showToast } = useToast();
+  const navigate = useNavigate();
   const [isLiked, setIsLiked] = useState(initialIsLiked);
   const [likes, setLikes] = useState(initialLikes);
   const [isLoading, setIsLoading] = useState(false);
@@ -145,13 +147,22 @@ export default function LatestResearchCard({
       setIsLoading(false);
     }
   };
+
+  const handleCardClick = () => {
+    if (paperId) {
+      navigate(`/papers/${paperId}`);
+    }
+  };
+
   return (
     <div
       style={{
         display: "flex",
         alignItems: "flex-start",
         gap: "var(--spacing-24)",
+        cursor: "pointer",
       }}
+      onClick={handleCardClick}
     >
       <div
         style={{
@@ -184,7 +195,10 @@ export default function LatestResearchCard({
           }}
         >
           <button
-            onClick={handleLikeClick}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleLikeClick();
+            }}
             disabled={isLoading}
             style={{
               display: "flex",
@@ -202,6 +216,7 @@ export default function LatestResearchCard({
           </button>
 
           <button
+            onClick={(e) => e.stopPropagation()}
             style={{
               display: "flex",
               alignItems: "center",
