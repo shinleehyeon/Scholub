@@ -798,6 +798,89 @@ export default function PaperDetailTestPage() {
             </div>
           </div>
         </div>
+
+        {/* 토론 섹션 */}
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "flex-start",
+            gap: "var(--spacing-14)",
+            alignSelf: "stretch",
+            maxWidth: "1200px",
+            width: "100%",
+            margin: "0 auto",
+            marginTop: "var(--spacing-32)",
+          }}
+        >
+          {/* 토론 제목 */}
+          <div
+            style={{
+              color: "#322F29",
+              fontFamily: "Pretendard",
+              fontSize: "24px",
+              fontStyle: "normal",
+              fontWeight: 500,
+              lineHeight: "30px",
+            }}
+          >
+            토론
+          </div>
+
+          {/* 활성화 토론 카드 */}
+          <div
+            style={{
+              display: "flex",
+              padding: "var(--spacing-16) var(--spacing-20)",
+              justifyContent: "space-between",
+              alignItems: "center",
+              alignSelf: "stretch",
+              borderRadius: "var(--radius-16)",
+              border: "1px solid var(--color-border-default)",
+              background: "var(--color-surface-subtle)",
+            }}
+          >
+            {/* 왼쪽 글자 영역 */}
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "flex-start",
+                gap: "var(--spacing-4)",
+              }}
+            >
+              <div
+                style={{
+                  color: "#322F29",
+                  fontFamily: "Pretendard",
+                  fontSize: "17px",
+                  fontStyle: "normal",
+                  fontWeight: 500,
+                  lineHeight: "24px",
+                }}
+              >
+                아직 활성화된 토론이 없어요.
+              </div>
+              <div
+                style={{
+                  color: "var(--color-text-subtle)",
+                  fontFamily: "Pretendard",
+                  fontSize: "14px",
+                  fontStyle: "normal",
+                  fontWeight: 500,
+                  lineHeight: "20px",
+                }}
+              >
+                위 버튼을 눌러 지금 바로 토론을 시작하세요
+              </div>
+            </div>
+
+            {/* 오른쪽 버튼 */}
+            <Button variant="primary" size="medium">
+              토론 시작하기
+            </Button>
+          </div>
+        </div>
       </div>
     </div>
   );
