@@ -112,15 +112,18 @@ const TableOfContentsItem = ({
 export default function PaperDetailTestPage() {
   // 텍스트 선택 시 좌우 오렌지 바 표시를 위한 ref
   const contentRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const containerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const handleSelection = () => {
       const selection = window.getSelection();
       if (!selection || selection.rangeCount === 0) {
         // 선택이 없으면 모든 바 제거
-        document
-          .querySelectorAll(".selection-border-left, .selection-border-right")
-          .forEach((el) => el.remove());
+        if (containerRef.current) {
+          containerRef.current
+            .querySelectorAll(".selection-border-left, .selection-border-right")
+            .forEach((el) => el.remove());
+        }
         return;
       }
 
@@ -128,23 +131,36 @@ export default function PaperDetailTestPage() {
       const selectedText = selection.toString().trim();
 
       if (!selectedText) {
-        document
-          .querySelectorAll(".selection-border-left, .selection-border-right")
-          .forEach((el) => el.remove());
+        if (containerRef.current) {
+          containerRef.current
+            .querySelectorAll(".selection-border-left, .selection-border-right")
+            .forEach((el) => el.remove());
+        }
+        return;
+      }
+
+      // 선택된 요소가 이 페이지의 본문 영역인지 확인
+      const container = range.commonAncestorContainer.parentElement;
+      if (
+        !container ||
+        !containerRef.current ||
+        !containerRef.current.contains(container)
+      ) {
+        // 이 페이지의 본문 영역이 아니면 바 제거
+        if (containerRef.current) {
+          containerRef.current
+            .querySelectorAll(".selection-border-left, .selection-border-right")
+            .forEach((el) => el.remove());
+        }
         return;
       }
 
       // 기존 바 제거
-      document
+      containerRef.current
         .querySelectorAll(".selection-border-left, .selection-border-right")
         .forEach((el) => el.remove());
 
       try {
-        // 선택된 텍스트의 시작과 끝 위치 계산
-        const container = range.commonAncestorContainer.parentElement;
-
-        if (!container) return;
-
         const containerRect = container.getBoundingClientRect();
 
         // 시작 위치 계산
@@ -199,9 +215,11 @@ export default function PaperDetailTestPage() {
     return () => {
       document.removeEventListener("selectionchange", handleSelection);
       document.removeEventListener("mouseup", handleSelection);
-      document
-        .querySelectorAll(".selection-border-left, .selection-border-right")
-        .forEach((el) => el.remove());
+      if (containerRef.current) {
+        containerRef.current
+          .querySelectorAll(".selection-border-left, .selection-border-right")
+          .forEach((el) => el.remove());
+      }
     };
   }, []);
 
@@ -282,10 +300,21 @@ export default function PaperDetailTestPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white paper-detail-test-page">
+      <style>{`
+        .paper-detail-test-page ::selection {
+          background: rgba(247, 151, 29, 0.13);
+          color: inherit;
+        }
+        .paper-detail-test-page ::-moz-selection {
+          background: rgba(247, 151, 29, 0.13);
+          color: inherit;
+        }
+      `}</style>
       <Header />
       <SubHeader />
       <div
+        ref={containerRef}
         style={{
           display: "flex",
           padding: "var(--spacing-32) var(--padding)",
