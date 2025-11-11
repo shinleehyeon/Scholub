@@ -200,6 +200,22 @@ export const papersApi = {
     };
   },
 
+  async startChatSession(paperId: string): Promise<{ activityId: string }> {
+    const response = await apiClient.post<{
+      status: number;
+      data: {
+        activityId: string;
+        message: string;
+      };
+    }>("/papers/chat/start", {
+      paperId,
+    });
+
+    return {
+      activityId: response.data?.activityId || "",
+    };
+  },
+
   async searchPapers(params: SearchPapersParams): Promise<{
     papers: Paper[];
     total: number;

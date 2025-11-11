@@ -108,6 +108,8 @@ const TableOfContentsItem = ({
 
 interface PaperContent {
   tableOfContents?: TableOfContentsItem[];
+  tableOfContentsTitle?: string;
+  translatedTableOfContentsTitle?: string;
   contents?: Array<{
     content?: string;
     label?: string;
@@ -441,8 +443,26 @@ export default function PaperDetailPage() {
   }
 
   const paperContent = (paper.content as PaperContent) || {};
+  const rawContents = paperContent.contents || [];
+
+  const abstractContent = rawContents.find(
+    (c) => c.label?.toLowerCase() === "abstract"
+  );
+  const introductionContent = rawContents.find(
+    (c) => c.label?.toLowerCase() === "introduction"
+  );
+
   const tableOfContents = paperContent.tableOfContents || [];
-  const contents = paperContent.contents || [];
+  const tableOfContentsTitle =
+    paperContent.translatedTableOfContentsTitle ||
+    paperContent.tableOfContentsTitle ||
+    "목차";
+
+  const contents = rawContents.filter(
+    (content) =>
+      content.label?.toLowerCase() !== "abstract" &&
+      content.label?.toLowerCase() !== "introduction"
+  );
   const thumbnailUrl =
     paper.thumbnailUrl ||
     paper.imageUrl ||
@@ -536,7 +556,10 @@ export default function PaperDetailPage() {
                 width: "100%",
               }}
             >
-              {paper.categories[0] || ""}
+              {paper.categories.length > 0
+                ? paper.categories.slice(0, 2).join(", ") +
+                  (paper.categories.length > 2 ? ", ..." : "")
+                : ""}
             </div>
 
             <div
@@ -716,6 +739,11 @@ export default function PaperDetailPage() {
                 variant="secondary"
                 size="medium"
                 leadingIcon={<DocumentIcon />}
+                onClick={() => {
+                  if (paper.url) {
+                    window.open(paper.url, "_blank");
+                  }
+                }}
               >
                 원문 보기
               </Button>
@@ -759,18 +787,11 @@ export default function PaperDetailPage() {
             margin: "0 auto",
           }}
         >
-          <div
-            style={{
-              color: "#322F29",
-              fontFamily: "Pretendard",
-              fontSize: "24px",
-              fontStyle: "normal",
-              fontWeight: 600,
-              lineHeight: "30px",
-            }}
+          <Typography.Headline
+            kor={paperContent.translatedTableOfContentsTitle}
           >
-            목차
-          </div>
+            {tableOfContentsTitle}
+          </Typography.Headline>
 
           <div
             style={{
@@ -795,6 +816,119 @@ export default function PaperDetailPage() {
             ))}
           </div>
         </div>
+
+        {abstractContent && (
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "flex-start",
+              gap: "var(--spacing-14)",
+              alignSelf: "stretch",
+              maxWidth: "1200px",
+              width: "100%",
+              margin: "0 auto",
+            }}
+          >
+            <Typography.Headline
+              kor={abstractContent.translatedLabel}
+              style={{
+                color: "#322F29",
+              }}
+            >
+              {abstractContent.label || ""}
+            </Typography.Headline>
+
+            <div
+              style={{
+                background: "var(--color-border-default)",
+                width: "100%",
+                height: "1px",
+                alignSelf: "stretch",
+              }}
+            />
+
+            <div
+              ref={(el) => {
+                if (el)
+                  contentRefs.current[rawContents.indexOf(abstractContent)] =
+                    el;
+              }}
+              style={{
+                color: "#322F29",
+                fontFamily: "Pretendard",
+                fontSize: "17px",
+                fontStyle: "normal",
+                fontWeight: 400,
+                lineHeight: "30px",
+                whiteSpace: "pre-wrap",
+                alignSelf: "stretch",
+                position: "relative",
+              }}
+            >
+              {language === "ko" && abstractContent.translatedContent
+                ? abstractContent.translatedContent
+                : abstractContent.content || ""}
+            </div>
+          </div>
+        )}
+
+        {introductionContent && (
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "flex-start",
+              gap: "var(--spacing-14)",
+              alignSelf: "stretch",
+              maxWidth: "1200px",
+              width: "100%",
+              margin: "0 auto",
+            }}
+          >
+            <Typography.Headline
+              kor={introductionContent.translatedLabel}
+              style={{
+                color: "#322F29",
+              }}
+            >
+              {introductionContent.label || ""}
+            </Typography.Headline>
+
+            <div
+              style={{
+                background: "var(--color-border-default)",
+                width: "100%",
+                height: "1px",
+                alignSelf: "stretch",
+              }}
+            />
+
+            <div
+              ref={(el) => {
+                if (el)
+                  contentRefs.current[
+                    rawContents.indexOf(introductionContent)
+                  ] = el;
+              }}
+              style={{
+                color: "#322F29",
+                fontFamily: "Pretendard",
+                fontSize: "17px",
+                fontStyle: "normal",
+                fontWeight: 400,
+                lineHeight: "30px",
+                whiteSpace: "pre-wrap",
+                alignSelf: "stretch",
+                position: "relative",
+              }}
+            >
+              {language === "ko" && introductionContent.translatedContent
+                ? introductionContent.translatedContent
+                : introductionContent.content || ""}
+            </div>
+          </div>
+        )}
 
         {contents.map((content, index) => (
           <div
@@ -891,13 +1025,10 @@ export default function PaperDetailPage() {
         <div
           style={{
             display: "flex",
-            padding: "var(--spacing-24) var(--spacing-12)",
             flexDirection: "column",
-            alignItems: "center",
-            gap: "var(--spacing-24)",
+            alignItems: "flex-start",
+            gap: "var(--spacing-14)",
             alignSelf: "stretch",
-            borderRadius: "var(--radius-14)",
-            background: "var(--color-surface-subtle)",
             maxWidth: "1200px",
             width: "100%",
             margin: "0 auto",
@@ -906,185 +1037,201 @@ export default function PaperDetailPage() {
           <div
             style={{
               display: "flex",
+              paddingTop: "var(--spacing-24)",
+              paddingBottom: "var(--spacing-24)",
+              paddingLeft: "var(--spacing-12)",
+              paddingRight: "var(--spacing-12)",
               flexDirection: "column",
               alignItems: "center",
-              gap: "var(--spacing-4)",
-            }}
-          >
-            <div
-              style={{
-                color: "#322F29",
-                fontFamily: "Pretendard",
-                fontSize: "14px",
-                fontStyle: "normal",
-                fontWeight: 500,
-                lineHeight: "20px",
-                textAlign: "center",
-              }}
-            >
-              {paper.title}
-            </div>
-            <div
-              style={{
-                color: "#000",
-                fontFamily: "Pretendard",
-                fontSize: "17px",
-                fontStyle: "normal",
-                fontWeight: 500,
-                lineHeight: "24px",
-                textAlign: "center",
-              }}
-            >
-              논문 잘 읽으셨나요?
-            </div>
-          </div>
-
-          <div
-            style={{
-              display: "flex",
-              alignItems: "flex-start",
-              gap: "-1px",
+              gap: "var(--spacing-24)",
+              alignSelf: "stretch",
+              borderRadius: "var(--radius-14)",
               background: "var(--color-surface-subtle)",
             }}
           >
             <div
-              onClick={async () => {
-                if (!paperId) return;
-                try {
-                  const result = await papersApi.toggleReaction(
-                    paperId,
-                    "LIKE"
-                  );
-                  setIsLiked(result.isReacted);
-                  if (result.isReacted) {
-                    setIsUnliked(false);
-                  }
-                  if (paper && result.likeCount !== undefined) {
-                    setPaper({ ...paper, likeCount: result.likeCount });
-                  }
-                } catch (error) {
-                  console.error("좋아요 토글 실패:", error);
-                  let errorMessage = "좋아요 처리에 실패했습니다.";
-                  if (error instanceof Error) {
-                    if (
-                      error.message.includes("Invalid reference") ||
-                      error.message.includes("does not exist")
-                    ) {
-                      errorMessage = "해당 논문을 찾을 수 없습니다.";
-                    } else {
-                      errorMessage = error.message;
-                    }
-                  }
-                  showToast(errorMessage, "error");
-                }
-              }}
               style={{
                 display: "flex",
-                width: "110px",
                 flexDirection: "column",
                 alignItems: "center",
-                gap: "4px",
-                cursor: "pointer",
+                gap: "var(--spacing-4)",
               }}
             >
               <div
                 style={{
                   color: "#322F29",
-                  textAlign: "center",
                   fontFamily: "Pretendard",
                   fontSize: "14px",
                   fontStyle: "normal",
                   fontWeight: 500,
                   lineHeight: "20px",
+                  textAlign: "center",
                 }}
               >
-                좋아요
+                {paper.title}
               </div>
-              <SmileLike
-                size={50}
-                color={isLiked ? "var(--color-brand-default)" : "#A9A8A6"}
-              />
               <div
                 style={{
-                  color: "#322F29",
-                  textAlign: "center",
+                  color: "#000",
                   fontFamily: "Pretendard",
-                  fontSize: "14px",
+                  fontSize: "17px",
                   fontStyle: "normal",
                   fontWeight: 500,
-                  lineHeight: "20px",
+                  lineHeight: "24px",
+                  textAlign: "center",
                 }}
               >
-                {paper?.likeCount || 0}명
+                논문 잘 읽으셨나요?
               </div>
             </div>
 
             <div
-              onClick={async () => {
-                if (!paperId) return;
-                try {
-                  const result = await papersApi.toggleReaction(
-                    paperId,
-                    "UNLIKE"
-                  );
-                  setIsUnliked(result.isReacted);
-                  if (result.isReacted) {
-                    setIsLiked(false);
-                  }
-                } catch (error) {
-                  console.error("싫어요 토글 실패:", error);
-                  let errorMessage = "싫어요 처리에 실패했습니다.";
-                  if (error instanceof Error) {
-                    if (
-                      error.message.includes("Invalid reference") ||
-                      error.message.includes("does not exist")
-                    ) {
-                      errorMessage = "해당 논문을 찾을 수 없습니다.";
-                    } else {
-                      errorMessage = error.message;
-                    }
-                  }
-                  showToast(errorMessage, "error");
-                }
-              }}
               style={{
                 display: "flex",
-                width: "110px",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: "4px",
-                cursor: "pointer",
+                alignItems: "flex-start",
+                gap: "-1px",
+                background: "var(--color-surface-subtle)",
               }}
             >
               <div
+                onClick={async () => {
+                  if (!paperId) return;
+                  try {
+                    const result = await papersApi.toggleReaction(
+                      paperId,
+                      "LIKE"
+                    );
+                    setIsLiked(result.isReacted);
+                    if (result.isReacted) {
+                      setIsUnliked(false);
+                    }
+                    if (paper && result.likeCount !== undefined) {
+                      setPaper({ ...paper, likeCount: result.likeCount });
+                    }
+                  } catch (error) {
+                    console.error("좋아요 토글 실패:", error);
+                    let errorMessage = "좋아요 처리에 실패했습니다.";
+                    if (error instanceof Error) {
+                      if (
+                        error.message.includes("Invalid reference") ||
+                        error.message.includes("does not exist")
+                      ) {
+                        errorMessage = "해당 논문을 찾을 수 없습니다.";
+                      } else {
+                        errorMessage = error.message;
+                      }
+                    }
+                    showToast(errorMessage, "error");
+                  }
+                }}
                 style={{
-                  color: "#322F29",
-                  textAlign: "center",
-                  fontFamily: "Pretendard",
-                  fontSize: "14px",
-                  fontStyle: "normal",
-                  fontWeight: 500,
-                  lineHeight: "20px",
+                  display: "flex",
+                  width: "110px",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: "4px",
+                  cursor: "pointer",
                 }}
               >
-                싫어요
+                <div
+                  style={{
+                    color: "#322F29",
+                    textAlign: "center",
+                    fontFamily: "Pretendard",
+                    fontSize: "14px",
+                    fontStyle: "normal",
+                    fontWeight: 500,
+                    lineHeight: "20px",
+                  }}
+                >
+                  좋아요
+                </div>
+                <SmileLike
+                  size={50}
+                  color={isLiked ? "var(--color-brand-default)" : "#A9A8A6"}
+                />
+                <div
+                  style={{
+                    color: "#322F29",
+                    textAlign: "center",
+                    fontFamily: "Pretendard",
+                    fontSize: "14px",
+                    fontStyle: "normal",
+                    fontWeight: 500,
+                    lineHeight: "20px",
+                  }}
+                >
+                  {paper?.likeCount || 0}명
+                </div>
               </div>
-              <FrownDislike
-                size={50}
-                color={isUnliked ? "var(--color-brand-default)" : "#322F29"}
-              />
+
               <div
+                onClick={async () => {
+                  if (!paperId) return;
+                  try {
+                    const result = await papersApi.toggleReaction(
+                      paperId,
+                      "UNLIKE"
+                    );
+                    setIsUnliked(result.isReacted);
+                    if (result.isReacted) {
+                      setIsLiked(false);
+                    }
+                  } catch (error) {
+                    console.error("싫어요 토글 실패:", error);
+                    let errorMessage = "싫어요 처리에 실패했습니다.";
+                    if (error instanceof Error) {
+                      if (
+                        error.message.includes("Invalid reference") ||
+                        error.message.includes("does not exist")
+                      ) {
+                        errorMessage = "해당 논문을 찾을 수 없습니다.";
+                      } else {
+                        errorMessage = error.message;
+                      }
+                    }
+                    showToast(errorMessage, "error");
+                  }
+                }}
                 style={{
-                  color: "#322F29",
-                  textAlign: "center",
-                  fontFamily: "Pretendard",
-                  fontSize: "14px",
-                  fontStyle: "normal",
-                  fontWeight: 500,
-                  lineHeight: "20px",
+                  display: "flex",
+                  width: "110px",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: "4px",
+                  cursor: "pointer",
                 }}
               >
-                {paper?.unlikeCount || 0}명
+                <div
+                  style={{
+                    color: "#322F29",
+                    textAlign: "center",
+                    fontFamily: "Pretendard",
+                    fontSize: "14px",
+                    fontStyle: "normal",
+                    fontWeight: 500,
+                    lineHeight: "20px",
+                  }}
+                >
+                  싫어요
+                </div>
+                <FrownDislike
+                  size={50}
+                  color={isUnliked ? "var(--color-brand-default)" : "#322F29"}
+                />
+                <div
+                  style={{
+                    color: "#322F29",
+                    textAlign: "center",
+                    fontFamily: "Pretendard",
+                    fontSize: "14px",
+                    fontStyle: "normal",
+                    fontWeight: 500,
+                    lineHeight: "20px",
+                  }}
+                >
+                  {paper?.unlikeCount || 0}명
+                </div>
               </div>
             </div>
           </div>
@@ -1438,6 +1585,8 @@ export default function PaperDetailPage() {
           }}
           initialMessage={selectedTextForChat}
           paperTitle={paper.title}
+          paperId={paper.paperId || paperId}
+          paperUrl={paper.url}
         />
       )}
     </div>

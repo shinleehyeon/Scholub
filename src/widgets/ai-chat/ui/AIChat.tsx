@@ -4,17 +4,22 @@ import Close from "@/shared/ui/icons/Close";
 import Send from "@/shared/ui/icons/Send";
 import X from "@/shared/ui/icons/X";
 import ExternalLink from "@/shared/ui/icons/ExternalLink";
+import { papersApi } from "@/shared/api/papers";
 
 interface AIChatProps {
   onClose?: () => void;
   initialMessage?: string;
   paperTitle?: string;
+  paperId?: string;
+  paperUrl?: string;
 }
 
 export default function AIChat({
   onClose,
   initialMessage,
   paperTitle,
+  paperId,
+  paperUrl,
 }: AIChatProps) {
   const [message, setMessage] = useState("");
   const [contextText, setContextText] = useState<string>("");
@@ -23,6 +28,7 @@ export default function AIChat({
     Array<{ text: string; isUser: boolean }>
   >([]);
   const [isThinking, setIsThinking] = useState(false);
+  const [sessionId, setSessionId] = useState<string | null>(null);
 
   useEffect(() => {
     if (initialMessage) {
@@ -30,10 +36,24 @@ export default function AIChat({
     }
   }, [initialMessage]);
 
+  useEffect(() => {
+    const startSession = async () => {
+      if (paperId && !sessionId) {
+        try {
+          const result = await papersApi.startChatSession(paperId);
+          setSessionId(result.activityId);
+        } catch (error) {
+          console.error("채팅 세션 시작 실패:", error);
+        }
+      }
+    };
+    startSession();
+  }, [paperId, sessionId]);
+
   const suggestedQuestions = [
-    "RNN이 무엇인가요?",
-    "디코더와 피드포워드 신경망 차이",
-    "Gemini 아빠는 신유찬",
+    "이 논문의 주요 기여도는 무엇인가요?",
+    "연구 방법론을 자세히 설명해주세요",
+    "실험 결과의 의미는 무엇인가요?",
   ];
 
   const handleSendMessage = () => {
@@ -75,7 +95,6 @@ export default function AIChat({
         zIndex: 1000,
       }}
     >
-
       <div
         style={{
           display: "flex",
@@ -123,7 +142,6 @@ export default function AIChat({
             gap: "10px",
           }}
         >
-
           <div
             style={{
               display: "flex",
@@ -181,7 +199,7 @@ export default function AIChat({
                     background: "var(--color-surface-default)",
                     cursor: "pointer",
                   }}
-                  onClick={() => setMessage(`[AI 검색] ${question}`)}
+                  onClick={() => setMessage(question)}
                 >
                   <div
                     style={{
@@ -278,9 +296,13 @@ export default function AIChat({
           alignSelf: "stretch",
         }}
       >
-
         {paperTitle && (
           <div
+            onClick={() => {
+              if (paperUrl) {
+                window.open(paperUrl, "_blank");
+              }
+            }}
             style={{
               display: "flex",
               padding: "var(--spacing-14) var(--spacing-16)",
@@ -289,8 +311,9 @@ export default function AIChat({
               alignSelf: "stretch",
               borderRadius: "var(--radius-14)",
               border: "1px solid var(--color-border-default)",
-              background: "var(--color-surface-default)",
+              background: "var(--color-surface-subtle)",
               overflow: "hidden",
+              cursor: paperUrl ? "pointer" : "default",
             }}
           >
             <div
@@ -327,7 +350,6 @@ export default function AIChat({
             background: "var(--color-surface-default)",
           }}
         >
-
           {contextText && (
             <div
               onMouseEnter={() => setIsHoveringContext(true)}
@@ -389,7 +411,7 @@ export default function AIChat({
                 handleSendMessage();
               }
             }}
-            placeholder="[AI 검색] RNN이 무엇인가요?"
+            placeholder="이 논문의 주요 기여도는 무엇인가요?"
             style={{
               width: "100%",
               border: "none",
