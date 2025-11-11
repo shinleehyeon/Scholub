@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import User from "@/shared/ui/icons/User";
 import Settings from "@/shared/ui/icons/Settings";
@@ -22,6 +23,19 @@ export default function UserMenuPopover({
   avatarUrl = "https://via.placeholder.com/33x33/CCCCCC/666666?text=U",
 }: UserMenuPopoverProps) {
   const navigate = useNavigate();
+  const popoverRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!isOpen || !popoverRef.current) return;
+
+    // Header의 오른쪽 끝에서 위치 계산
+    const header = document.querySelector("header");
+    if (header) {
+      const headerRect = header.getBoundingClientRect();
+      const rightOffset = window.innerWidth - headerRect.right;
+      popoverRef.current.style.right = `${rightOffset}px`;
+    }
+  }, [isOpen]);
 
   if (!isOpen) {
     return null;
@@ -39,10 +53,11 @@ export default function UserMenuPopover({
 
   return (
     <div
+      ref={popoverRef}
       style={{
-        position: "absolute",
-        right: "0",
-        top: "50px",
+        position: "fixed",
+        right: "var(--spacing-24)",
+        top: "71px", // Header 높이
         display: "flex",
         width: "198px",
         padding: "var(--spacing-12) 0",
@@ -54,7 +69,7 @@ export default function UserMenuPopover({
         border: "1px solid var(--color-border-default)",
         background: "var(--color-surface-default)",
         boxShadow: "0 4px 10px 0 rgba(0, 0, 0, 0.10)",
-        zIndex: 1000,
+        zIndex: 10000,
       }}
     >
       <div

@@ -41,7 +41,7 @@ export default function SubHeader() {
         alignSelf: "stretch",
         borderBottom: "1px solid var(--color-border-default)",
         background: "var(--color-surface-default)",
-        zIndex: 100,
+        zIndex: 50,
       }}
     >
       <div
