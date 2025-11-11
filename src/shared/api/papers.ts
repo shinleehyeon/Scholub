@@ -173,7 +173,6 @@ export const papersApi = {
     if (params.searchQuery) {
       queryParams.append("query", params.searchQuery);
     }
-    // /api/papers/search 엔드포인트는 page와 limit 파라미터를 받지 않음
 
     const response = await apiClient.get<SearchPapersResponse>(
       `/papers/search?${queryParams.toString()}`

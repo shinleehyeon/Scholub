@@ -80,38 +80,48 @@ export default function SearchPage() {
       </div>
 
       <div
-        className="flex flex-col lg:flex-row w-full max-w-[1440px] px-6 lg:px-10 py-10 lg:py-10 justify-center items-start gap-8 lg:gap-8 mx-auto"
         style={{
-          paddingLeft: "var(--layout-padding)",
-          paddingRight: "var(--layout-padding)",
+          display: "flex",
+          width: "1440px",
+          padding: "var(--spacing-40) var(--spacing-24)",
+          justifyContent: "center",
+          alignItems: "flex-start",
+          gap: "var(--spacing-32)",
+          alignSelf: "stretch",
+          margin: "0 auto",
         }}
       >
         <div
-          className="flex flex-col items-start gap-6 w-full lg:flex-1 lg:min-w-0"
           style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "flex-start",
             gap: "var(--spacing-24)",
+            flex: 1,
+            minWidth: 0,
           }}
         >
           {searchQuery ? (
             <>
               <div
-                className="flex flex-col sm:flex-row items-start sm:items-center gap-2"
                 style={{
+                  display: "flex",
+                  alignItems: "center",
                   gap: "var(--spacing-8)",
                 }}
               >
-                <h2 className="text-[var(--color-text-default)] font-[Pretendard] text-[20px] sm:text-[24px] font-bold leading-[28px] sm:leading-[30px] m-0">
+                <h2 className="text-[var(--color-text-default)] font-[Pretendard] text-[24px] font-bold leading-[30px] m-0">
                   검색 결과
                 </h2>
-                <Typography.Body color="subtle" className="whitespace-nowrap">
-                  ({total}개)
-                </Typography.Body>
+                <Typography.Body color="subtle">({total}개)</Typography.Body>
               </div>
 
               <div
-                className="flex flex-col w-full"
                 style={{
+                  display: "flex",
+                  flexDirection: "column",
                   gap: "var(--spacing-24)",
+                  width: "100%",
                 }}
               >
                 {loading ? (
@@ -144,7 +154,14 @@ export default function SearchPage() {
           )}
         </div>
 
-        <div className="flex flex-col items-start w-full lg:w-auto lg:flex-shrink-0 lg:max-w-[400px]">
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "flex-start",
+            flexShrink: 0,
+          }}
+        >
           <AIAnswerSection />
         </div>
       </div>
