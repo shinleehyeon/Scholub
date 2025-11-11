@@ -29,11 +29,13 @@ export default function Home() {
   const [loadingRecommended, setLoadingRecommended] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAutoSlidePaused, setIsAutoSlidePaused] = useState(false);
+  const [displayedLatestCount, setDisplayedLatestCount] = useState(7);
+  const [displayedRecommendedCount, setDisplayedRecommendedCount] = useState(7);
 
   useEffect(() => {
     const fetchHeadlines = async () => {
       try {
-        const headlines = await papersApi.getHeadlines(4);
+        const headlines = await papersApi.getHeadlines(1000);
 
         const items: CarouselItem[] = headlines.map((paper) => {
           // 이미지 URL 구성: URL 형태로 직접 제공되는 경우만 사용
@@ -105,7 +107,7 @@ export default function Home() {
     const fetchPopularPapers = async () => {
       try {
         setLoadingPopular(true);
-        const papers = await papersApi.getPopularPapers(20, 90);
+        const papers = await papersApi.getPopularPapers(1000, 90);
 
         const formattedPapers = papers.map((paper) => {
           // 이미지 URL 구성: URL 형태로 직접 제공되는 경우만 사용
@@ -146,7 +148,7 @@ export default function Home() {
     const fetchLatestPapers = async () => {
       try {
         setLoadingLatest(true);
-        const papers = await papersApi.getLatestPapers(20);
+        const papers = await papersApi.getLatestPapers(1000);
 
         const formattedPapers = papers.map((paper) => {
           // 이미지 URL 구성: URL 형태로 직접 제공되는 경우만 사용
@@ -209,7 +211,7 @@ export default function Home() {
 
       try {
         setLoadingRecommended(true);
-        const papers = await papersApi.getRecommendedPapers(20);
+        const papers = await papersApi.getRecommendedPapers(1000);
 
         const formattedPapers = papers.map((paper) => {
           // 이미지 URL 구성: URL 형태로 직접 제공되는 경우만 사용
@@ -481,9 +483,8 @@ export default function Home() {
             {loadingLatest ? (
               <div>로딩 중...</div>
             ) : latestPapers.length > 0 ? (
-              latestPapers
-                .slice(0, 3)
-                .map((paper) => (
+              <>
+                {latestPapers.slice(0, displayedLatestCount).map((paper) => (
                   <LatestResearchCard
                     key={paper.id}
                     paperId={paper.paperId}
@@ -495,7 +496,32 @@ export default function Home() {
                     comments={paper.comments}
                     isLiked={paper.isLiked}
                   />
-                ))
+                ))}
+                {latestPapers.length > displayedLatestCount && (
+                  <button
+                    onClick={() => setDisplayedLatestCount((prev) => prev + 7)}
+                    style={{
+                      display: "flex",
+                      padding: "var(--spacing-12) var(--spacing-24)",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      gap: "var(--spacing-8)",
+                      borderRadius: "var(--radius-8)",
+                      background: "transparent",
+                      border: "1px solid var(--color-border-default)",
+                      cursor: "pointer",
+                      alignSelf: "center",
+                      fontFamily: "Pretendard",
+                      fontSize: "14px",
+                      fontWeight: 500,
+                      lineHeight: "20px",
+                      color: "var(--color-text-default)",
+                    }}
+                  >
+                    더보기
+                  </button>
+                )}
+              </>
             ) : (
               <div>최신 연구가 없습니다.</div>
             )}
@@ -573,21 +599,49 @@ export default function Home() {
             ) : loadingRecommended ? (
               <div>로딩 중...</div>
             ) : recommendedPapers.length > 0 ? (
-              recommendedPapers
-                .slice(0, 3)
-                .map((paper) => (
-                  <LatestResearchCard
-                    key={paper.id}
-                    paperId={paper.paperId}
-                    imageUrl={paper.imageUrl}
-                    category={paper.category}
-                    title={paper.title}
-                    description={paper.description}
-                    likes={paper.likes}
-                    comments={paper.comments}
-                    isLiked={paper.isLiked}
-                  />
-                ))
+              <>
+                {recommendedPapers
+                  .slice(0, displayedRecommendedCount)
+                  .map((paper) => (
+                    <LatestResearchCard
+                      key={paper.id}
+                      paperId={paper.paperId}
+                      imageUrl={paper.imageUrl}
+                      category={paper.category}
+                      title={paper.title}
+                      description={paper.description}
+                      likes={paper.likes}
+                      comments={paper.comments}
+                      isLiked={paper.isLiked}
+                    />
+                  ))}
+                {recommendedPapers.length > displayedRecommendedCount && (
+                  <button
+                    onClick={() =>
+                      setDisplayedRecommendedCount((prev) => prev + 7)
+                    }
+                    style={{
+                      display: "flex",
+                      padding: "var(--spacing-12) var(--spacing-24)",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      gap: "var(--spacing-8)",
+                      borderRadius: "var(--radius-8)",
+                      background: "transparent",
+                      border: "1px solid var(--color-border-default)",
+                      cursor: "pointer",
+                      alignSelf: "center",
+                      fontFamily: "Pretendard",
+                      fontSize: "14px",
+                      fontWeight: 500,
+                      lineHeight: "20px",
+                      color: "var(--color-text-default)",
+                    }}
+                  >
+                    더보기
+                  </button>
+                )}
+              </>
             ) : (
               <div>추천 논문이 없습니다.</div>
             )}
