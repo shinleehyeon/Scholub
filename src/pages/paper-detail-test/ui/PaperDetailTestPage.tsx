@@ -189,6 +189,9 @@ export default function PaperDetailTestPage() {
           translatedContent:
             "구글 브레인(Google Brain)과 캐나다 토론토대학교(University of Toronto) 연구진이 인공지능 분야에 혁신적인 전환점을 가져올 새로운 자연어처리(NLP) 모델 '트랜스포머(Transformer)'를 제안했다.\n이 모델은 기존의 순환신경망(RNN)이나 합성곱신경망(CNN)과 달리 순차적 계산 없이 문장 내 모든 단어 간의 관계를 한 번에 파악할 수 있는 '어텐션(Attention)' 메커니즘만으로 작동한다는 점에서, 인공지능 언어 모델의 새로운 패러다입을 제시했다는 평가를 받고 있다.\n\n연구팀은 해당 연구 결과를 Attention Is All You Need라는 제목의 논문으로 정리해 지난 13일 사전 공개 논문 사이트인 arXiv에 게재했다.\n논문에서는 트랜스포머 구조가 번역, 요약, 질의응답 등 다양한 자연어처리 작업에서 기존 모델보다 더 빠르고, 효율적이며, 병렬화가 가능한 학습 구조를 제공한다는 점을 강조했다.\n이 모델은 입력 문장의 각 단어가 다른 단어와의 관계를 스스로 '주의(attention)'를 통해 학습함으로써, 문맥 이해 능력을 비약적으로 향상시킨다.\n\n논문에서 제시된 트랜스포머 구조는 '인코더(Encoder)'와 '디코더(Decoder)'라는 두 부분으로 나뉘며, 각 구성 요소는 멀티헤드 어텐션(Multi-Head Attention)과 피드포워드 신경망(Feed-Forward Neural Network)을 핵심으로 한다.\n이러한 구조는 이후 등장한 BERT, GPT, T5, RoBERTa, LLaMA, Gemini 등 대형 언어 모델의 기반이 되었으며, 오늘날의 생성형 AI 기술 발전에 결정적인 역할을 했다.\n\n트랜스포머는 단순히 기술적인 혁신에 그치지 않고, 딥러닝 연구 패러다임의 중심축을 '순환에서 어텐션으로'완전히 이동시킨 전화점으로 평가받고 있다.\n특히, 논문이 발표된 직후 전 세계 연구자들과 산업계가 빠르게 이 구조를 채택하며, 머신 트랜슬레이션(기계 번역), 문장 생성, 이미지 캡션 생성, 멀티모달 AI 등 다양한 분야에서 폭넓게 응용되고 있다.",
           translatedLabel: "본문",
+          imageUrl:
+            "https://via.placeholder.com/800x400/CCCCCC/666666?text=AI+Image",
+          imageCaption: "▲ 인공지능 추상화 이미지(출처=ChatGPT)",
         },
       ],
     },
@@ -562,13 +565,52 @@ export default function PaperDetailTestPage() {
                 fontFamily: "Pretendard",
                 fontSize: "17px",
                 fontStyle: "normal",
-                fontWeight: 500,
-                lineHeight: "24px",
+                fontWeight: 400,
+                lineHeight: "30px",
                 whiteSpace: "pre-wrap",
+                alignSelf: "stretch",
               }}
             >
               {content.translatedContent}
             </div>
+
+            {/* 이미지가 있는 경우 */}
+            {content.imageUrl && (
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: "14px",
+                  alignSelf: "stretch",
+                }}
+              >
+                <img
+                  src={content.imageUrl}
+                  alt={content.imageCaption || ""}
+                  style={{
+                    maxWidth: "100%",
+                    height: "auto",
+                  }}
+                />
+                {content.imageCaption && (
+                  <div
+                    style={{
+                      color: "rgba(50, 47, 41, 0.80)",
+                      textAlign: "center",
+                      fontFamily: "Pretendard",
+                      fontSize: "12px",
+                      fontStyle: "normal",
+                      fontWeight: 500,
+                      lineHeight: "16px",
+                      alignSelf: "stretch",
+                    }}
+                  >
+                    {content.imageCaption}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         ))}
       </div>
