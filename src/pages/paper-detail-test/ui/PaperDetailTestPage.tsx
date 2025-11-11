@@ -8,6 +8,7 @@ import DocumentPaper from "@/shared/ui/icons/DocumentPaper";
 import DocumentIcon from "@/shared/ui/icons/DocumentIcon";
 import MessageBubble from "@/shared/ui/icons/MessageBubble";
 import ChevronRight from "@/shared/ui/icons/ChevronRight";
+import { useEffect, useRef } from "react";
 
 // 목차 항목 타입 (실제 API 응답 구조)
 interface TableOfContentsItem {
@@ -109,6 +110,101 @@ const TableOfContentsItem = ({
 };
 
 export default function PaperDetailTestPage() {
+  // 텍스트 선택 시 좌우 오렌지 바 표시를 위한 ref
+  const contentRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  useEffect(() => {
+    const handleSelection = () => {
+      const selection = window.getSelection();
+      if (!selection || selection.rangeCount === 0) {
+        // 선택이 없으면 모든 바 제거
+        document
+          .querySelectorAll(".selection-border-left, .selection-border-right")
+          .forEach((el) => el.remove());
+        return;
+      }
+
+      const range = selection.getRangeAt(0);
+      const selectedText = selection.toString().trim();
+
+      if (!selectedText) {
+        document
+          .querySelectorAll(".selection-border-left, .selection-border-right")
+          .forEach((el) => el.remove());
+        return;
+      }
+
+      // 기존 바 제거
+      document
+        .querySelectorAll(".selection-border-left, .selection-border-right")
+        .forEach((el) => el.remove());
+
+      try {
+        // 선택된 텍스트의 시작과 끝 위치 계산
+        const container = range.commonAncestorContainer.parentElement;
+
+        if (!container) return;
+
+        const containerRect = container.getBoundingClientRect();
+
+        // 시작 위치 계산
+        const startRange = range.cloneRange();
+        startRange.collapse(true);
+        const startRect = startRange.getBoundingClientRect();
+
+        // 끝 위치 계산
+        const endRange = range.cloneRange();
+        endRange.collapse(false);
+        const endRect = endRange.getBoundingClientRect();
+
+        // 왼쪽 바 생성
+        const leftBar = document.createElement("div");
+        leftBar.className = "selection-border-left";
+        leftBar.style.cssText = `
+          position: absolute;
+          left: ${startRect.left - containerRect.left}px;
+          top: ${startRect.top - containerRect.top}px;
+          bottom: ${containerRect.bottom - startRect.bottom}px;
+          width: 1.5px;
+          background: #F7971D;
+          pointer-events: none;
+          z-index: 1000;
+        `;
+        container.style.position = "relative";
+        container.appendChild(leftBar);
+
+        // 오른쪽 바 생성
+        const rightBar = document.createElement("div");
+        rightBar.className = "selection-border-right";
+        rightBar.style.cssText = `
+          position: absolute;
+          left: ${endRect.right - containerRect.left}px;
+          top: ${endRect.top - containerRect.top}px;
+          bottom: ${containerRect.bottom - endRect.bottom}px;
+          width: 1.5px;
+          background: #F7971D;
+          pointer-events: none;
+          z-index: 1000;
+        `;
+        container.appendChild(rightBar);
+      } catch (e) {
+        // 에러 발생 시 무시
+        console.error("Selection highlight error:", e);
+      }
+    };
+
+    document.addEventListener("selectionchange", handleSelection);
+    document.addEventListener("mouseup", handleSelection);
+
+    return () => {
+      document.removeEventListener("selectionchange", handleSelection);
+      document.removeEventListener("mouseup", handleSelection);
+      document
+        .querySelectorAll(".selection-border-left, .selection-border-right")
+        .forEach((el) => el.remove());
+    };
+  }, []);
+
   // 테스트용 논문 데이터 (실제 API 응답 구조)
   const testPaper = {
     categories: [
@@ -554,6 +650,9 @@ export default function PaperDetailTestPage() {
 
             {/* 본문 내용 */}
             <div
+              ref={(el) => {
+                contentRefs.current[index] = el;
+              }}
               style={{
                 color: "#000",
                 fontFamily: "Pretendard",
@@ -563,6 +662,7 @@ export default function PaperDetailTestPage() {
                 lineHeight: "30px",
                 whiteSpace: "pre-wrap",
                 alignSelf: "stretch",
+                position: "relative",
               }}
             >
               {content.translatedContent}

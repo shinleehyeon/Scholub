@@ -1,5 +1,44 @@
 @import "tailwindcss";
 
+/* Text Selection Styles */
+::selection {
+  background: rgba(247, 151, 29, 0.13);
+  color: inherit;
+}
+
+::-moz-selection {
+  background: rgba(247, 151, 29, 0.13);
+  color: inherit;
+}
+
+/* Custom selection highlight with left and right borders */
+/* This requires JavaScript to work properly */
+.selection-highlight {
+  position: relative;
+}
+
+.selection-highlight::before,
+.selection-highlight::after {
+  content: "";
+  position: absolute;
+  width: 1.5px;
+  background: #f7971d;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.selection-highlight::before {
+  left: 0;
+  top: 0;
+  bottom: 0;
+}
+
+.selection-highlight::after {
+  right: 0;
+  top: 0;
+  bottom: 0;
+}
+
 @theme {
   /* Layout */
   --layout-padding: 20px;
