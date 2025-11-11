@@ -1,10 +1,12 @@
 import { Typography } from "@/shared/ui";
+import { useNavigate } from "react-router-dom";
 
 interface NotificationItemProps {
   imageUrl: string;
   message: string;
   timestamp: string;
   isRead?: boolean;
+  relatedPaperId?: string | null;
 }
 
 export default function NotificationItem({
@@ -12,9 +14,19 @@ export default function NotificationItem({
   message,
   timestamp,
   isRead = false,
+  relatedPaperId,
 }: NotificationItemProps) {
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    if (relatedPaperId) {
+      navigate(`/papers/${relatedPaperId}`);
+    }
+  };
+
   return (
     <div
+      onClick={handleClick}
       style={{
         display: "flex",
         padding: "var(--spacing-10) var(--spacing-16)",
@@ -24,6 +36,7 @@ export default function NotificationItem({
         background: isRead ? "#F9F9F9" : "transparent",
         borderRadius: isRead ? "8px" : "0",
         opacity: isRead ? 0.5 : 1,
+        cursor: relatedPaperId ? "pointer" : "default",
       }}
     >
       <div

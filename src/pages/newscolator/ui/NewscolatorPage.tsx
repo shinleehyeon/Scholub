@@ -32,7 +32,7 @@ export default function NewscolatorPage() {
 
           return {
             id: paper.id,
-            paperId: paper.id, // API 엔드포인트는 id를 사용
+            paperId: paper.paperId || paper.id,
             imageUrl,
             title: paper.title,
             description,

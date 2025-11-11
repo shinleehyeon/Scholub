@@ -285,7 +285,7 @@ export const papersApi = {
 
   async getPaperDetail(paperId: string): Promise<Paper> {
     const response = await apiClient.get<PaperDetailResponse>(
-      `/papers/${paperId}`
+      `/papers/${encodeURIComponent(paperId)}`
     );
     return response.data;
   },

@@ -119,7 +119,7 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white" style={{ marginTop: "121px" }}>
       <Header />
       <div style={{ marginBottom: 0 }}>
         <SubHeader />

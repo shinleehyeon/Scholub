@@ -80,7 +80,7 @@ export default function ProfilePage() {
 
           return {
             id: paper.id,
-            paperId: paper.id, // API 엔드포인트는 id를 사용
+            paperId: paper.paperId || paper.id,
             title: paper.title,
             description,
             category,
@@ -124,7 +124,7 @@ export default function ProfilePage() {
 
           return {
             id: paper.id,
-            paperId: paper.id, // API 엔드포인트는 id를 사용
+            paperId: paper.paperId || paper.id,
             title: paper.title,
             description,
             category,
@@ -180,7 +180,7 @@ export default function ProfilePage() {
 
         return {
           id: paper.id,
-          paperId: paper.id,
+          paperId: paper.paperId || paper.id,
           title: paper.title,
           description,
           category,
@@ -230,7 +230,7 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white" style={{ marginTop: "121px" }}>
       <Header />
       <div style={{ marginBottom: 0 }}>
         <SubHeader />

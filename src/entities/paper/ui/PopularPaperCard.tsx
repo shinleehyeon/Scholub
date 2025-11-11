@@ -1,6 +1,8 @@
 import { Typography } from "@/shared/ui";
+import { useNavigate } from "react-router-dom";
 
 interface PopularPaperCardProps {
+  paperId: string;
   imageUrl: string;
   title: string;
   subtitle: string;
@@ -8,13 +10,23 @@ interface PopularPaperCardProps {
 }
 
 export default function PopularPaperCard({
+  paperId,
   imageUrl,
   title,
   subtitle,
   category,
 }: PopularPaperCardProps) {
+  const navigate = useNavigate();
+
+  const handleCardClick = () => {
+    if (paperId) {
+      navigate(`/papers/${paperId}`);
+    }
+  };
+
   return (
     <div
+      onClick={handleCardClick}
       style={{
         display: "flex",
         flexDirection: "column",
@@ -22,6 +34,7 @@ export default function PopularPaperCard({
         gap: "var(--spacing-8)",
         flexShrink: 0,
         width: "300px",
+        cursor: "pointer",
       }}
     >
       <div

@@ -44,7 +44,7 @@ export default function CategoryPage() {
 
           return {
             id: paper.id,
-            paperId: paper.id,
+            paperId: paper.paperId || paper.id,
             imageUrl,
             title: paper.title,
             description,
@@ -71,7 +71,7 @@ export default function CategoryPage() {
   }, [categoryName]);
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white" style={{ marginTop: "121px" }}>
       <Header />
       <div style={{ marginBottom: 0 }}>
         <SubHeader />
