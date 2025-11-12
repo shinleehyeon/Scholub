@@ -1121,43 +1121,66 @@ export default function PaperDetailPage() {
             >
               <div
                 onClick={async () => {
-                  if (!paper?.id) return;
+                  if (!paper?.paperId && !paper?.id) return;
 
                   // 낙관적 업데이트: 즉시 UI 업데이트
                   const previousIsLiked = isLiked;
                   const previousIsUnliked = isUnliked;
                   const previousLikeCount = paper.likeCount || 0;
+                  const previousUnlikeCount = paper.unlikeCount || 0;
 
                   const newIsLiked = !isLiked;
                   setIsLiked(newIsLiked);
+
+                  // 좋아요를 누르면 싫어요는 무조건 해제
                   if (newIsLiked) {
                     setIsUnliked(false);
+                    // 좋아요를 누르면 좋아요 카운트 증가, 싫어요가 있었다면 싫어요 카운트 감소
+                    const newLikeCount = previousLikeCount + 1;
+                    const newUnlikeCount = previousIsUnliked
+                      ? Math.max(0, previousUnlikeCount - 1)
+                      : previousUnlikeCount;
+                    setPaper({
+                      ...paper,
+                      likeCount: newLikeCount,
+                      unlikeCount: newUnlikeCount,
+                    });
+                  } else {
+                    // 좋아요를 해제하면 좋아요 카운트 감소
+                    const newLikeCount = Math.max(0, previousLikeCount - 1);
+                    setPaper({
+                      ...paper,
+                      likeCount: newLikeCount,
+                    });
                   }
 
-                  // 카운트 낙관적 업데이트
-                  const newLikeCount = newIsLiked
-                    ? previousLikeCount + 1
-                    : previousLikeCount - 1;
-                  setPaper({ ...paper, likeCount: Math.max(0, newLikeCount) });
-
                   try {
-                    const result = await papersApi.toggleReaction(
-                      paper.id,
+                    // POST 요청: 반응 토글
+                    await papersApi.toggleReaction(
+                      paper.paperId || paper.id,
                       "LIKE"
                     );
-                    // 서버 응답으로 최종 상태 업데이트
-                    setIsLiked(result.isReacted);
-                    if (result.isReacted) {
-                      setIsUnliked(false);
-                    }
-                    if (paper && result.likeCount !== undefined) {
-                      setPaper({ ...paper, likeCount: result.likeCount });
-                    }
+
+                    // POST 완료 후 바로 GET 요청: 최신 통계 가져오기
+                    const stats = await papersApi.getReactionStats(
+                      paper.paperId || paper.id
+                    );
+
+                    // GET 응답으로 카운트만 업데이트 (상태는 낙관적 업데이트에서 이미 설정됨)
+                    setPaper({
+                      ...paper,
+                      likeCount: stats.likeCount,
+                      unlikeCount: stats.unlikeCount,
+                    });
                   } catch (error) {
                     // 실패 시 이전 상태로 롤백
                     setIsLiked(previousIsLiked);
                     setIsUnliked(previousIsUnliked);
-                    setPaper({ ...paper, likeCount: previousLikeCount });
+                    setPaper({
+                      ...paper,
+                      likeCount: previousLikeCount,
+                      unlikeCount: previousUnlikeCount,
+                    });
 
                     console.error("좋아요 토글 실패:", error);
                     let errorMessage = "좋아요 처리에 실패했습니다.";
@@ -1217,43 +1240,66 @@ export default function PaperDetailPage() {
 
               <div
                 onClick={async () => {
-                  if (!paper?.id) return;
+                  if (!paper?.paperId && !paper?.id) return;
 
                   // 낙관적 업데이트: 즉시 UI 업데이트
                   const previousIsLiked = isLiked;
                   const previousIsUnliked = isUnliked;
+                  const previousLikeCount = paper.likeCount || 0;
                   const previousUnlikeCount = paper.unlikeCount || 0;
 
                   const newIsUnliked = !isUnliked;
                   setIsUnliked(newIsUnliked);
+
+                  // 싫어요를 누르면 좋아요는 무조건 해제
                   if (newIsUnliked) {
                     setIsLiked(false);
+                    // 싫어요를 누르면 싫어요 카운트 증가, 좋아요가 있었다면 좋아요 카운트 감소
+                    const newUnlikeCount = previousUnlikeCount + 1;
+                    const newLikeCount = previousIsLiked
+                      ? Math.max(0, previousLikeCount - 1)
+                      : previousLikeCount;
+                    setPaper({
+                      ...paper,
+                      unlikeCount: newUnlikeCount,
+                      likeCount: newLikeCount,
+                    });
+                  } else {
+                    // 싫어요를 해제하면 싫어요 카운트 감소
+                    const newUnlikeCount = Math.max(0, previousUnlikeCount - 1);
+                    setPaper({
+                      ...paper,
+                      unlikeCount: newUnlikeCount,
+                    });
                   }
 
-                  // 카운트 낙관적 업데이트
-                  const newUnlikeCount = newIsUnliked
-                    ? previousUnlikeCount + 1
-                    : previousUnlikeCount - 1;
-                  setPaper({
-                    ...paper,
-                    unlikeCount: Math.max(0, newUnlikeCount),
-                  });
-
                   try {
-                    const result = await papersApi.toggleReaction(
-                      paper.id,
+                    // POST 요청: 반응 토글
+                    await papersApi.toggleReaction(
+                      paper.paperId || paper.id,
                       "UNLIKE"
                     );
-                    // 서버 응답으로 최종 상태 업데이트
-                    setIsUnliked(result.isReacted);
-                    if (result.isReacted) {
-                      setIsLiked(false);
-                    }
+
+                    // POST 완료 후 바로 GET 요청: 최신 통계 가져오기
+                    const stats = await papersApi.getReactionStats(
+                      paper.paperId || paper.id
+                    );
+
+                    // GET 응답으로 카운트만 업데이트 (상태는 낙관적 업데이트에서 이미 설정됨)
+                    setPaper({
+                      ...paper,
+                      likeCount: stats.likeCount,
+                      unlikeCount: stats.unlikeCount,
+                    });
                   } catch (error) {
                     // 실패 시 이전 상태로 롤백
                     setIsLiked(previousIsLiked);
                     setIsUnliked(previousIsUnliked);
-                    setPaper({ ...paper, unlikeCount: previousUnlikeCount });
+                    setPaper({
+                      ...paper,
+                      likeCount: previousLikeCount,
+                      unlikeCount: previousUnlikeCount,
+                    });
 
                     console.error("싫어요 토글 실패:", error);
                     let errorMessage = "싫어요 처리에 실패했습니다.";
@@ -1294,7 +1340,7 @@ export default function PaperDetailPage() {
                 </div>
                 <FrownDislike
                   size={50}
-                  color={isUnliked ? "var(--color-brand-default)" : "#322F29"}
+                  color={isUnliked ? "var(--color-brand-default)" : "#A9A8A6"}
                 />
                 <div
                   style={{

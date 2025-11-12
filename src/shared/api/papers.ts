@@ -200,6 +200,25 @@ export const papersApi = {
     };
   },
 
+  async getReactionStats(
+    paperId: string
+  ): Promise<{ likeCount: number; unlikeCount: number }> {
+    const response = await apiClient.get<{
+      status: number;
+      method: string;
+      instance: string;
+      details: string;
+      data: {
+        likeCount: number;
+        unlikeCount: number;
+      };
+      errors: Record<string, unknown>;
+      timestamp: string;
+    }>(`/papers/${encodeURIComponent(paperId)}/reactions`);
+
+    return response.data || { likeCount: 0, unlikeCount: 0 };
+  },
+
   async startChatSession(paperId: string): Promise<{ activityId: string }> {
     const response = await apiClient.post<{
       status: number;
