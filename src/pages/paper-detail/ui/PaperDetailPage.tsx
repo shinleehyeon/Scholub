@@ -170,6 +170,7 @@ export default function PaperDetailPage() {
   const popupPositionRef = useRef(popupPosition);
   const selectedTextRef = useRef(selectedText);
   const viewRecordedRef = useRef(false);
+  const discussionSectionRef = useRef<HTMLDivElement | null>(null);
 
   // 5분 후 논문 조회 기록 API 호출
   useEffect(() => {
@@ -837,6 +838,14 @@ export default function PaperDetailPage() {
                 variant="secondary"
                 size="medium"
                 leadingIcon={<DocumentIcon />}
+                onClick={() => {
+                  if (discussionSectionRef.current) {
+                    discussionSectionRef.current.scrollIntoView({
+                      behavior: "smooth",
+                      block: "start",
+                    });
+                  }
+                }}
               >
                 토론하러가기
               </Button>
@@ -1427,6 +1436,7 @@ export default function PaperDetailPage() {
         </div>
 
         <div
+          ref={discussionSectionRef}
           style={{
             display: "flex",
             flexDirection: "column",
@@ -1437,6 +1447,7 @@ export default function PaperDetailPage() {
             width: "100%",
             margin: "0 auto",
             marginTop: "var(--spacing-32)",
+            scrollMarginTop: "121px",
           }}
         >
           <div
@@ -1544,6 +1555,19 @@ export default function PaperDetailPage() {
                 alignSelf: "stretch",
               }}
             >
+              <Button
+                variant="secondary"
+                size="medium"
+                onClick={() => {
+                  setShowDiscussionModal(true);
+                }}
+                style={{
+                  alignSelf: "flex-start",
+                }}
+              >
+                토론 추가하기
+              </Button>
+
               {discussions.map((discussion) => (
                 <div
                   key={discussion.id}
@@ -1759,7 +1783,7 @@ export default function PaperDetailPage() {
                   lineHeight: "30px",
                 }}
               >
-                토론 시작하기
+                {discussions.length === 0 ? "토론 시작하기" : "토론 추가하기"}
               </div>
               <button
                 type="button"
