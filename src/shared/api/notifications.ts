@@ -15,6 +15,7 @@ export interface Notification {
   createdAt: string;
   readAt: string | null;
   relatedPaperId: string | null;
+  relatedDiscussionId: string | null;
   relatedUserId: string | null;
   userId: string;
   paperThumbnailUrl?: string | null;

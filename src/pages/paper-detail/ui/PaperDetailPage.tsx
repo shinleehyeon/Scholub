@@ -13,7 +13,7 @@ import ChevronRight from "@/shared/ui/icons/ChevronRight";
 import Close from "@/shared/ui/icons/Close";
 import { Input } from "@/shared/ui";
 import { useEffect, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import { papersApi } from "@/shared/api/papers";
 import type { Paper } from "@/shared/api/papers";
 import { useLanguage } from "@/shared/lib/language";
@@ -127,6 +127,7 @@ interface PaperContent {
 
 export default function PaperDetailPage() {
   const { paperId: id } = useParams<{ paperId: string }>();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { language, setLanguage } = useLanguage();
   const { showToast } = useToast();
   const [paper, setPaper] = useState<Paper | null>(null);
@@ -218,7 +219,14 @@ export default function PaperDetailPage() {
     };
 
     fetchPaperDetail();
-  }, [id]);
+    // paper 로드 시 showDiscussion 초기화 (새 페이지로 이동할 때)
+    // 단, 쿼리스트링에 discussion이 있으면 초기화하지 않음
+    const discussionId = searchParams.get("discussion");
+    if (!discussionId) {
+      setShowDiscussion(false);
+      setSelectedDiscussion(null);
+    }
+  }, [id, searchParams]);
 
   useEffect(() => {
     const fetchDiscussions = async () => {
@@ -241,6 +249,73 @@ export default function PaperDetailPage() {
 
     fetchDiscussions();
   }, [paper]);
+
+  // URL 쿼리스트링에서 discussion ID 확인하여 모달 열기
+  useEffect(() => {
+    const discussionId = searchParams.get("discussion");
+
+    console.log("쿼리스트링 확인:", {
+      discussionId,
+      paperId: id,
+      hasPaper: !!paper,
+      showDiscussion,
+      currentDiscussionId: selectedDiscussion?.id,
+      searchParamsString: searchParams.toString(),
+      fullUrl: window.location.href,
+    });
+
+    if (discussionId && paper) {
+      // 이미 같은 discussion이 열려있으면 스킵
+      if (showDiscussion && selectedDiscussion?.id === discussionId) {
+        console.log("이미 같은 discussion이 열려있음, 스킵");
+        return;
+      }
+
+      const openDiscussion = async () => {
+        try {
+          console.log("Discussion 모달 열기 시도:", discussionId);
+          const discussionData = await papersApi.getDiscussion(discussionId);
+          console.log("Discussion 데이터 받음:", discussionData);
+
+          setSelectedDiscussion({
+            id: discussionData.id,
+            title: discussionData.title,
+            messageCount: discussionData.messageCount,
+          });
+          setShowDiscussion(true);
+          console.log("Discussion 모달 열기 완료");
+
+          // 쿼리스트링에서 discussion 파라미터 제거 (URL 정리)
+          const newSearchParams = new URLSearchParams(searchParams);
+          newSearchParams.delete("discussion");
+          setSearchParams(newSearchParams, { replace: true });
+        } catch (error) {
+          console.error("토론 정보 가져오기 실패:", error);
+          showToast("토론을 불러오는데 실패했습니다.", "error");
+          // 에러 발생 시에도 쿼리스트링 정리
+          const newSearchParams = new URLSearchParams(searchParams);
+          newSearchParams.delete("discussion");
+          setSearchParams(newSearchParams, { replace: true });
+        }
+      };
+
+      openDiscussion();
+    } else if (discussionId && !paper) {
+      console.log(
+        "Discussion ID는 있지만 paper가 아직 로드되지 않음, 대기 중..."
+      );
+    } else if (!discussionId) {
+      console.log("쿼리스트링에 discussion 파라미터 없음");
+    }
+  }, [
+    id,
+    paper,
+    searchParams.toString(),
+    showDiscussion,
+    selectedDiscussion?.id,
+    setSearchParams,
+    showToast,
+  ]);
 
   useEffect(() => {
     popupPositionRef.current = popupPosition;
@@ -1198,14 +1273,9 @@ export default function PaperDetailPage() {
                   }
 
                   try {
-                    await papersApi.toggleReaction(
-                      paper.id,
-                      "LIKE"
-                    );
+                    await papersApi.toggleReaction(paper.id, "LIKE");
 
-                    const stats = await papersApi.getReactionStats(
-                      paper.id
-                    );
+                    const stats = await papersApi.getReactionStats(paper.id);
 
                     setPaper({
                       ...paper,
@@ -1313,14 +1383,9 @@ export default function PaperDetailPage() {
                   }
 
                   try {
-                    await papersApi.toggleReaction(
-                      paper.id,
-                      "UNLIKE"
-                    );
+                    await papersApi.toggleReaction(paper.id, "UNLIKE");
 
-                    const stats = await papersApi.getReactionStats(
-                      paper.id
-                    );
+                    const stats = await papersApi.getReactionStats(paper.id);
 
                     setPaper({
                       ...paper,

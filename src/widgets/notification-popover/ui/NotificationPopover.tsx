@@ -15,6 +15,7 @@ export interface NotificationItemData {
   timestamp: string;
   isRead: boolean;
   relatedPaperId?: string | null;
+  relatedDiscussionId?: string | null;
 }
 
 interface NotificationPopoverProps {
@@ -158,16 +159,36 @@ export default function NotificationPopover({
   };
 
   const notificationItems: NotificationItemData[] = notifications.map(
-    (notif) => ({
-      id: notif.id,
-      imageUrl:
-        notif.paperThumbnailUrl ||
-        "https://via.placeholder.com/50x50/CCCCCC/666666?text=N",
-      message: notif.message,
-      timestamp: formatTimestamp(notif.createdAt),
-      isRead: notif.isRead,
-      relatedPaperId: notif.relatedPaperId,
-    })
+    (notif) => {
+      // "string"이라는 값은 무시 (백엔드에서 실제 ID 대신 타입 예시가 올 수 있음)
+      const validDiscussionId =
+        notif.relatedDiscussionId &&
+        notif.relatedDiscussionId !== "string" &&
+        notif.relatedDiscussionId.trim() !== ""
+          ? notif.relatedDiscussionId
+          : null;
+
+      const item = {
+        id: notif.id,
+        imageUrl:
+          notif.paperThumbnailUrl ||
+          "https://via.placeholder.com/50x50/CCCCCC/666666?text=N",
+        message: notif.message,
+        timestamp: formatTimestamp(notif.createdAt),
+        isRead: notif.isRead,
+        relatedPaperId: notif.relatedPaperId,
+        relatedDiscussionId: validDiscussionId,
+      };
+      console.log("알림 아이템 생성:", {
+        id: item.id,
+        message: item.message,
+        relatedPaperId: item.relatedPaperId,
+        originalRelatedDiscussionId: notif.relatedDiscussionId,
+        relatedDiscussionId: item.relatedDiscussionId,
+        notificationType: notif.type,
+      });
+      return item;
+    }
   );
 
   if (!isOpen) {
@@ -291,6 +312,8 @@ export default function NotificationPopover({
                 timestamp={notification.timestamp}
                 isRead={notification.isRead}
                 relatedPaperId={notification.relatedPaperId}
+                relatedDiscussionId={notification.relatedDiscussionId}
+                onNavigate={onClose}
               />
             ))}
             {hasMore && (
