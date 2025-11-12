@@ -126,7 +126,7 @@ interface PaperContent {
 }
 
 export default function PaperDetailPage() {
-  const { paperId } = useParams<{ paperId: string }>();
+  const { paperId: id } = useParams<{ paperId: string }>();
   const { language, setLanguage } = useLanguage();
   const { showToast } = useToast();
   const [paper, setPaper] = useState<Paper | null>(null);
@@ -173,16 +173,16 @@ export default function PaperDetailPage() {
   const discussionSectionRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    if (!paperId || !paper || viewRecordedRef.current) {
+    if (!id || !paper || viewRecordedRef.current) {
       return;
     }
 
     const timer = setTimeout(
       async () => {
         try {
-          await papersApi.recordPaperView(paperId);
+          await papersApi.recordPaperView(id);
           viewRecordedRef.current = true;
-          console.log("논문 조회 기록 완료:", paperId);
+          console.log("논문 조회 기록 완료:", id);
         } catch (error) {
           console.error("논문 조회 기록 실패:", error);
         }
@@ -193,11 +193,11 @@ export default function PaperDetailPage() {
     return () => {
       clearTimeout(timer);
     };
-  }, [paperId, paper]);
+  }, [id, paper]);
 
   useEffect(() => {
     const fetchPaperDetail = async () => {
-      if (!paperId) {
+      if (!id) {
         setLoading(false);
         return;
       }
@@ -205,7 +205,7 @@ export default function PaperDetailPage() {
       try {
         setLoading(true);
         window.scrollTo(0, 0);
-        const paperData = await papersApi.getPaperDetail(paperId);
+        const paperData = await papersApi.getPaperDetail(id);
         setPaper(paperData);
         setIsLiked(paperData.myReaction?.isLiked || false);
         setIsUnliked(paperData.myReaction?.isUnliked || false);
@@ -218,7 +218,7 @@ export default function PaperDetailPage() {
     };
 
     fetchPaperDetail();
-  }, [paperId]);
+  }, [id]);
 
   useEffect(() => {
     const fetchDiscussions = async () => {
@@ -1168,7 +1168,7 @@ export default function PaperDetailPage() {
             >
               <div
                 onClick={async () => {
-                  if (!paper?.paperId && !paper?.id) return;
+                  if (!paper?.id) return;
 
                   const previousIsLiked = isLiked;
                   const previousIsUnliked = isUnliked;
@@ -1199,12 +1199,12 @@ export default function PaperDetailPage() {
 
                   try {
                     await papersApi.toggleReaction(
-                      paper.paperId || paper.id,
+                      paper.id,
                       "LIKE"
                     );
 
                     const stats = await papersApi.getReactionStats(
-                      paper.paperId || paper.id
+                      paper.id
                     );
 
                     setPaper({
@@ -1283,7 +1283,7 @@ export default function PaperDetailPage() {
 
               <div
                 onClick={async () => {
-                  if (!paper?.paperId && !paper?.id) return;
+                  if (!paper?.id) return;
 
                   const previousIsLiked = isLiked;
                   const previousIsUnliked = isUnliked;
@@ -1314,12 +1314,12 @@ export default function PaperDetailPage() {
 
                   try {
                     await papersApi.toggleReaction(
-                      paper.paperId || paper.id,
+                      paper.id,
                       "UNLIKE"
                     );
 
                     const stats = await papersApi.getReactionStats(
-                      paper.paperId || paper.id
+                      paper.id
                     );
 
                     setPaper({
@@ -1682,7 +1682,7 @@ export default function PaperDetailPage() {
           }}
           initialMessage={selectedTextForChat}
           paperTitle={paper.title}
-          paperId={paper.paperId || paperId}
+          id={paper.id}
           paperUrl={paper.url}
         />
       )}
@@ -1894,7 +1894,7 @@ export default function PaperDetailPage() {
                 variant="primary"
                 size="medium"
                 onClick={async () => {
-                  if (!paperId) {
+                  if (!id) {
                     showToast("논문 ID가 없습니다.", "error");
                     return;
                   }
@@ -1911,7 +1911,7 @@ export default function PaperDetailPage() {
 
                   setIsCreatingDiscussion(true);
                   try {
-                    const idToUse = paper?.id || paperId;
+                    const idToUse = paper?.id;
                     if (!idToUse) {
                       showToast("논문 ID를 찾을 수 없습니다.", "error");
                       setIsCreatingDiscussion(false);

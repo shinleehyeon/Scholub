@@ -12,7 +12,7 @@ export default function ProfilePage() {
   const [reactionPapers, setReactionPapers] = useState<
     Array<{
       id: string;
-      paperId: string;
+      id: string;
       title: string;
       description: string;
       category: string;
@@ -25,7 +25,7 @@ export default function ProfilePage() {
   const [commentPapers, setCommentPapers] = useState<
     Array<{
       id: string;
-      paperId: string;
+      id: string;
       title: string;
       description: string;
       category: string;
@@ -74,7 +74,7 @@ export default function ProfilePage() {
 
           return {
             id: paper.id,
-            paperId: paper.paperId || paper.id,
+            id: paper.id,
             title: paper.title,
             description,
             category,
@@ -112,7 +112,7 @@ export default function ProfilePage() {
 
           return {
             id: paper.id,
-            paperId: paper.paperId || paper.id,
+            id: paper.id,
             title: paper.title,
             description,
             category,
@@ -185,15 +185,15 @@ export default function ProfilePage() {
   };
 
   const handleReactionLikeChange = async (
-    paperId: string,
+    id: string,
     isLiked: boolean
   ) => {
     setReactionPapers((prev) => {
       if (!isLiked) {
-        return prev.filter((paper) => paper.paperId !== paperId);
+        return prev.filter((paper) => paper.id !== id);
       } else {
         return prev.map((paper) =>
-          paper.paperId === paperId ? { ...paper, isLiked: true } : paper
+          paper.id === id ? { ...paper, isLiked: true } : paper
         );
       }
     });
@@ -387,7 +387,7 @@ export default function ProfilePage() {
                   reactionPapers.map((paper) => (
                     <LatestResearchCard
                       key={paper.id}
-                      paperId={paper.paperId || paper.id}
+                      id={paper.id}
                       imageUrl={paper.imageUrl || ""}
                       category={paper.category || "분류 없음"}
                       title={paper.title || ""}
@@ -452,7 +452,7 @@ export default function ProfilePage() {
                   commentPapers.map((paper) => (
                     <LatestResearchCard
                       key={paper.id}
-                      paperId={paper.paperId || paper.id}
+                      id={paper.id}
                       imageUrl={paper.imageUrl || ""}
                       category={paper.category || "분류 없음"}
                       title={paper.title || ""}

@@ -7,7 +7,7 @@ import { papersApi } from "@/shared/api/papers";
 import { useToast } from "@/shared/ui/Toast";
 
 interface LatestResearchCardProps {
-  paperId: string;
+  id: string;
   imageUrl: string;
   category: string;
   title: string;
@@ -15,11 +15,11 @@ interface LatestResearchCardProps {
   likes?: number;
   comments?: number;
   isLiked?: boolean;
-  onLikeChange?: (paperId: string, isLiked: boolean) => void;
+  onLikeChange?: (id: string, isLiked: boolean) => void;
 }
 
 export default function LatestResearchCard({
-  paperId,
+  id,
   imageUrl,
   category,
   title,
@@ -35,16 +35,16 @@ export default function LatestResearchCard({
   const [likes, setLikes] = useState(initialLikes);
   const [isLoading, setIsLoading] = useState(false);
   const hasUserInteracted = useRef(false);
-  const previousPaperId = useRef(paperId);
+  const previousId = useRef(id);
 
   useEffect(() => {
-    if (previousPaperId.current !== paperId) {
+    if (previousId.current !== id) {
       hasUserInteracted.current = false;
-      previousPaperId.current = paperId;
+      previousId.current = id;
       setIsLiked(initialIsLiked);
       setLikes(initialLikes);
     }
-  }, [paperId, initialIsLiked, initialLikes]);
+  }, [id, initialIsLiked, initialLikes]);
 
   useEffect(() => {
     if (!hasUserInteracted.current) {
@@ -61,7 +61,7 @@ export default function LatestResearchCard({
   const handleLikeClick = async () => {
     if (isLoading) return;
 
-    if (!paperId || paperId.trim() === "") {
+    if (!id || id.trim() === "") {
       showToast("논문 ID가 유효하지 않습니다.", "error");
       return;
     }
@@ -80,12 +80,12 @@ export default function LatestResearchCard({
     setLikes(newLikes);
 
     if (onLikeChange) {
-      onLikeChange(paperId, newIsLiked);
+      onLikeChange(id, newIsLiked);
     }
 
     try {
       const reactionType = previousIsLiked ? "UNLIKE" : "LIKE";
-      const result = await papersApi.toggleReaction(paperId, reactionType);
+      const result = await papersApi.toggleReaction(id, reactionType);
 
       console.log("API 응답:", result);
 
@@ -94,14 +94,14 @@ export default function LatestResearchCard({
       }
 
       if (onLikeChange) {
-        onLikeChange(paperId, newIsLiked);
+        onLikeChange(id, newIsLiked);
       }
     } catch (error) {
       setIsLiked(previousIsLiked);
       setLikes(previousLikes);
 
       if (onLikeChange) {
-        onLikeChange(paperId, previousIsLiked);
+        onLikeChange(id, previousIsLiked);
       }
 
       console.error("좋아요 실패:", error);
@@ -134,8 +134,8 @@ export default function LatestResearchCard({
   };
 
   const handleCardClick = () => {
-    if (paperId) {
-      navigate(`/papers/${paperId}`);
+    if (id) {
+      navigate(`/papers/${id}`);
     }
   };
 

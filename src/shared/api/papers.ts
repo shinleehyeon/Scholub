@@ -195,7 +195,7 @@ export const papersApi = {
   },
 
   async toggleReaction(
-    paperId: string,
+    id: string,
     type: "LIKE" | "UNLIKE"
   ): Promise<{ isReacted: boolean; likeCount?: number }> {
     const response = await apiClient.post<{
@@ -205,7 +205,7 @@ export const papersApi = {
         isReacted: boolean;
         likeCount?: number;
       };
-    }>(`/papers/${paperId}/reactions?paperId=${encodeURIComponent(paperId)}`, {
+    }>(`/papers/${id}/reactions?paperId=${encodeURIComponent(id)}`, {
       type,
     });
 
@@ -218,7 +218,7 @@ export const papersApi = {
   },
 
   async getReactionStats(
-    paperId: string
+    id: string
   ): Promise<{ likeCount: number; unlikeCount: number }> {
     const response = await apiClient.get<{
       status: number;
@@ -231,12 +231,12 @@ export const papersApi = {
       };
       errors: Record<string, unknown>;
       timestamp: string;
-    }>(`/papers/${encodeURIComponent(paperId)}/reactions`);
+    }>(`/papers/${encodeURIComponent(id)}/reactions`);
 
     return response.data || { likeCount: 0, unlikeCount: 0 };
   },
 
-  async startChatSession(paperId: string): Promise<{ activityId: string }> {
+  async startChatSession(id: string): Promise<{ activityId: string }> {
     const response = await apiClient.post<{
       status: number;
       data: {
@@ -244,7 +244,7 @@ export const papersApi = {
         message: string;
       };
     }>("/papers/chat/start", {
-      paperId,
+      paperId: id,
     });
 
     return {
@@ -337,15 +337,15 @@ export const papersApi = {
     );
   },
 
-  async getPaperDetail(paperId: string): Promise<Paper> {
+  async getPaperDetail(id: string): Promise<Paper> {
     const response = await apiClient.get<PaperDetailResponse>(
-      `/papers/${encodeURIComponent(paperId)}`
+      `/papers/${encodeURIComponent(id)}`
     );
     return response.data;
   },
 
   async recordPaperView(
-    paperId: string
+    id: string
   ): Promise<{ success: boolean; paperViewId?: string }> {
     const response = await apiClient.post<{
       status: number;
@@ -358,13 +358,13 @@ export const papersApi = {
       };
       errors: Record<string, unknown>;
       timestamp: string;
-    }>(`/papers/${encodeURIComponent(paperId)}/view`);
+    }>(`/papers/${encodeURIComponent(id)}/view`);
 
     return response.data || { success: false };
   },
 
   async createDiscussion(
-    paperId: string,
+    id: string,
     title: string,
     content: string
   ): Promise<{
@@ -396,7 +396,7 @@ export const papersApi = {
       };
       errors: Record<string, unknown>;
       timestamp: string;
-    }>(`/papers/${encodeURIComponent(paperId)}/discussions`, {
+    }>(`/papers/${encodeURIComponent(id)}/discussions`, {
       title,
       content,
     });
@@ -405,7 +405,7 @@ export const papersApi = {
   },
 
   async getDiscussions(
-    paperId: string,
+    id: string,
     page: number = 1,
     limit: number = 20
   ): Promise<
@@ -440,7 +440,7 @@ export const papersApi = {
       errors: Record<string, unknown> | null;
       timestamp: string;
     }>(
-      `/papers/${encodeURIComponent(paperId)}/discussions?page=${page}&limit=${limit}`
+      `/papers/${encodeURIComponent(id)}/discussions?page=${page}&limit=${limit}`
     );
 
     return response.data || [];

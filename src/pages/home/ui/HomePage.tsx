@@ -120,7 +120,7 @@ export default function Home() {
 
           return {
             id: paper.id,
-            paperId: paper.paperId || paper.id,
+            id: paper.id,
             imageUrl,
             title: paper.title,
             subtitle,
@@ -159,7 +159,7 @@ export default function Home() {
 
           return {
             id: paper.id,
-            paperId: paper.paperId || paper.id,
+            id: paper.id,
             imageUrl,
             title: paper.title,
             description,
@@ -217,7 +217,7 @@ export default function Home() {
 
           return {
             id: paper.id,
-            paperId: paper.paperId || paper.id,
+            id: paper.id,
             imageUrl,
             title: paper.title,
             description,
@@ -425,7 +425,7 @@ export default function Home() {
             popularPapers.map((paper) => (
               <PopularPaperCard
                 key={paper.id}
-                paperId={paper.paperId}
+                id={paper.id}
                 imageUrl={paper.imageUrl}
                 title={paper.title}
                 subtitle={paper.subtitle}
@@ -476,7 +476,7 @@ export default function Home() {
                 {latestPapers.slice(0, displayedLatestCount).map((paper) => (
                   <LatestResearchCard
                     key={paper.id}
-                    paperId={paper.paperId}
+                    id={paper.id}
                     imageUrl={paper.imageUrl}
                     category={paper.category}
                     title={paper.title}
@@ -594,7 +594,7 @@ export default function Home() {
                   .map((paper) => (
                     <LatestResearchCard
                       key={paper.id}
-                      paperId={paper.paperId}
+                      id={paper.id}
                       imageUrl={paper.imageUrl}
                       category={paper.category}
                       title={paper.title}

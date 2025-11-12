@@ -11,7 +11,7 @@ interface AIChatProps {
   onClose?: () => void;
   initialMessage?: string;
   paperTitle?: string;
-  paperId?: string;
+  id?: string;
   paperUrl?: string;
 }
 
@@ -19,7 +19,7 @@ export default function AIChat({
   onClose,
   initialMessage,
   paperTitle,
-  paperId,
+  id,
   paperUrl,
 }: AIChatProps) {
   const [message, setMessage] = useState("");
@@ -43,9 +43,9 @@ export default function AIChat({
 
   useEffect(() => {
     const startSession = async () => {
-      if (paperId && !sessionId) {
+      if (id && !sessionId) {
         try {
-          const result = await papersApi.startChatSession(paperId);
+          const result = await papersApi.startChatSession(id);
           setSessionId(result.activityId);
         } catch (error) {
           console.error("채팅 세션 시작 실패:", error);
@@ -53,7 +53,7 @@ export default function AIChat({
       }
     };
     startSession();
-  }, [paperId, sessionId]);
+  }, [id, sessionId]);
 
   const suggestedQuestions = [
     "이 논문의 주요 기여도는 무엇인가요?",

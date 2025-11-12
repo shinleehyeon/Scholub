@@ -44,7 +44,6 @@ export default function SearchPage() {
 
           return {
             id: paper.id,
-            paperId: paper.paperId || paper.id,
             imageUrl,
             title: paper.title,
             description,
@@ -127,7 +126,7 @@ export default function SearchPage() {
                   searchResults.map((paper) => (
                     <LatestResearchCard
                       key={paper.id}
-                      paperId={paper.paperId}
+                      id={paper.id}
                       imageUrl={paper.imageUrl}
                       category={paper.category}
                       title={paper.title}

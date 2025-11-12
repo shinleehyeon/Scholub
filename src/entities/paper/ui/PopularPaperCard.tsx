@@ -2,7 +2,7 @@ import { Typography } from "@/shared/ui";
 import { useNavigate } from "react-router-dom";
 
 interface PopularPaperCardProps {
-  paperId: string;
+  id: string;
   imageUrl: string;
   title: string;
   subtitle: string;
@@ -10,7 +10,7 @@ interface PopularPaperCardProps {
 }
 
 export default function PopularPaperCard({
-  paperId,
+  id,
   imageUrl,
   title,
   subtitle,
@@ -19,8 +19,8 @@ export default function PopularPaperCard({
   const navigate = useNavigate();
 
   const handleCardClick = () => {
-    if (paperId) {
-      navigate(`/papers/${paperId}`);
+    if (id) {
+      navigate(`/papers/${id}`);
     }
   };
 
