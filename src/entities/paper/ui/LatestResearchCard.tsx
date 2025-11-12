@@ -59,7 +59,6 @@ export default function LatestResearchCard({
   }, [initialLikes]);
 
   const handleLikeClick = async () => {
-
     if (isLoading) return;
 
     if (!paperId || paperId.trim() === "") {
@@ -85,7 +84,6 @@ export default function LatestResearchCard({
     }
 
     try {
-
       const reactionType = previousIsLiked ? "UNLIKE" : "LIKE";
       const result = await papersApi.toggleReaction(paperId, reactionType);
 
@@ -99,7 +97,6 @@ export default function LatestResearchCard({
         onLikeChange(paperId, newIsLiked);
       }
     } catch (error) {
-
       setIsLiked(previousIsLiked);
       setLikes(previousLikes);
 

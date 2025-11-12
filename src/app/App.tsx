@@ -33,7 +33,10 @@ function App() {
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/search" element={<SearchPage />} />
             <Route path="/papers/:paperId" element={<PaperDetailPage />} />
-            <Route path="/paper-detail-test" element={<PaperDetailTestPage />} />
+            <Route
+              path="/paper-detail-test"
+              element={<PaperDetailTestPage />}
+            />
           </Routes>
         </BrowserRouter>
       </ToastProvider>

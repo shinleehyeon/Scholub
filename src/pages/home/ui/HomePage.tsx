@@ -38,21 +38,21 @@ export default function Home() {
         const headlines = await papersApi.getHeadlines(1000);
 
         const items: CarouselItem[] = headlines.map((paper) => {
-
           const imageUrl =
             paper.thumbnailUrl ||
             paper.imageUrl ||
             paper.coverImage ||
             "https://via.placeholder.com/1200x371/CCCCCC/666666?text=No+Image";
 
-          const authorsList = paper.authors && paper.authors.length > 0
-            ? paper.authors.join(", ")
-            : "작가 정보 없음";
+          const authorsList =
+            paper.authors && paper.authors.length > 0
+              ? paper.authors.join(", ")
+              : "작가 정보 없음";
           const year = paper.issuedAt
             ? new Date(paper.issuedAt).getFullYear()
             : paper.createdAt
-            ? new Date(paper.createdAt).getFullYear()
-            : new Date().getFullYear();
+              ? new Date(paper.createdAt).getFullYear()
+              : new Date().getFullYear();
           const authors = `${authorsList} (${year})`;
 
           return {
@@ -85,7 +85,6 @@ export default function Home() {
             },
           ]);
         } else {
-
           setCarouselItems([
             {
               id: "error",
@@ -109,7 +108,6 @@ export default function Home() {
         const papers = await papersApi.getPopularPapers(1000, 90);
 
         const formattedPapers = papers.map((paper) => {
-
           const imageUrl =
             paper.thumbnailUrl ||
             paper.imageUrl ||
@@ -149,7 +147,6 @@ export default function Home() {
         const papers = await papersApi.getLatestPapers(1000);
 
         const formattedPapers = papers.map((paper) => {
-
           const imageUrl =
             paper.thumbnailUrl ||
             paper.imageUrl ||
@@ -186,7 +183,6 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-
     const checkAuth = () => {
       setIsAuthenticated(authStorage.isAuthenticated());
     };
@@ -199,7 +195,6 @@ export default function Home() {
 
   useEffect(() => {
     const fetchRecommendedPapers = async () => {
-
       if (!authStorage.isAuthenticated()) {
         setLoadingRecommended(false);
         return;
@@ -210,7 +205,6 @@ export default function Home() {
         const papers = await papersApi.getRecommendedPapers(1000);
 
         const formattedPapers = papers.map((paper) => {
-
           const imageUrl =
             paper.thumbnailUrl ||
             paper.imageUrl ||

@@ -53,7 +53,6 @@ const TableOfContentsItem = ({
           gap: "var(--spacing-10)",
         }}
       >
-
         <div
           style={{
             width: "25px",
@@ -109,7 +108,6 @@ const TableOfContentsItem = ({
 };
 
 export default function PaperDetailTestPage() {
-
   const contentRefs = useRef<(HTMLDivElement | null)[]>([]);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const popupRef = useRef<HTMLDivElement | null>(null);
@@ -129,16 +127,13 @@ export default function PaperDetailTestPage() {
   }, [popupPosition, selectedText]);
 
   useEffect(() => {
-
     const getIconPosition = () => {
       const selection = window.getSelection();
 
       if (selection && selection.rangeCount > 0 && !selection.isCollapsed) {
-
         const range = selection.getRangeAt(0);
 
         if (selection.focusNode) {
-
           const isBackward =
             selection.anchorNode === selection.focusNode
               ? selection.anchorOffset > selection.focusOffset
@@ -165,7 +160,6 @@ export default function PaperDetailTestPage() {
     let scrollAnimationFrame: number | null = null;
 
     const handleMouseDown = (e: MouseEvent) => {
-
       if (popupRef.current && popupRef.current.contains(e.target as Node)) {
         return;
       }
@@ -179,7 +173,6 @@ export default function PaperDetailTestPage() {
     };
 
     const handleScroll = () => {
-
       if (!popupPositionRef.current || !selectedTextRef.current) {
         return;
       }
@@ -197,7 +190,6 @@ export default function PaperDetailTestPage() {
           !selection.isCollapsed &&
           selection.toString().trim() === selectedTextRef.current
         ) {
-
           const position = getIconPosition();
           if (position && position.x !== 0 && position.y !== 0) {
             setPopupPosition(position);
@@ -441,7 +433,6 @@ export default function PaperDetailTestPage() {
           paddingRight: showAIChat ? "532px" : "var(--padding)",
         }}
       >
-
         <div
           style={{
             display: "flex",
@@ -453,7 +444,6 @@ export default function PaperDetailTestPage() {
             margin: "0 auto",
           }}
         >
-
           <div
             style={{
               display: "flex",
@@ -487,7 +477,6 @@ export default function PaperDetailTestPage() {
               flex: 1,
             }}
           >
-
             <div
               style={{
                 color: "var(--color-text-brand-default)",
@@ -538,7 +527,6 @@ export default function PaperDetailTestPage() {
                 width: "100%",
               }}
             >
-
               <div
                 style={{
                   display: "flex",
@@ -710,7 +698,6 @@ export default function PaperDetailTestPage() {
             margin: "0 auto",
           }}
         >
-
           <div
             style={{
               color: "#322F29",
@@ -762,7 +749,6 @@ export default function PaperDetailTestPage() {
               margin: "0 auto",
             }}
           >
-
             <div
               style={{
                 color: "#322F29",
@@ -858,7 +844,6 @@ export default function PaperDetailTestPage() {
             margin: "0 auto",
           }}
         >
-
           <div
             style={{
               display: "flex",
@@ -867,7 +852,6 @@ export default function PaperDetailTestPage() {
               gap: "var(--spacing-4)",
             }}
           >
-
             <div
               style={{
                 color: "#322F29",
@@ -905,7 +889,6 @@ export default function PaperDetailTestPage() {
               background: "var(--color-surface-subtle)",
             }}
           >
-
             <div
               style={{
                 display: "flex",
@@ -997,7 +980,6 @@ export default function PaperDetailTestPage() {
             marginTop: "var(--spacing-32)",
           }}
         >
-
           <div
             style={{
               color: "#322F29",
@@ -1023,7 +1005,6 @@ export default function PaperDetailTestPage() {
               background: "var(--color-surface-subtle)",
             }}
           >
-
             <div
               style={{
                 display: "flex",
@@ -1072,7 +1053,6 @@ export default function PaperDetailTestPage() {
               alignSelf: "stretch",
             }}
           >
-
             <div
               style={{
                 display: "flex",
@@ -1085,7 +1065,6 @@ export default function PaperDetailTestPage() {
                 background: "var(--color-surface-default)",
               }}
             >
-
               <div
                 style={{
                   display: "flex",
@@ -1154,7 +1133,6 @@ export default function PaperDetailTestPage() {
                 background: "var(--color-surface-default)",
               }}
             >
-
               <div
                 style={{
                   display: "flex",
@@ -1223,7 +1201,6 @@ export default function PaperDetailTestPage() {
                 background: "var(--color-surface-default)",
               }}
             >
-
               <div
                 style={{
                   display: "flex",

@@ -154,7 +154,8 @@ const tools: Tool[] = [
       properties: {
         selector: {
           type: "string",
-          description: "CSS selector (optional, if not provided returns page content)",
+          description:
+            "CSS selector (optional, if not provided returns page content)",
         },
         sessionId: {
           type: "string",
@@ -255,7 +256,11 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   try {
     switch (name) {
       case "navigate": {
-        const { url, sessionId = "default", waitUntil = "load" } = args as {
+        const {
+          url,
+          sessionId = "default",
+          waitUntil = "load",
+        } = args as {
           url: string;
           sessionId?: string;
           waitUntil?: string;
@@ -351,7 +356,11 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
               type: "text",
               text: path
                 ? `Screenshot saved to ${path}`
-                : `Screenshot taken (base64): ${Buffer.from(screenshot as Buffer).toString("base64").substring(0, 100)}...`,
+                : `Screenshot taken (base64): ${Buffer.from(
+                    screenshot as Buffer
+                  )
+                    .toString("base64")
+                    .substring(0, 100)}...`,
             },
           ],
         };
@@ -371,10 +380,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         let content: string;
         if (selector) {
           if (asHtml) {
-            content = await page.$eval(
-              selector,
-              (el: Element) => el.outerHTML
-            );
+            content = await page.$eval(selector, (el: Element) => el.outerHTML);
           } else {
             content = await page.$eval(
               selector,
@@ -475,8 +481,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         throw new Error(`Unknown tool: ${name}`);
     }
   } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : String(error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
     return {
       content: [
         {
@@ -499,4 +504,3 @@ main().catch((error) => {
   console.error("Fatal error:", error);
   process.exit(1);
 });
-

@@ -17,7 +17,6 @@ export default function NewscolatorPage() {
         const papers = await papersApi.getLatestPapers(20);
 
         const formattedPapers = papers.map((paper) => {
-
           const imageUrl =
             paper.thumbnailUrl ||
             paper.imageUrl ||

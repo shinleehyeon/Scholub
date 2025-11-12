@@ -77,13 +77,13 @@ export default function NotificationPopover({
     // 낙관적 업데이트: 즉시 UI 업데이트
     const previousNotifications = [...notifications]; // 이전 상태 저장
     const previousUnreadCount = notifications.filter((n) => !n.isRead).length;
-    
+
     const updatedNotifications = notifications.map((notif) => ({
       ...notif,
       isRead: true,
     }));
     setNotifications(updatedNotifications);
-    
+
     // Header의 주황 점도 즉시 제거
     if (onUnreadCountChange) {
       onUnreadCountChange(0);
@@ -94,15 +94,15 @@ export default function NotificationPopover({
       showToast("모든 알림이 읽음으로 표시되었습니다.", "success");
     } catch (error) {
       console.error("모두 읽기 실패:", error);
-      
+
       // 실패 시 롤백: 이전 상태로 복원
       setNotifications(previousNotifications);
-      
+
       // Header의 주황 점도 복원
       if (onUnreadCountChange) {
         onUnreadCountChange(previousUnreadCount);
       }
-      
+
       const errorMessage =
         error instanceof Error
           ? error.message

@@ -474,8 +474,8 @@ export const papersApi = {
     const messages = Array.isArray(response.data.data)
       ? response.data.data
       : Array.isArray(response.data)
-      ? response.data
-      : [];
+        ? response.data
+        : [];
 
     return {
       messages,
@@ -525,10 +525,18 @@ export const papersApi = {
     );
 
     // API 응답 구조에 따라 data 또는 data.data에서 메시지 추출
-    if (response.data.data && typeof response.data.data === "object" && "id" in response.data.data) {
+    if (
+      response.data.data &&
+      typeof response.data.data === "object" &&
+      "id" in response.data.data
+    ) {
       return response.data.data as DiscussionMessage;
     }
-    if (response.data && typeof response.data === "object" && "id" in response.data) {
+    if (
+      response.data &&
+      typeof response.data === "object" &&
+      "id" in response.data
+    ) {
       return response.data as DiscussionMessage;
     }
     throw new Error("Invalid API response structure");

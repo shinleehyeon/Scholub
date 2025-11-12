@@ -15,7 +15,6 @@ export class ApiClient {
   }
 
   private async refreshToken(): Promise<void> {
-
     if (this.isRefreshing && this.refreshPromise) {
       return this.refreshPromise;
     }
@@ -34,7 +33,6 @@ export class ApiClient {
           response.data.refreshToken
         );
       } catch (error) {
-
         authStorage.clearTokens();
         throw error;
       } finally {
@@ -79,7 +77,6 @@ export class ApiClient {
           headers["Authorization"] = `Bearer ${newAccessToken}`;
         }
       } catch (error) {
-
         console.error("토큰 리프레시 실패:", error);
         authStorage.clearTokens();
 
@@ -107,7 +104,6 @@ export class ApiClient {
     });
 
     if (!response.ok) {
-
       const isAuthError = response.status === 401 || response.status === 403;
       if (
         isAuthError &&
@@ -118,7 +114,6 @@ export class ApiClient {
         !endpoint.includes("/auth/register")
       ) {
         try {
-
           await this.refreshToken();
 
           const retryResponse = await this.request<T>(
@@ -128,7 +123,6 @@ export class ApiClient {
           );
           return retryResponse;
         } catch {
-
           authStorage.clearTokens();
           window.location.href = "/login";
           throw new Error("인증이 만료되었습니다. 다시 로그인해주세요.");
@@ -267,7 +261,6 @@ export class ApiClient {
         await this.refreshToken();
       } catch (error) {
         console.error("토큰 자동 리프레시 실패:", error);
-
       }
     }
   }

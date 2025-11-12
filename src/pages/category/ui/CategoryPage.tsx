@@ -15,7 +15,6 @@ export default function CategoryPage() {
   const [papers, setPapers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [total, setTotal] = useState(0);
-  const [page, setPage] = useState(1);
   const [displayedCount, setDisplayedCount] = useState(7);
 
   useEffect(() => {
@@ -57,7 +56,6 @@ export default function CategoryPage() {
 
         setPapers(formattedPapers);
         setTotal(result.total);
-        setPage(result.page);
       } catch (error) {
         console.error("카테고리 논문 로드 실패:", error);
         setPapers([]);

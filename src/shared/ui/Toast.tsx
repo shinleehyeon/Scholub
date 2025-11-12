@@ -1,4 +1,10 @@
-import { createContext, useContext, useState, useCallback, ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  ReactNode,
+} from "react";
 import { X } from "lucide-react";
 
 interface Toast {
@@ -61,14 +67,14 @@ export function ToastProvider({ children }: { children: ReactNode }) {
                 toast.type === "error"
                   ? "var(--color-surface-error)"
                   : toast.type === "success"
-                  ? "var(--color-surface-brand-default)"
-                  : "var(--color-surface-default)",
+                    ? "var(--color-surface-brand-default)"
+                    : "var(--color-surface-default)",
               color:
                 toast.type === "error"
                   ? "var(--color-text-error)"
                   : toast.type === "success"
-                  ? "var(--color-text-white)"
-                  : "var(--color-text-default)",
+                    ? "var(--color-text-white)"
+                    : "var(--color-text-default)",
               border:
                 toast.type === "error"
                   ? "1px solid var(--color-border-error)"

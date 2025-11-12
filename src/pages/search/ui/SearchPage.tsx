@@ -32,7 +32,6 @@ export default function SearchPage() {
         });
 
         const formattedPapers = result.papers.map((paper) => {
-
           const imageUrl =
             paper.thumbnailUrl ||
             paper.imageUrl ||

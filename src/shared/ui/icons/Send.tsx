@@ -5,7 +5,13 @@ interface SendProps extends SVGProps<SVGSVGElement> {
   color?: string;
 }
 
-const Send = ({ size = 16, className = "", color, style, ...props }: SendProps) => {
+const Send = ({
+  size = 16,
+  className = "",
+  color,
+  style,
+  ...props
+}: SendProps) => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
