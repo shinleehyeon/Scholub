@@ -345,4 +345,45 @@ export const papersApi = {
 
     return response.data || { success: false };
   },
+
+  async createDiscussion(
+    paperId: string,
+    title: string,
+    content: string
+  ): Promise<{
+    id: string;
+    paperId: string;
+    title: string;
+    content: string;
+    creatorId: string;
+    participantCount: number;
+    messageCount: number;
+    createdAt: string;
+    updatedAt: string;
+  }> {
+    const response = await apiClient.post<{
+      status: number;
+      method: string;
+      instance: string;
+      details: string;
+      data: {
+        id: string;
+        paperId: string;
+        title: string;
+        content: string;
+        creatorId: string;
+        participantCount: number;
+        messageCount: number;
+        createdAt: string;
+        updatedAt: string;
+      };
+      errors: Record<string, unknown>;
+      timestamp: string;
+    }>(`/papers/${encodeURIComponent(paperId)}/discussions`, {
+      title,
+      content,
+    });
+
+    return response.data;
+  },
 };

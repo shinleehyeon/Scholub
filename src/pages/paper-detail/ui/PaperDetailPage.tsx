@@ -9,6 +9,8 @@ import DocumentPaper from "@/shared/ui/icons/DocumentPaper";
 import DocumentIcon from "@/shared/ui/icons/DocumentIcon";
 import MessageBubble from "@/shared/ui/icons/MessageBubble";
 import ChevronRight from "@/shared/ui/icons/ChevronRight";
+import Close from "@/shared/ui/icons/Close";
+import { Input } from "@/shared/ui";
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { papersApi } from "@/shared/api/papers";
@@ -138,6 +140,10 @@ export default function PaperDetailPage() {
   const [selectedTextForChat, setSelectedTextForChat] = useState<string>("");
   const [isLiked, setIsLiked] = useState(false);
   const [isUnliked, setIsUnliked] = useState(false);
+  const [showDiscussionModal, setShowDiscussionModal] = useState(false);
+  const [discussionTitle, setDiscussionTitle] = useState("");
+  const [discussionContent, setDiscussionContent] = useState("");
+  const [isCreatingDiscussion, setIsCreatingDiscussion] = useState(false);
   const popupPositionRef = useRef(popupPosition);
   const selectedTextRef = useRef(selectedText);
   const viewRecordedRef = useRef(false);
@@ -1432,7 +1438,13 @@ export default function PaperDetailPage() {
               </div>
             </div>
 
-            <Button variant="primary" size="medium">
+            <Button
+              variant="primary"
+              size="medium"
+              onClick={() => {
+                setShowDiscussionModal(true);
+              }}
+            >
               토론 시작하기
             </Button>
           </div>
@@ -1711,6 +1723,257 @@ export default function PaperDetailPage() {
           paperId={paper.paperId || paperId}
           paperUrl={paper.url}
         />
+      )}
+
+      {showDiscussionModal && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 10001,
+          }}
+          onClick={() => {
+            if (!isCreatingDiscussion) {
+              setShowDiscussionModal(false);
+              setDiscussionTitle("");
+              setDiscussionContent("");
+            }
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              width: "100%",
+              maxWidth: "600px",
+              padding: "var(--spacing-24)",
+              borderRadius: "var(--radius-16)",
+              background: "var(--color-surface-default)",
+              border: "1px solid var(--color-border-default)",
+              boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+              gap: "var(--spacing-20)",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <div
+                style={{
+                  color: "#322F29",
+                  fontFamily: "Pretendard",
+                  fontSize: "24px",
+                  fontStyle: "normal",
+                  fontWeight: 500,
+                  lineHeight: "30px",
+                }}
+              >
+                토론 시작하기
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  if (!isCreatingDiscussion) {
+                    setShowDiscussionModal(false);
+                    setDiscussionTitle("");
+                    setDiscussionContent("");
+                  }
+                }}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  background: "transparent",
+                  border: "none",
+                  cursor: isCreatingDiscussion ? "not-allowed" : "pointer",
+                  padding: "4px",
+                  opacity: isCreatingDiscussion ? 0.5 : 1,
+                }}
+                disabled={isCreatingDiscussion}
+              >
+                <Close size={24} color="var(--color-text-default)" />
+              </button>
+            </div>
+
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "var(--spacing-16)",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "var(--spacing-6)",
+                }}
+              >
+                <label
+                  style={{
+                    color: "#322F29",
+                    fontFamily: "Pretendard",
+                    fontSize: "14px",
+                    fontStyle: "normal",
+                    fontWeight: 500,
+                    lineHeight: "20px",
+                  }}
+                >
+                  제목
+                </label>
+                <Input
+                  value={discussionTitle}
+                  onChange={(e) => setDiscussionTitle(e.target.value)}
+                  placeholder="토론 제목을 입력하세요"
+                  fullWidth
+                  disabled={isCreatingDiscussion}
+                />
+              </div>
+
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "var(--spacing-6)",
+                }}
+              >
+                <label
+                  style={{
+                    color: "#322F29",
+                    fontFamily: "Pretendard",
+                    fontSize: "14px",
+                    fontStyle: "normal",
+                    fontWeight: 500,
+                    lineHeight: "20px",
+                  }}
+                >
+                  내용
+                </label>
+                <textarea
+                  value={discussionContent}
+                  onChange={(e) => setDiscussionContent(e.target.value)}
+                  placeholder="토론 내용을 입력하세요"
+                  disabled={isCreatingDiscussion}
+                  style={{
+                    width: "100%",
+                    minHeight: "200px",
+                    padding: "var(--spacing-14)",
+                    borderRadius: "var(--radius-14)",
+                    border: "1px solid var(--color-border-default)",
+                    background: "var(--color-surface-default)",
+                    color: "var(--color-text-default)",
+                    fontFamily: "Pretendard",
+                    fontSize: "14px",
+                    fontStyle: "normal",
+                    fontWeight: 500,
+                    lineHeight: "20px",
+                    resize: "vertical",
+                    outline: "none",
+                    transition: "border-color 0.2s ease-in-out",
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = "#322F29";
+                    e.target.style.boxShadow =
+                      "0 0 0 2px rgba(50, 47, 41, 0.1)";
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = "var(--color-border-default)";
+                    e.target.style.boxShadow = "none";
+                  }}
+                />
+              </div>
+            </div>
+
+            <div
+              style={{
+                display: "flex",
+                gap: "var(--spacing-12)",
+                justifyContent: "flex-end",
+              }}
+            >
+              <Button
+                variant="secondary"
+                size="medium"
+                onClick={() => {
+                  if (!isCreatingDiscussion) {
+                    setShowDiscussionModal(false);
+                    setDiscussionTitle("");
+                    setDiscussionContent("");
+                  }
+                }}
+                disabled={isCreatingDiscussion}
+              >
+                취소
+              </Button>
+              <Button
+                variant="primary"
+                size="medium"
+                onClick={async () => {
+                  if (!paperId) {
+                    showToast("논문 ID가 없습니다.", "error");
+                    return;
+                  }
+
+                  if (!discussionTitle.trim()) {
+                    showToast("제목을 입력해주세요.", "error");
+                    return;
+                  }
+
+                  if (!discussionContent.trim()) {
+                    showToast("내용을 입력해주세요.", "error");
+                    return;
+                  }
+
+                  setIsCreatingDiscussion(true);
+                  try {
+                    // path parameter에는 UUID 형식의 id를 사용해야 함
+                    const idToUse = paper?.id || paperId;
+                    if (!idToUse) {
+                      showToast("논문 ID를 찾을 수 없습니다.", "error");
+                      setIsCreatingDiscussion(false);
+                      return;
+                    }
+                    const result = await papersApi.createDiscussion(
+                      idToUse,
+                      discussionTitle.trim(),
+                      discussionContent.trim()
+                    );
+                    console.log("토론 생성 성공:", result);
+                    showToast("토론이 생성되었습니다.", "success");
+                    setShowDiscussionModal(false);
+                    setDiscussionTitle("");
+                    setDiscussionContent("");
+                    // TODO: 토론 목록 새로고침 또는 토론 페이지로 이동
+                  } catch (error) {
+                    console.error("토론 생성 실패:", error);
+                    let errorMessage = "토론 생성에 실패했습니다.";
+                    if (error instanceof Error) {
+                      errorMessage = error.message;
+                    }
+                    showToast(errorMessage, "error");
+                  } finally {
+                    setIsCreatingDiscussion(false);
+                  }
+                }}
+                pending={isCreatingDiscussion}
+                disabled={isCreatingDiscussion}
+              >
+                생성하기
+              </Button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
