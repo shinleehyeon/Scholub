@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import MessageBubble from "@/shared/ui/icons/MessageBubble";
 import X from "@/shared/ui/icons/X";
 import Send from "@/shared/ui/icons/Send";
@@ -15,18 +15,22 @@ export default function Discussion({
   onClose,
 }: DiscussionProps) {
   const [message, setMessage] = useState("");
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   return (
     <div
       style={{
         display: "flex",
+        width: "512px",
+        height: "calc(100vh - 121px)",
         flexDirection: "column",
-        width: "100%",
-        maxWidth: "600px",
-        height: "600px",
-        border: "1px solid var(--color-border-default)",
-        borderRadius: "var(--radius-16)",
+        position: "fixed",
+        top: "121px",
+        right: 0,
+        borderLeft: "1px solid var(--color-border-default)",
         background: "var(--color-surface-default)",
+        boxShadow: "0 2px 4px 0 rgba(0, 0, 0, 0.05)",
+        zIndex: 1000,
       }}
     >
 
@@ -104,26 +108,27 @@ export default function Discussion({
           display: "flex",
           padding: "var(--spacing-20) var(--spacing-14)",
           flexDirection: "column",
-          alignItems: "flex-end",
           gap: "var(--spacing-14)",
-          flex: "1 0 0",
+          flex: 1,
           alignSelf: "stretch",
           overflowY: "auto",
+          minHeight: 0,
         }}
       >
-
+        {/* 오른쪽 정렬 메시지 (사용자) */}
         <div
           style={{
             display: "flex",
             flexDirection: "column",
             alignItems: "flex-end",
             gap: "var(--spacing-8)",
+            alignSelf: "flex-end",
           }}
         >
           <div
             style={{
               display: "flex",
-              width: "315px",
+              maxWidth: "315px",
               padding: "var(--spacing-10) var(--spacing-12)",
               justifyContent: "center",
               alignItems: "center",
@@ -140,6 +145,7 @@ export default function Discussion({
                 fontStyle: "normal",
                 fontWeight: 500,
                 lineHeight: "20px",
+                wordBreak: "break-word",
               }}
             >
               RNN(Recurrent Neural Network, 순환 신경망)은 순서가 있는
@@ -160,98 +166,111 @@ export default function Discussion({
           </div>
         </div>
 
-        <div
-          style={{
-            display: "flex",
-            alignItems: "flex-start",
-            gap: "var(--spacing-8)",
-            alignSelf: "flex-start",
-          }}
-        >
+        {/* 왼쪽 정렬 메시지들 (다른 사용자들) */}
+        {[1, 2, 3, 4, 5].map((index) => (
           <div
-            style={{
-              width: "34px",
-              height: "34px",
-              borderRadius: "50%",
-              background: "var(--color-surface-subtle)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flexShrink: 0,
-            }}
-          >
-            <div
-              style={{
-                width: "100%",
-                height: "100%",
-                borderRadius: "50%",
-                background:
-                  "url('https://via.placeholder.com/34x34/CCCCCC/666666?text=K')",
-                backgroundSize: "cover",
-              }}
-            />
-          </div>
-          <div
+            key={index}
             style={{
               display: "flex",
-              flexDirection: "column",
               alignItems: "flex-start",
               gap: "var(--spacing-8)",
+              alignSelf: "flex-start",
             }}
           >
             <div
               style={{
-                color: "var(--color-text-subtle, #7D7D7D)",
-                fontFamily: "Pretendard",
-                fontSize: "12px",
-                fontStyle: "normal",
-                fontWeight: 500,
-                lineHeight: "16px",
+                width: "34px",
+                height: "34px",
+                borderRadius: "50%",
+                background: "linear-gradient(135deg, #90EE90 0%, #87CEEB 100%)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexShrink: 0,
+                border: "2px solid var(--color-surface-default)",
+                boxShadow: "0 1px 2px rgba(0, 0, 0, 0.1)",
               }}
             >
-              도도도도로롱 | 9:23 AM
+              <div
+                style={{
+                  width: "24px",
+                  height: "24px",
+                  borderRadius: "50%",
+                  background: "#FFD700",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: "12px",
+                  fontWeight: "bold",
+                  color: "#333",
+                }}
+              >
+                ⭐
+              </div>
             </div>
             <div
               style={{
                 display: "flex",
-                width: "315px",
-                padding: "var(--spacing-10) var(--spacing-12)",
-                justifyContent: "center",
-                alignItems: "center",
-                gap: "10px",
-                borderRadius: "var(--radius-14)",
-                background: "var(--color-surface-subtle, #F9F9F9)",
+                flexDirection: "column",
+                alignItems: "flex-start",
+                gap: "var(--spacing-4)",
               }}
             >
               <div
                 style={{
                   color: "var(--color-text-subtle, #7D7D7D)",
                   fontFamily: "Pretendard",
-                  fontSize: "14px",
+                  fontSize: "12px",
                   fontStyle: "normal",
                   fontWeight: 500,
-                  lineHeight: "20px",
+                  lineHeight: "16px",
                 }}
               >
-                RNN(Recurrent Neural Network, 순환 신경망)은 순서가 있는
-                데이터(시퀀스 데이터)를 처리하기 위한 인공신경망의 한
-                종류입니다.
+                도도도도로롱 | 9:23 AM
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  maxWidth: "315px",
+                  padding: "var(--spacing-10) var(--spacing-12)",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  gap: "10px",
+                  borderRadius: "var(--radius-14)",
+                  background: "var(--color-surface-default, #FFFFFF)",
+                  border: "1px solid var(--color-border-default, #EDEDED)",
+                }}
+              >
+                <div
+                  style={{
+                    color: "var(--color-text-default, #322F29)",
+                    fontFamily: "Pretendard",
+                    fontSize: "14px",
+                    fontStyle: "normal",
+                    fontWeight: 500,
+                    lineHeight: "20px",
+                    wordBreak: "break-word",
+                  }}
+                >
+                  RNN(Recurrent Neural Network, 순환 신경망)은 순서가 있는
+                  데이터(시퀀스 데이터)를 처리하기 위한 인공신경망의 한
+                  종류입니다.
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        ))}
       </div>
 
       <div
         style={{
           display: "flex",
-          padding: "var(--spacing-20) var(--spacing-14)",
+          padding: "var(--spacing-14)",
           flexDirection: "column",
-          alignItems: "flex-end",
-          gap: "var(--spacing-14)",
-          flex: "1 0 0",
+          gap: "var(--spacing-12)",
           alignSelf: "stretch",
-          borderTop: "1px solid var(--color-border-default)",
+          borderTop: "1px solid var(--color-border-default, #EDEDED)",
+          background: "var(--color-surface-default)",
         }}
       >
         <div
@@ -267,26 +286,44 @@ export default function Discussion({
           }}
         >
           <textarea
+            ref={textareaRef}
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             placeholder="메시지를 입력하세요"
+            rows={1}
             style={{
               width: "100%",
               border: "none",
               outline: "none",
               background: "transparent",
               fontFamily: "Pretendard",
-              fontSize: "17px",
+              fontSize: "14px",
               fontStyle: "normal",
               fontWeight: 500,
-              lineHeight: "24px",
+              lineHeight: "20px",
+              color: "var(--color-text-default, #322F29)",
               resize: "none",
-              minHeight: "60px",
-              color: message
-                ? "var(--color-text-default)"
-                : "var(--color-text-subtle, #7D7D7D)",
+              overflow: "hidden",
+              minHeight: "20px",
+              maxHeight: "120px",
             }}
-            className="placeholder:text-[var(--color-text-subtle)] placeholder:font-[Pretendard] placeholder:text-[17px] placeholder:font-medium placeholder:leading-[24px]"
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                if (message.trim()) {
+                  console.log("메시지 전송:", message);
+                  setMessage("");
+                  if (textareaRef.current) {
+                    textareaRef.current.style.height = "auto";
+                  }
+                }
+              }
+            }}
+            onInput={(e) => {
+              const target = e.target as HTMLTextAreaElement;
+              target.style.height = "auto";
+              target.style.height = `${Math.min(target.scrollHeight, 120)}px`;
+            }}
           />
           <button
             type="button"
@@ -294,6 +331,9 @@ export default function Discussion({
               if (message.trim()) {
                 console.log("메시지 전송:", message);
                 setMessage("");
+                if (textareaRef.current) {
+                  textareaRef.current.style.height = "auto";
+                }
               }
             }}
             style={{

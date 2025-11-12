@@ -1,6 +1,7 @@
 import { Header } from "@/widgets/header";
 import { SubHeader } from "@/widgets/sub-header";
 import { AIChat } from "@/widgets/ai-chat";
+import { Discussion } from "@/widgets/discussion";
 import { Button, Typography } from "@/shared/ui";
 import Sparkles from "@/shared/ui/icons/Sparkles";
 import SmileLike from "@/shared/ui/icons/SmileLike";
@@ -61,13 +62,14 @@ const TableOfContentsItem = ({
       >
         <div
           style={{
-            width: "25px",
+            minWidth: "25px",
             color: "var(--color-text-subtle)",
             fontFamily: "Pretendard",
             fontSize: "17px",
             fontStyle: "normal",
             fontWeight: 500,
             lineHeight: "24px",
+            textAlign: "right",
           }}
         >
           {numbering}
@@ -76,6 +78,7 @@ const TableOfContentsItem = ({
           kor={item.translatedLabel}
           style={{
             color: "#000",
+            flex: 1,
           }}
         >
           {item.label}
@@ -138,6 +141,12 @@ export default function PaperDetailPage() {
   const [selectedText, setSelectedText] = useState<string>("");
   const [showAIChat, setShowAIChat] = useState<boolean>(false);
   const [selectedTextForChat, setSelectedTextForChat] = useState<string>("");
+  const [showDiscussion, setShowDiscussion] = useState<boolean>(false);
+  const [selectedDiscussion, setSelectedDiscussion] = useState<{
+    id: string;
+    title: string;
+    messageCount: number;
+  } | null>(null);
   const [isLiked, setIsLiked] = useState(false);
   const [isUnliked, setIsUnliked] = useState(false);
   const [showDiscussionModal, setShowDiscussionModal] = useState(false);
@@ -568,7 +577,8 @@ export default function PaperDetailPage() {
           gap: "var(--spacing-32)",
           alignSelf: "stretch",
           marginTop: "121px",
-          paddingRight: showAIChat ? "532px" : "var(--padding)",
+          paddingRight:
+            showAIChat || showDiscussion ? "532px" : "var(--padding)",
         }}
       >
         <div
@@ -1537,8 +1547,12 @@ export default function PaperDetailPage() {
                     cursor: "pointer",
                   }}
                   onClick={() => {
-                    // TODO: 토론 상세 페이지로 이동
-                    console.log("토론 클릭:", discussion.id);
+                    setSelectedDiscussion({
+                      id: discussion.id,
+                      title: discussion.title,
+                      messageCount: discussion.messageCount,
+                    });
+                    setShowDiscussion(true);
                   }}
                 >
                   <div
@@ -1656,6 +1670,17 @@ export default function PaperDetailPage() {
           paperTitle={paper.title}
           paperId={paper.paperId || paperId}
           paperUrl={paper.url}
+        />
+      )}
+
+      {showDiscussion && selectedDiscussion && (
+        <Discussion
+          title={selectedDiscussion.title}
+          conversationCount={selectedDiscussion.messageCount}
+          onClose={() => {
+            setShowDiscussion(false);
+            setSelectedDiscussion(null);
+          }}
         />
       )}
 
