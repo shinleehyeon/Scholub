@@ -76,10 +76,40 @@ export const profileApi = {
 
   async getUserProfile(userId: string): Promise<UserProfile | null> {
     try {
-      const response = await apiClient.get<ProfileResponse>(
-        `/users/${encodeURIComponent(userId)}`
-      );
-      return response.data;
+      const response = await apiClient.get<{
+        status: number;
+        method: string;
+        instance: string;
+        details: string;
+        data: {
+          email: string;
+          name: string;
+          profileImageUrl?: string;
+        };
+        errors: Record<string, unknown> | null;
+        timestamp: string;
+      }>(`/users/${encodeURIComponent(userId)}/profile`);
+
+      // API 응답 구조: response.data에 직접 프로필 정보가 있음
+      console.log("getUserProfile 전체 응답:", response);
+
+      if (
+        response.data &&
+        typeof response.data === "object" &&
+        "name" in response.data
+      ) {
+        const profileData = response.data;
+        console.log("프로필 데이터 추출 성공:", profileData);
+        return {
+          id: userId,
+          name: profileData.name,
+          email: profileData.email,
+          profileImageUrl: profileData.profileImageUrl,
+        };
+      }
+
+      console.warn("프로필 데이터를 찾을 수 없음. 응답 구조:", response);
+      return null;
     } catch (error) {
       console.error(`사용자 프로필 가져오기 실패 (userId: ${userId}):`, error);
       return null;
@@ -87,9 +117,8 @@ export const profileApi = {
   },
 
   async getReactionPapers(): Promise<Paper[]> {
-    const response = await apiClient.get<ReactedPapersResponse>(
-      "/papers/me/reacted"
-    );
+    const response =
+      await apiClient.get<ReactedPapersResponse>("/papers/me/reacted");
 
     return Array.isArray(response.data) ? response.data : [];
   },
@@ -110,14 +139,16 @@ export const profileApi = {
   async updateInterestedCategories(
     interestedCategories: string[]
   ): Promise<UserProfile> {
-
     const formData = new FormData();
 
     interestedCategories.forEach((category) => {
       formData.append("interestedCategories", category);
     });
 
-    const response = await apiClient.patch<ProfileResponse>("/users/me", formData);
+    const response = await apiClient.patch<ProfileResponse>(
+      "/users/me",
+      formData
+    );
     return response.data;
   },
 };
