@@ -547,7 +547,6 @@ export default function PaperDetailPage() {
   const publishedYear = paper.issuedAt
     ? new Date(paper.issuedAt).getFullYear().toString()
     : "";
-  const pages = "";
   const authors = paper.authors || [];
 
   return (
@@ -717,18 +716,6 @@ export default function PaperDetailPage() {
                     lineHeight: "24px",
                   }}
                 >
-                  페이지
-                </div>
-                <div
-                  style={{
-                    color: "var(--color-text-subtle)",
-                    fontFamily: "Pretendard",
-                    fontSize: "17px",
-                    fontStyle: "normal",
-                    fontWeight: 500,
-                    lineHeight: "24px",
-                  }}
-                >
                   DOI
                 </div>
               </div>
@@ -767,18 +754,6 @@ export default function PaperDetailPage() {
                   }}
                 >
                   {publishedYear || "발행연도 정보 없음"}
-                </div>
-                <div
-                  style={{
-                    color: "var(--color-text-default)",
-                    fontFamily: "Pretendard",
-                    fontSize: "17px",
-                    fontStyle: "normal",
-                    fontWeight: 500,
-                    lineHeight: "24px",
-                  }}
-                >
-                  {pages || "페이지 정보 없음"}
                 </div>
                 <div
                   style={{
