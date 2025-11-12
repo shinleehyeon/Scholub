@@ -128,6 +128,23 @@ export interface CategoryPapersParams {
   searchQuery?: string;
 }
 
+export interface DiscussionMessage {
+  id: string;
+  discussionId: string;
+  userId: string;
+  content: string;
+  isEdited: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface DiscussionMessagesResponse {
+  messages: DiscussionMessage[];
+  total?: number;
+  page?: number;
+  limit?: number;
+}
+
 export const papersApi = {
   async getHeadlines(limit: number = 4): Promise<Paper[]> {
     try {
@@ -427,5 +444,57 @@ export const papersApi = {
     );
 
     return response.data || [];
+  },
+
+  async getDiscussionMessages(
+    discussionId: string,
+    page: number = 1,
+    limit: number = 20
+  ): Promise<DiscussionMessagesResponse> {
+    const response = await apiClient.get<{
+      status: number;
+      method: string;
+      instance: string;
+      details: string;
+      data: Array<{
+        id: string;
+        discussionId: string;
+        userId: string;
+        content: string;
+        isEdited: boolean;
+        createdAt: string;
+        updatedAt: string;
+      }>;
+      errors: Record<string, unknown> | null;
+      timestamp?: string;
+    }>(
+      `/discussions/${encodeURIComponent(discussionId)}/messages?page=${page}&limit=${limit}`
+    );
+
+    return {
+      messages: Array.isArray(response.data) ? response.data : [],
+      total: Array.isArray(response.data) ? response.data.length : 0,
+      page,
+      limit,
+    };
+  },
+
+  async createDiscussionMessage(
+    discussionId: string,
+    content: string
+  ): Promise<DiscussionMessage> {
+    const response = await apiClient.post<{
+      status: number;
+      method: string;
+      instance: string;
+      details: string;
+      data: DiscussionMessage;
+      errors: Record<string, unknown> | null;
+      timestamp: string;
+    }>(`/discussions/${encodeURIComponent(discussionId)}/messages`, {
+      content,
+    });
+
+    return response.data;
   },
 };

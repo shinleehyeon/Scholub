@@ -875,6 +875,9 @@ export default function PaperDetailPage() {
         >
           <Typography.Headline
             kor={paperContent.translatedTableOfContentsTitle}
+            style={{
+              scrollMarginTop: "121px",
+            }}
           >
             {tableOfContentsTitle}
           </Typography.Headline>
@@ -920,6 +923,7 @@ export default function PaperDetailPage() {
               kor={abstractContent.translatedLabel}
               style={{
                 color: "#322F29",
+                scrollMarginTop: "121px",
               }}
             >
               {abstractContent.label || ""}
@@ -976,6 +980,7 @@ export default function PaperDetailPage() {
               kor={introductionContent.translatedLabel}
               style={{
                 color: "#322F29",
+                scrollMarginTop: "121px",
               }}
             >
               {introductionContent.label || ""}
@@ -1034,6 +1039,7 @@ export default function PaperDetailPage() {
               kor={content.translatedLabel}
               style={{
                 color: "#322F29",
+                scrollMarginTop: "121px",
               }}
             >
               {content.label || ""}
@@ -1689,6 +1695,7 @@ export default function PaperDetailPage() {
 
       {showDiscussion && selectedDiscussion && (
         <Discussion
+          discussionId={selectedDiscussion.id}
           title={selectedDiscussion.title}
           conversationCount={selectedDiscussion.messageCount}
           onClose={() => {

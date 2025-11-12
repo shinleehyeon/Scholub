@@ -74,6 +74,18 @@ export const profileApi = {
     return response.data;
   },
 
+  async getUserProfile(userId: string): Promise<UserProfile | null> {
+    try {
+      const response = await apiClient.get<ProfileResponse>(
+        `/users/${encodeURIComponent(userId)}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error(`사용자 프로필 가져오기 실패 (userId: ${userId}):`, error);
+      return null;
+    }
+  },
+
   async getReactionPapers(): Promise<Paper[]> {
     const response = await apiClient.get<ReactedPapersResponse>(
       "/papers/me/reacted"
