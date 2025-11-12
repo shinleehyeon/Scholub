@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import NotificationItem from "./NotificationItem";
 import XIcon from "@/shared/ui/icons/X";
 import { Typography } from "@/shared/ui";
@@ -23,6 +23,8 @@ interface NotificationPopoverProps {
   onUnreadCountChange?: (count: number) => void;
 }
 
+const ITEMS_PER_PAGE = 10;
+
 export default function NotificationPopover({
   isOpen,
   onClose,
@@ -31,6 +33,11 @@ export default function NotificationPopover({
   const { showToast } = useToast();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
+  const [totalPages, setTotalPages] = useState(1);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const formatTimestamp = (dateString: string): string => {
     const date = new Date(dateString);
@@ -52,11 +59,16 @@ export default function NotificationPopover({
       if (isOpen) {
         try {
           setLoading(true);
+          setCurrentPage(1);
           const data = await notificationsApi.getNotifications({
             page: 1,
-            limit: 20,
+            limit: ITEMS_PER_PAGE,
           });
           setNotifications(data.items);
+          if (data.meta) {
+            setTotalPages(data.meta.totalPages);
+            setHasMore(data.meta.page < data.meta.totalPages);
+          }
         } catch (error) {
           console.error("알림 로드 실패:", error);
           const errorMessage =
@@ -67,11 +79,45 @@ export default function NotificationPopover({
         } finally {
           setLoading(false);
         }
+      } else {
+        // 닫을 때 상태 초기화
+        setNotifications([]);
+        setCurrentPage(1);
+        setHasMore(false);
+        setTotalPages(1);
       }
     };
 
     fetchNotifications();
   }, [isOpen, showToast]);
+
+  const handleLoadMore = async () => {
+    if (loadingMore || !hasMore) return;
+
+    try {
+      setLoadingMore(true);
+      const nextPage = currentPage + 1;
+      const data = await notificationsApi.getNotifications({
+        page: nextPage,
+        limit: ITEMS_PER_PAGE,
+      });
+      setNotifications((prev) => [...prev, ...data.items]);
+      setCurrentPage(nextPage);
+      if (data.meta) {
+        setTotalPages(data.meta.totalPages);
+        setHasMore(data.meta.page < data.meta.totalPages);
+      }
+    } catch (error) {
+      console.error("알림 추가 로드 실패:", error);
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "알림을 불러오는데 실패했습니다.";
+      showToast(errorMessage, "error");
+    } finally {
+      setLoadingMore(false);
+    }
+  };
 
   const handleMarkAllAsRead = async () => {
     // 낙관적 업데이트: 즉시 UI 업데이트
@@ -136,24 +182,26 @@ export default function NotificationPopover({
         top: "45px",
         display: "flex",
         width: "320px",
-        padding: "var(--spacing-14) 0",
+        maxHeight: "600px",
         flexDirection: "column",
-        alignItems: "flex-start",
-        gap: "var(--spacing-10)",
         background: "var(--color-surface-default)",
         borderRadius: "var(--radius-16)",
         border: "1px solid var(--color-border-default)",
         boxShadow: "0px 4px 16px rgba(0, 0, 0, 0.1)",
         zIndex: 1000,
+        overflow: "hidden",
       }}
     >
+      {/* 헤더 */}
       <div
         style={{
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
           width: "100%",
-          padding: "0 var(--spacing-16)",
+          padding: "var(--spacing-14) var(--spacing-16)",
+          borderBottom: "1px solid var(--color-border-default)",
+          flexShrink: 0,
         }}
       >
         <Typography.Body color="default" as="h3">
@@ -179,11 +227,14 @@ export default function NotificationPopover({
         </button>
       </div>
 
+      {/* 읽은 것으로 표시 버튼 */}
       {notificationItems.length > 0 && (
         <div
           style={{
-            padding: "0 var(--spacing-16)",
+            padding: "var(--spacing-10) var(--spacing-16)",
             width: "100%",
+            borderBottom: "1px solid var(--color-border-default)",
+            flexShrink: 0,
           }}
         >
           <button
@@ -208,12 +259,16 @@ export default function NotificationPopover({
         </div>
       )}
 
+      {/* 스크롤 가능한 알림 리스트 */}
       <div
+        ref={scrollContainerRef}
         style={{
           display: "flex",
           flexDirection: "column",
           width: "100%",
-          gap: "var(--spacing-10)",
+          overflowY: "auto",
+          overflowX: "hidden",
+          flex: 1,
         }}
       >
         {loading ? (
@@ -227,16 +282,53 @@ export default function NotificationPopover({
             로딩 중...
           </div>
         ) : notificationItems.length > 0 ? (
-          notificationItems.map((notification) => (
-            <NotificationItem
-              key={notification.id}
-              imageUrl={notification.imageUrl}
-              message={notification.message}
-              timestamp={notification.timestamp}
-              isRead={notification.isRead}
-              relatedPaperId={notification.relatedPaperId}
-            />
-          ))
+          <>
+            {notificationItems.map((notification) => (
+              <NotificationItem
+                key={notification.id}
+                imageUrl={notification.imageUrl}
+                message={notification.message}
+                timestamp={notification.timestamp}
+                isRead={notification.isRead}
+                relatedPaperId={notification.relatedPaperId}
+              />
+            ))}
+            {hasMore && (
+              <div
+                style={{
+                  padding: "var(--spacing-16)",
+                  display: "flex",
+                  justifyContent: "center",
+                  borderTop: "1px solid var(--color-border-default)",
+                }}
+              >
+                <button
+                  type="button"
+                  onClick={handleLoadMore}
+                  disabled={loadingMore}
+                  style={{
+                    padding: "var(--spacing-10) var(--spacing-20)",
+                    borderRadius: "var(--radius-8)",
+                    background: loadingMore
+                      ? "var(--color-surface-subtle)"
+                      : "var(--color-surface-default)",
+                    color: loadingMore
+                      ? "var(--color-text-subtle)"
+                      : "var(--color-text-default)",
+                    border: "1px solid var(--color-border-default)",
+                    cursor: loadingMore ? "not-allowed" : "pointer",
+                    fontFamily: "Pretendard",
+                    fontSize: "14px",
+                    fontWeight: 500,
+                    lineHeight: "20px",
+                    transition: "all 0.2s ease",
+                  }}
+                >
+                  {loadingMore ? "로딩 중..." : "더보기"}
+                </button>
+              </div>
+            )}
+          </>
         ) : (
           <div
             style={{
