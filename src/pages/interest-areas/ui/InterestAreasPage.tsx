@@ -175,6 +175,7 @@ export default function InterestAreas() {
           justifyContent: "center",
           minHeight: "calc(100vh - 121px)",
           padding: "var(--spacing-48) var(--spacing-24)",
+          marginTop: "121px",
         }}
       >
         <div
@@ -195,7 +196,13 @@ export default function InterestAreas() {
               gap: "var(--spacing-10)",
             }}
           >
-            <Typography.Headline color="default" as="h1">
+            <Typography.Headline
+              color="default"
+              as="h1"
+              style={{
+                scrollMarginTop: "121px",
+              }}
+            >
               관심 분야
             </Typography.Headline>
 

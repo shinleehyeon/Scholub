@@ -132,14 +132,23 @@ export default function ProfilePhotoPage() {
               justifyContent: "center",
             }}
           >
-            <Avatar
-              src={
-                profileImage ||
-                "https://via.placeholder.com/146x146/CCCCCC/666666?text=Profile"
-              }
-              alt="프로필 이미지"
-              size={146}
-            />
+            {profileImage ? (
+              <Avatar
+                src={profileImage}
+                alt="프로필 이미지"
+                size={146}
+              />
+            ) : (
+              <div
+                style={{
+                  width: "146px",
+                  height: "146px",
+                  borderRadius: "var(--radius-9999)",
+                  background: "var(--color-surface-subtle)",
+                  border: "1px solid var(--color-border-default)",
+                }}
+              />
+            )}
             <button
               onClick={handleCameraClick}
               style={{
@@ -169,28 +178,30 @@ export default function ProfilePhotoPage() {
             />
           </div>
 
-          <button
-            onClick={handleDeleteImage}
-            style={{
-              background: "transparent",
-              border: "none",
-              cursor: "pointer",
-              padding: 0,
-            }}
-          >
-            <Typography.Body
-              color="subtle"
+          {profileImage && (
+            <button
+              onClick={handleDeleteImage}
               style={{
-                fontFamily: "Pretendard",
-                fontSize: "17px",
-                fontWeight: 500,
-                lineHeight: "24px",
-                color: "var(--color-text-subtle)",
+                background: "transparent",
+                border: "none",
+                cursor: "pointer",
+                padding: 0,
               }}
             >
-              기존 이미지 삭제하기
-            </Typography.Body>
-          </button>
+              <Typography.Body
+                color="subtle"
+                style={{
+                  fontFamily: "Pretendard",
+                  fontSize: "17px",
+                  fontWeight: 500,
+                  lineHeight: "24px",
+                  color: "var(--color-text-subtle)",
+                }}
+              >
+                기존 이미지 삭제하기
+              </Typography.Body>
+            </button>
+          )}
 
           {error && (
             <Typography.Body
