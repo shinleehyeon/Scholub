@@ -43,6 +43,23 @@ export default function Discussion({
   const [editingContent, setEditingContent] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const editTextareaRef = useRef<HTMLTextAreaElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+  // 낙관적 메시지 추적: tempId -> { content, timestamp, serverId? }
+  // serverId는 서버 응답을 받으면 저장됨
+  const pendingOptimisticMessages = useRef<
+    Map<
+      string,
+      {
+        content: string;
+        timestamp: number;
+        serverId?: string; // 서버에서 받은 실제 메시지 ID
+      }
+    >
+  >(new Map());
+  const shouldAutoScrollRef = useRef(true);
+  const fetchMessagesRef = useRef<
+    ((isInitialLoad?: boolean) => Promise<void>) | null
+  >(null);
 
   // 현재 사용자 프로필 가져오기
   useEffect(() => {
@@ -77,6 +94,15 @@ export default function Discussion({
     }
 
     const fetchMessages = async (isInitialLoad = false) => {
+      // 메시지 전송 중이면 폴링 스킵 (낙관적 업데이트 보호)
+      // 전송 중에는 폴링을 완전히 스킵하여 낙관적 메시지가 사라지지 않도록 함
+      if (!isInitialLoad && sending) {
+        return;
+      }
+
+      // fetchMessages 함수를 ref에 저장하여 메시지 전송 완료 후 호출 가능하도록 함
+      fetchMessagesRef.current = fetchMessages;
+
       try {
         if (isInitialLoad) {
           setLoading(true);
@@ -89,33 +115,116 @@ export default function Discussion({
         const serverMessages = messagesData.messages || [];
 
         setMessages((prev) => {
-          // 초기 로드면 서버 메시지로 설정
-          if (isInitialLoad && prev.length === 0) {
-            return serverMessages.sort(
+          // 유효하지 않은 메시지 제거
+          const validPrev = prev.filter((msg) => msg != null && msg.id != null);
+
+          // 방법 4: 서버 응답에 메시지 ID가 있을 때만 업데이트
+          // pendingOptimisticMessages에 등록된 모든 낙관적 메시지 ID (tempId)
+          const optimisticTempIds = new Set(
+            Array.from(pendingOptimisticMessages.current.keys())
+          );
+
+          // 서버 응답에 있는 실제 메시지 ID들 (서버에서 받은 ID)
+          const serverMessageIds = new Set(
+            serverMessages.map((msg) => msg?.id).filter(Boolean)
+          );
+
+          // 낙관적 메시지(temp-로 시작하는 ID) 추출
+          // 서버 응답에 해당 메시지 ID가 없으면 유지, 있으면 교체 예정
+          const optimisticMessages = validPrev.filter((msg) => {
+            if (!msg || !msg.id) return false;
+            // temp-로 시작하는 메시지만 낙관적 메시지로 간주
+            if (!msg.id.startsWith("temp-")) return false;
+
+            // 이 낙관적 메시지에 대응하는 서버 ID가 있는지 확인
+            const tempInfo = pendingOptimisticMessages.current.get(msg.id);
+            if (!tempInfo) return true; // 정보가 없으면 유지
+
+            // 서버 응답에 실제 메시지 ID가 있으면 교체 대상 (제외)
+            if (tempInfo.serverId && serverMessageIds.has(tempInfo.serverId)) {
+              return false; // 서버 응답에 있으면 제외 (교체됨)
+            }
+
+            // 서버 응답에 없으면 유지
+            return true;
+          });
+
+          // 낙관적 메시지를 제외한 일반 메시지만 처리
+          const nonOptimisticMessages = validPrev.filter(
+            (msg) =>
+              msg &&
+              msg.id &&
+              !msg.id.startsWith("temp-") &&
+              !optimisticTempIds.has(msg.id)
+          );
+
+          // 초기 로드면 서버 메시지로 설정 (낙관적 메시지는 유지)
+          if (isInitialLoad && nonOptimisticMessages.length === 0) {
+            const validServerMessages = serverMessages.filter(
+              (msg) => msg != null && msg.id != null
+            );
+            // 낙관적 메시지와 함께 반환
+            return [...validServerMessages, ...optimisticMessages].sort(
               (a, b) =>
                 new Date(a.createdAt).getTime() -
                 new Date(b.createdAt).getTime()
             );
           }
 
-          // 낙관적 메시지(temp-로 시작하는 ID)는 유지
-          const tempMessages = prev.filter((msg) => msg.id.startsWith("temp-"));
-
-          // 기존 서버 메시지 ID 추출
+          // 기존 서버 메시지 ID 추출 (낙관적 메시지 제외)
           const existingMessageIds = new Set(
-            prev
-              .filter((msg) => !msg.id.startsWith("temp-"))
-              .map((msg) => msg.id)
+            nonOptimisticMessages.map((msg) => msg.id)
+          );
+
+          // 유효한 서버 메시지만 필터링
+          const validServerMessages = serverMessages.filter(
+            (msg) => msg != null && msg.id != null
           );
 
           // 새로 추가된 메시지만 찾기
-          const newMessages = serverMessages.filter(
-            (msg) => !existingMessageIds.has(msg.id)
-          );
+          // 방법 4 핵심: 서버 응답에 있는 메시지 중 낙관적 메시지와 매칭되는 것은 교체용으로 처리
+          const newMessages: DiscussionMessage[] = [];
+          const matchedOptimisticIds = new Set<string>(); // 교체될 낙관적 메시지 ID
 
-          // 기존 메시지 중 업데이트된 내용이 있는지 확인
-          const updatedMessages = serverMessages.filter((serverMsg) => {
-            const existingMsg = prev.find((m) => m.id === serverMsg.id);
+          validServerMessages.forEach((msg) => {
+            if (!msg) return;
+            // 이미 있는 메시지는 제외
+            if (existingMessageIds.has(msg.id)) return;
+
+            // 이 메시지가 낙관적 메시지의 서버 응답인지 확인
+            // pendingOptimisticMessages에서 serverId가 일치하는 것 찾기
+            let matchedTempId: string | null = null;
+            pendingOptimisticMessages.current.forEach((tempInfo, tempId) => {
+              if (tempInfo.serverId === msg.id) {
+                matchedTempId = tempId;
+              }
+            });
+
+            if (matchedTempId) {
+              // 낙관적 메시지와 매칭된 서버 메시지 → 교체용으로 추가
+              matchedOptimisticIds.add(matchedTempId);
+              newMessages.push(msg);
+            } else {
+              // 다른 사용자의 새 메시지 → 일반적으로 추가
+              newMessages.push(msg);
+            }
+          });
+
+          // 기존 메시지 중 업데이트된 내용이 있는지 확인 (낙관적 메시지 제외)
+          const updatedMessages = validServerMessages.filter((serverMsg) => {
+            // 낙관적 메시지의 서버 ID는 업데이트 대상에서 제외 (교체로 처리됨)
+            // matchedOptimisticIds에 해당하는 서버 메시지는 교체용이므로 업데이트 제외
+            let isOptimisticServerId = false;
+            pendingOptimisticMessages.current.forEach((tempInfo) => {
+              if (tempInfo.serverId === serverMsg.id) {
+                isOptimisticServerId = true;
+              }
+            });
+            if (isOptimisticServerId) return false;
+
+            const existingMsg = nonOptimisticMessages.find(
+              (m) => m && m.id === serverMsg.id
+            );
             return (
               existingMsg &&
               (existingMsg.content !== serverMsg.content ||
@@ -124,41 +233,125 @@ export default function Discussion({
             );
           });
 
-          // 변경사항이 없으면 이전 상태 유지 (UI 깜빡임 방지)
-          if (newMessages.length === 0 && updatedMessages.length === 0) {
+          // 변경사항이 없으면 이전 상태 참조 유지 (리렌더링 방지)
+          // 방법 4: 교체될 낙관적 메시지가 있는지 먼저 확인
+          const hasReplacement = Array.from(
+            pendingOptimisticMessages.current.values()
+          ).some(
+            (tempInfo) =>
+              tempInfo.serverId && serverMessageIds.has(tempInfo.serverId)
+          );
+
+          if (
+            newMessages.length === 0 &&
+            updatedMessages.length === 0 &&
+            !hasReplacement
+          ) {
+            // 변경사항이 전혀 없으면 이전 참조 그대로 반환 (전체 새로고침 방지)
             return prev;
           }
 
-          // 기존 메시지 업데이트 (수정 중인 메시지는 제외)
-          const updatedPrev = prev.map((msg) => {
+          // 기존 메시지 업데이트 (낙관적 메시지는 이미 제외됨)
+          // 변경된 메시지만 교체하고 나머지는 참조 유지 (리렌더링 최소화)
+          const updatedNonOptimistic = nonOptimisticMessages.map((msg) => {
+            if (!msg || !msg.id) return msg;
             // 수정 중인 메시지는 서버 응답으로 업데이트하지 않음 (사용자가 수정 중이므로)
             if (editingMessageId && msg.id === editingMessageId) {
-              return msg;
+              return msg; // 참조 유지
             }
-            const updated = updatedMessages.find((m) => m.id === msg.id);
+            const updated = updatedMessages.find((m) => m && m.id === msg.id);
+            // 변경사항이 없으면 원본 참조 유지
             return updated || msg;
           });
 
-          // 새 메시지와 낙관적 메시지 추가
-          const combined = [...updatedPrev, ...newMessages, ...tempMessages];
+          // 방법 4 핵심: 낙관적 메시지 처리
+          // 서버 응답에 해당 메시지 ID가 있으면 교체, 없으면 유지
+          const finalOptimisticMessages = optimisticMessages.filter((msg) => {
+            // 교체 대상이 아닌 낙관적 메시지만 유지
+            return !matchedOptimisticIds.has(msg.id);
+          });
 
-          // 중복 제거 및 시간순 정렬
-          const unique = combined
-            .filter(
-              (msg, index, self) =>
-                index === self.findIndex((m) => m.id === msg.id)
-            )
-            .sort(
+          // 교체될 낙관적 메시지의 서버 메시지 찾기
+          const replacementMessages: DiscussionMessage[] = [];
+          matchedOptimisticIds.forEach((tempId) => {
+            const tempInfo = pendingOptimisticMessages.current.get(tempId);
+            if (tempInfo?.serverId) {
+              const serverMsg = validServerMessages.find(
+                (msg) => msg.id === tempInfo.serverId
+              );
+              if (serverMsg) {
+                replacementMessages.push(serverMsg);
+                // 방법 4: 교체 완료 후 추적에서 제거 (서버 응답에 나타났으므로)
+                pendingOptimisticMessages.current.delete(tempId);
+              }
+            }
+          });
+
+          // 교체된 메시지를 제외한 새 메시지
+          const otherNewMessages = newMessages.filter(
+            (msg) => !replacementMessages.some((r) => r.id === msg.id)
+          );
+
+          // 최적화: 변경사항이 없으면 이전 참조 유지
+          if (
+            updatedNonOptimistic === nonOptimisticMessages &&
+            otherNewMessages.length === 0 &&
+            finalOptimisticMessages.length === optimisticMessages.length &&
+            replacementMessages.length === 0
+          ) {
+            // 모든 메시지가 변경되지 않았으면 이전 참조 그대로 반환
+            return prev;
+          }
+
+          // 기존 메시지 ID 맵 생성 (참조 유지 확인용)
+          const existingMessageMap = new Map(
+            validPrev.map((msg) => [msg.id, msg])
+          );
+
+          // 최종 메시지 배열 구성 (참조 최대한 유지)
+          const result: DiscussionMessage[] = [];
+
+          // 1. 업데이트된 일반 메시지 (변경된 것만 교체)
+          updatedNonOptimistic.forEach((msg) => {
+            if (!msg || !msg.id) return;
+            const existing = existingMessageMap.get(msg.id);
+            // 참조가 같으면 유지, 다르면 교체
+            result.push(existing === msg ? existing : msg);
+          });
+
+          // 2. 새 메시지 추가
+          otherNewMessages.forEach((msg) => {
+            result.push(msg);
+          });
+
+          // 3. 유지되는 낙관적 메시지 (참조 유지)
+          finalOptimisticMessages.forEach((msg) => {
+            const existing = existingMessageMap.get(msg.id);
+            result.push(existing || msg);
+          });
+
+          // 4. 교체된 메시지 (서버 응답)
+          replacementMessages.forEach((msg) => {
+            result.push(msg);
+          });
+
+          // 시간순 정렬 (필요한 경우에만)
+          const needsSort =
+            otherNewMessages.length > 0 || replacementMessages.length > 0;
+          if (needsSort) {
+            return result.sort(
               (a, b) =>
                 new Date(a.createdAt).getTime() -
                 new Date(b.createdAt).getTime()
             );
+          }
 
-          return unique;
+          return result;
         });
 
         if (isInitialLoad) {
           setLoadedDiscussionId(discussionId);
+          shouldAutoScrollRef.current = true; // 초기 로드 시 자동 스크롤 활성화
         }
       } catch (error) {
         console.error("메시지 가져오기 실패:", error);
@@ -174,7 +367,7 @@ export default function Discussion({
       fetchMessages(true);
     }
 
-    // 5초마다 폴링 (새 메시지만 추가)
+    // 3초마다 폴링 (새 메시지만 추가, 전송 중에는 스킵)
     const pollingInterval = setInterval(() => {
       fetchMessages(false);
     }, 3000);
@@ -182,7 +375,42 @@ export default function Discussion({
     return () => {
       clearInterval(pollingInterval);
     };
-  }, [discussionId, loadedDiscussionId, externalMessages]);
+  }, [
+    discussionId,
+    loadedDiscussionId,
+    externalMessages,
+    sending,
+    editingMessageId,
+    currentUser,
+  ]);
+
+  // 메시지 변경 시 자동 스크롤 (초기 로드 및 새 메시지 추가 시)
+  useEffect(() => {
+    if (!messages.length || !messagesContainerRef.current) return;
+
+    // 초기 로드이거나 새 메시지가 추가된 경우에만 자동 스크롤
+    if (shouldAutoScrollRef.current) {
+      setTimeout(() => {
+        if (messagesContainerRef.current) {
+          messagesContainerRef.current.scrollTop =
+            messagesContainerRef.current.scrollHeight;
+        }
+      }, 100);
+    }
+  }, [messages.length]);
+
+  // 초기 로드 완료 시 자동 스크롤
+  useEffect(() => {
+    if (!loading && messages.length > 0 && messagesContainerRef.current) {
+      setTimeout(() => {
+        if (messagesContainerRef.current) {
+          messagesContainerRef.current.scrollTop =
+            messagesContainerRef.current.scrollHeight;
+          shouldAutoScrollRef.current = true;
+        }
+      }, 200);
+    }
+  }, [loading, messages.length]);
 
   // 메시지에서 사용자 ID 추출 및 사용자 정보 가져오기
   useEffect(() => {
@@ -191,7 +419,7 @@ export default function Discussion({
     const fetchUserProfiles = async () => {
       const userIds = new Set<string>();
       messages.forEach((msg) => {
-        if (msg.userId && msg.userId !== currentUser.id) {
+        if (msg && msg.userId && msg.userId !== currentUser.id) {
           userIds.add(msg.userId);
         }
       });
@@ -296,15 +524,17 @@ export default function Discussion({
       // 메시지 업데이트
       setMessages((prev) => {
         // null/undefined 필터링
-        const validMessages = prev.filter((msg) => msg != null);
+        const validMessages = prev.filter(
+          (msg) => msg != null && msg.id != null
+        );
 
         // 수정된 메시지의 인덱스 찾기
         const messageIndex = validMessages.findIndex(
-          (msg) => msg.id === messageId
+          (msg) => msg && msg.id === messageId
         );
         if (messageIndex === -1) {
           console.error("수정할 메시지를 찾을 수 없습니다:", messageId);
-          return prev; // 메시지를 찾을 수 없으면 변경 없음
+          return validMessages; // 메시지를 찾을 수 없으면 변경 없음
         }
 
         console.log("메시지 업데이트 전:", validMessages[messageIndex]);
@@ -354,11 +584,19 @@ export default function Discussion({
     }
 
     const messageContent = message.trim();
-    setSending(true);
+    const optimisticId = `temp-${Date.now()}`;
+    const timestamp = Date.now();
+    setSending(true); // 폴링 일시 중단
+
+    // 낙관적 메시지 추적에 추가 (폴링에서 보호하기 위해)
+    pendingOptimisticMessages.current.set(optimisticId, {
+      content: messageContent,
+      timestamp: timestamp,
+    });
 
     // 낙관적 업데이트: 즉시 UI에 메시지 추가
     const optimisticMessage: DiscussionMessage = {
-      id: `temp-${Date.now()}`,
+      id: optimisticId,
       discussionId: discussionId,
       userId: currentUser.id,
       content: messageContent,
@@ -376,6 +614,14 @@ export default function Discussion({
       textareaRef.current.style.height = "auto";
     }
 
+    // 메시지 전송 후 자동 스크롤
+    setTimeout(() => {
+      if (messagesContainerRef.current) {
+        messagesContainerRef.current.scrollTop =
+          messagesContainerRef.current.scrollHeight;
+      }
+    }, 100);
+
     try {
       // 서버에 메시지 전송
       const createdMessage = await papersApi.createDiscussionMessage(
@@ -383,23 +629,97 @@ export default function Discussion({
         messageContent
       );
 
-      // 낙관적 메시지를 실제 메시지로 교체
-      setMessages((prev) => {
-        const filtered = prev.filter((msg) => msg.id !== optimisticMessage.id);
-        return [...filtered, createdMessage].sort(
-          (a, b) =>
-            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-        );
-      });
+      // 서버 응답이 유효한 경우에만 업데이트
+      // id가 없으면 그냥 넘어가고 낙관적 메시지 유지
+      if (createdMessage && createdMessage.id) {
+        // 낙관적 메시지를 실제 메시지로 교체 (참조 최적화)
+        setMessages((prev) => {
+          // 유효하지 않은 메시지 제거
+          const validPrev = prev.filter((msg) => msg != null && msg.id != null);
+
+          // 낙관적 메시지 찾기
+          const optimisticIndex = validPrev.findIndex(
+            (msg) => msg && msg.id === optimisticId
+          );
+
+          // 낙관적 메시지가 없으면 (이미 폴링으로 교체되었을 수 있음) 그냥 반환
+          if (optimisticIndex === -1) {
+            // 서버 메시지가 이미 있는지 확인
+            const serverMessageExists = validPrev.some(
+              (msg) => msg && msg.id === createdMessage.id
+            );
+            if (serverMessageExists) {
+              return validPrev; // 이미 있으면 변경 없음
+            }
+            // 없으면 추가
+            return [...validPrev, createdMessage].sort(
+              (a, b) =>
+                new Date(a.createdAt).getTime() -
+                new Date(b.createdAt).getTime()
+            );
+          }
+
+          // 낙관적 메시지를 실제 메시지로 교체
+          const updated = [...validPrev];
+          updated[optimisticIndex] = createdMessage;
+
+          // 방법 4 핵심: 서버 응답에서 받은 실제 메시지 ID를 저장
+          // 폴링 시 이 ID가 서버 응답에 있으면 교체됨
+          const tempInfo = pendingOptimisticMessages.current.get(optimisticId);
+          if (tempInfo) {
+            pendingOptimisticMessages.current.set(optimisticId, {
+              ...tempInfo,
+              serverId: createdMessage.id, // 서버에서 받은 실제 ID 저장
+            });
+          }
+
+          // 낙관적 메시지 추적은 유지 (폴링에서 교체될 때까지)
+          // 폴링에서 serverId가 서버 응답에 나타나면 자동으로 교체됨
+
+          // 시간순 정렬
+          const sorted = updated.sort(
+            (a, b) =>
+              new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+          );
+
+          // 메시지 교체 후 자동 스크롤
+          setTimeout(() => {
+            if (messagesContainerRef.current) {
+              messagesContainerRef.current.scrollTop =
+                messagesContainerRef.current.scrollHeight;
+            }
+          }, 100);
+
+          return sorted;
+        });
+      }
+      // createdMessage.id가 없으면 그냥 넘어감 (낙관적 메시지 유지)
+
+      // 메시지 전송 완료 후 서버에 저장되는 시간을 고려하여 약간의 지연 후 폴링 재개
+      // 이렇게 하면 폴링이 실행될 때 서버에 메시지가 이미 저장되어 있을 가능성이 높음
+      await new Promise((resolve) => setTimeout(resolve, 500));
     } catch (error) {
       console.error("메시지 전송 실패:", error);
       alert("메시지 전송에 실패했습니다. 다시 시도해주세요.");
       // 실패 시 낙관적 메시지 제거
       setMessages((prev) =>
-        prev.filter((msg) => msg.id !== optimisticMessage.id)
+        prev.filter(
+          (msg) => msg != null && msg.id != null && msg.id !== optimisticId
+        )
       );
+      // 추적에서도 제거
+      pendingOptimisticMessages.current.delete(optimisticId);
     } finally {
+      // 폴링 재개
       setSending(false);
+
+      // 메시지 전송 완료 후 즉시 한 번 폴링을 실행하여 서버에 저장된 메시지를 확인
+      // 이렇게 하면 낙관적 메시지가 서버 응답으로 교체될 수 있음
+      setTimeout(() => {
+        if (fetchMessagesRef.current) {
+          fetchMessagesRef.current(false);
+        }
+      }, 300);
     }
   };
 
@@ -489,6 +809,7 @@ export default function Discussion({
       </div>
 
       <div
+        ref={messagesContainerRef}
         style={{
           display: "flex",
           padding: "var(--spacing-20) var(--spacing-14)",
@@ -530,7 +851,7 @@ export default function Discussion({
           </div>
         ) : (
           messages
-            .filter((msg) => msg != null)
+            .filter((msg) => msg != null && msg.id != null)
             .map((msg) => {
               const isCurrentUser = currentUser?.id === msg.userId;
               const userProfile = userProfiles[msg.userId];
