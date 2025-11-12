@@ -34,7 +34,15 @@ export default function Discussion({
   const [loadedDiscussionId, setLoadedDiscussionId] = useState<string | null>(
     null
   );
+  const [contextMenu, setContextMenu] = useState<{
+    messageId: string;
+    x: number;
+    y: number;
+  } | null>(null);
+  const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
+  const [editingContent, setEditingContent] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const editTextareaRef = useRef<HTMLTextAreaElement>(null);
 
   // 현재 사용자 프로필 가져오기
   useEffect(() => {
@@ -111,7 +119,8 @@ export default function Discussion({
             return (
               existingMsg &&
               (existingMsg.content !== serverMsg.content ||
-                existingMsg.isEdited !== serverMsg.isEdited)
+                existingMsg.isEdited !== serverMsg.isEdited ||
+                existingMsg.updatedAt !== serverMsg.updatedAt)
             );
           });
 
@@ -120,8 +129,12 @@ export default function Discussion({
             return prev;
           }
 
-          // 기존 메시지 업데이트
+          // 기존 메시지 업데이트 (수정 중인 메시지는 제외)
           const updatedPrev = prev.map((msg) => {
+            // 수정 중인 메시지는 서버 응답으로 업데이트하지 않음 (사용자가 수정 중이므로)
+            if (editingMessageId && msg.id === editingMessageId) {
+              return msg;
+            }
             const updated = updatedMessages.find((m) => m.id === msg.id);
             return updated || msg;
           });
@@ -233,6 +246,105 @@ export default function Discussion({
     const formattedHours = hours % 12 || 12;
     const formattedMinutes = minutes.toString().padStart(2, "0");
     return `${formattedHours}:${formattedMinutes} ${ampm}`;
+  };
+
+  // 컨텍스트 메뉴 닫기
+  useEffect(() => {
+    const handleClickOutside = () => {
+      setContextMenu(null);
+    };
+    document.addEventListener("click", handleClickOutside);
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, []);
+
+  // 수정 모드로 전환될 때 textarea 포커스 및 높이 조정
+  useEffect(() => {
+    if (editingMessageId && editTextareaRef.current) {
+      editTextareaRef.current.focus();
+      editTextareaRef.current.style.height = "auto";
+      editTextareaRef.current.style.height = `${editTextareaRef.current.scrollHeight}px`;
+      // 커서를 텍스트 끝으로 이동
+      editTextareaRef.current.setSelectionRange(
+        editTextareaRef.current.value.length,
+        editTextareaRef.current.value.length
+      );
+    }
+  }, [editingMessageId]);
+
+  // 메시지 수정
+  const handleEditMessage = async (messageId: string) => {
+    if (!discussionId || !editingContent.trim()) return;
+
+    try {
+      const updatedMessage = await papersApi.updateDiscussionMessage(
+        discussionId,
+        messageId,
+        editingContent.trim()
+      );
+
+      console.log("수정된 메시지 응답:", updatedMessage);
+
+      // 수정된 메시지만 업데이트 (전체 새로고침 방지)
+      if (!updatedMessage) {
+        console.error("메시지 수정 응답이 없습니다.");
+        alert("메시지 수정에 실패했습니다. 다시 시도해주세요.");
+        return;
+      }
+
+      // 메시지 업데이트
+      setMessages((prev) => {
+        // null/undefined 필터링
+        const validMessages = prev.filter((msg) => msg != null);
+
+        // 수정된 메시지의 인덱스 찾기
+        const messageIndex = validMessages.findIndex(
+          (msg) => msg.id === messageId
+        );
+        if (messageIndex === -1) {
+          console.error("수정할 메시지를 찾을 수 없습니다:", messageId);
+          return prev; // 메시지를 찾을 수 없으면 변경 없음
+        }
+
+        console.log("메시지 업데이트 전:", validMessages[messageIndex]);
+        console.log("메시지 업데이트 후:", updatedMessage);
+
+        // 수정된 메시지만 교체하고 나머지는 그대로 유지 (참조 유지로 재렌더링 방지)
+        const updated = [...validMessages];
+        updated[messageIndex] = updatedMessage;
+        console.log("업데이트된 메시지 배열:", updated);
+        return updated;
+      });
+
+      // 수정 모드 종료 (메시지 업데이트 후)
+      setEditingMessageId(null);
+      setEditingContent("");
+    } catch (error) {
+      console.error("메시지 수정 실패:", error);
+      alert("메시지 수정에 실패했습니다. 다시 시도해주세요.");
+      // 에러 발생 시에도 수정 모드 종료
+      setEditingMessageId(null);
+      setEditingContent("");
+    }
+  };
+
+  // 메시지 삭제
+  const handleDeleteMessage = async (messageId: string) => {
+    if (!discussionId) return;
+
+    if (!confirm("정말 이 메시지를 삭제하시겠습니까?")) {
+      return;
+    }
+
+    try {
+      await papersApi.deleteDiscussionMessage(discussionId, messageId);
+      setMessages((prev) => prev.filter((msg) => msg.id !== messageId));
+      setContextMenu(null);
+    } catch (error) {
+      console.error("메시지 삭제 실패:", error);
+      alert("메시지 삭제에 실패했습니다. 다시 시도해주세요.");
+    }
   };
 
   // 메시지 전송 함수 (낙관적 업데이트)
@@ -417,133 +529,327 @@ export default function Discussion({
             아직 메시지가 없습니다.
           </div>
         ) : (
-          messages.map((msg) => {
-            const isCurrentUser = currentUser?.id === msg.userId;
-            const userProfile = userProfiles[msg.userId];
+          messages
+            .filter((msg) => msg != null)
+            .map((msg) => {
+              const isCurrentUser = currentUser?.id === msg.userId;
+              const userProfile = userProfiles[msg.userId];
 
-            // 사용자 이름 결정: 현재 사용자는 이름, 다른 사용자는 프로필에서 가져온 이름 또는 로딩 중 표시
-            let displayName: string;
-            if (isCurrentUser) {
-              displayName = currentUser?.name || "나";
-            } else if (userProfile?.name) {
-              displayName = userProfile.name;
-            } else {
-              // 프로필을 아직 가져오지 못한 경우 "사용자"로 표시 (ID 대신)
-              displayName = "사용자";
-            }
+              // 사용자 이름 결정: 현재 사용자는 이름, 다른 사용자는 프로필에서 가져온 이름 또는 로딩 중 표시
+              let displayName: string;
+              if (isCurrentUser) {
+                displayName = currentUser?.name || "나";
+              } else if (userProfile?.name) {
+                displayName = userProfile.name;
+              } else {
+                // 프로필을 아직 가져오지 못한 경우 "사용자"로 표시 (ID 대신)
+                displayName = "사용자";
+              }
 
-            const profileImageUrl = isCurrentUser
-              ? currentUser?.profileImageUrl
-              : userProfile?.profileImageUrl;
+              const profileImageUrl = isCurrentUser
+                ? currentUser?.profileImageUrl
+                : userProfile?.profileImageUrl;
 
-            return (
-              <div
-                key={msg.id}
-                style={{
-                  display: "flex",
-                  alignItems: "flex-start",
-                  gap: "var(--spacing-8)",
-                  alignSelf: isCurrentUser ? "flex-end" : "flex-start",
-                  flexDirection: isCurrentUser ? "row-reverse" : "row",
-                }}
-              >
-                {profileImageUrl ? (
-                  <Avatar src={profileImageUrl} alt={displayName} size={34} />
-                ) : (
-                  <div
-                    style={{
-                      width: "34px",
-                      height: "34px",
-                      borderRadius: "50%",
-                      background: isCurrentUser
-                        ? "linear-gradient(135deg, #F7971D 0%, #FFB84D 100%)"
-                        : "linear-gradient(135deg, #90EE90 0%, #87CEEB 100%)",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      flexShrink: 0,
-                      border: "2px solid var(--color-surface-default)",
-                      boxShadow: "0 1px 2px rgba(0, 0, 0, 0.1)",
-                    }}
-                  >
+              return (
+                <div
+                  key={msg.id}
+                  style={{
+                    display: "flex",
+                    alignItems: "flex-start",
+                    gap: "var(--spacing-8)",
+                    alignSelf: isCurrentUser ? "flex-end" : "flex-start",
+                    flexDirection: isCurrentUser ? "row-reverse" : "row",
+                    position: "relative",
+                  }}
+                  onContextMenu={(e) => {
+                    if (isCurrentUser) {
+                      e.preventDefault();
+                      setContextMenu({
+                        messageId: msg.id,
+                        x: e.clientX,
+                        y: e.clientY,
+                      });
+                    }
+                  }}
+                >
+                  {profileImageUrl ? (
+                    <Avatar src={profileImageUrl} alt={displayName} size={34} />
+                  ) : (
                     <div
                       style={{
-                        width: "24px",
-                        height: "24px",
+                        width: "34px",
+                        height: "34px",
                         borderRadius: "50%",
-                        background: "#FFD700",
+                        background: isCurrentUser
+                          ? "linear-gradient(135deg, #F7971D 0%, #FFB84D 100%)"
+                          : "linear-gradient(135deg, #90EE90 0%, #87CEEB 100%)",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        fontSize: "12px",
-                        fontWeight: "bold",
-                        color: "#333",
+                        flexShrink: 0,
+                        border: "2px solid var(--color-surface-default)",
+                        boxShadow: "0 1px 2px rgba(0, 0, 0, 0.1)",
                       }}
                     >
-                      ⭐
+                      <div
+                        style={{
+                          width: "24px",
+                          height: "24px",
+                          borderRadius: "50%",
+                          background: "#FFD700",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          fontSize: "12px",
+                          fontWeight: "bold",
+                          color: "#333",
+                        }}
+                      >
+                        ⭐
+                      </div>
                     </div>
-                  </div>
-                )}
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: isCurrentUser ? "flex-end" : "flex-start",
-                    gap: "var(--spacing-4)",
-                  }}
-                >
-                  <div
-                    style={{
-                      color: "var(--color-text-subtle, #7D7D7D)",
-                      fontFamily: "Pretendard",
-                      fontSize: "12px",
-                      fontStyle: "normal",
-                      fontWeight: 500,
-                      lineHeight: "16px",
-                    }}
-                  >
-                    {displayName} | {formatDate(msg.createdAt)}
-                    {msg.isEdited && " (수정됨)"}
-                  </div>
+                  )}
                   <div
                     style={{
                       display: "flex",
-                      maxWidth: "315px",
-                      padding: "var(--spacing-10) var(--spacing-12)",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      gap: "10px",
-                      borderRadius: "var(--radius-14)",
-                      background: isCurrentUser
-                        ? "var(--color-surface-brand-default, #F7971D)"
-                        : "var(--color-surface-default, #FFFFFF)",
-                      border: isCurrentUser
-                        ? "none"
-                        : "1px solid var(--color-border-default, #EDEDED)",
+                      flexDirection: "column",
+                      alignItems: isCurrentUser ? "flex-end" : "flex-start",
+                      gap: "var(--spacing-4)",
+                      position: "relative",
+                      flex: 1,
                     }}
                   >
                     <div
                       style={{
-                        color: isCurrentUser
-                          ? "var(--color-text-white, #FFF)"
-                          : "var(--color-text-default, #322F29)",
+                        color: "var(--color-text-subtle, #7D7D7D)",
                         fontFamily: "Pretendard",
-                        fontSize: "14px",
+                        fontSize: "12px",
                         fontStyle: "normal",
                         fontWeight: 500,
-                        lineHeight: "20px",
-                        wordBreak: "break-word",
+                        lineHeight: "16px",
                       }}
                     >
-                      {msg.content}
+                      {displayName} | {formatDate(msg.createdAt)}
+                      {msg.isEdited && " (수정됨)"}
                     </div>
+                    {editingMessageId === msg.id ? (
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "var(--spacing-8)",
+                          maxWidth: "315px",
+                        }}
+                      >
+                        <textarea
+                          ref={editTextareaRef}
+                          value={editingContent}
+                          onChange={(e) => {
+                            setEditingContent(e.target.value);
+                            if (editTextareaRef.current) {
+                              editTextareaRef.current.style.height = "auto";
+                              editTextareaRef.current.style.height = `${editTextareaRef.current.scrollHeight}px`;
+                            }
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" && !e.shiftKey) {
+                              e.preventDefault();
+                              handleEditMessage(msg.id);
+                            }
+                            if (e.key === "Escape") {
+                              setEditingMessageId(null);
+                              setEditingContent("");
+                            }
+                          }}
+                          style={{
+                            width: "100%",
+                            minHeight: "40px",
+                            maxHeight: "200px",
+                            padding: "var(--spacing-10) var(--spacing-12)",
+                            borderRadius: "var(--radius-14)",
+                            border:
+                              "1px solid var(--color-border-default, #EDEDED)",
+                            background: "var(--color-surface-default, #FFFFFF)",
+                            color: "var(--color-text-default, #322F29)",
+                            fontFamily: "Pretendard",
+                            fontSize: "14px",
+                            fontStyle: "normal",
+                            fontWeight: 500,
+                            lineHeight: "20px",
+                            resize: "none",
+                            outline: "none",
+                          }}
+                          autoFocus
+                        />
+                        <div
+                          style={{
+                            display: "flex",
+                            gap: "var(--spacing-8)",
+                            justifyContent: "flex-end",
+                          }}
+                        >
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditingMessageId(null);
+                              setEditingContent("");
+                            }}
+                            style={{
+                              padding: "var(--spacing-6) var(--spacing-12)",
+                              borderRadius: "var(--radius-8)",
+                              border:
+                                "1px solid var(--color-border-default, #EDEDED)",
+                              background:
+                                "var(--color-surface-default, #FFFFFF)",
+                              color: "var(--color-text-default, #322F29)",
+                              fontFamily: "Pretendard",
+                              fontSize: "14px",
+                              fontWeight: 500,
+                              cursor: "pointer",
+                            }}
+                          >
+                            취소
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleEditMessage(msg.id)}
+                            style={{
+                              padding: "var(--spacing-6) var(--spacing-12)",
+                              borderRadius: "var(--radius-8)",
+                              border: "none",
+                              background:
+                                "var(--color-surface-brand-default, #F7971D)",
+                              color: "var(--color-text-white, #FFF)",
+                              fontFamily: "Pretendard",
+                              fontSize: "14px",
+                              fontWeight: 500,
+                              cursor: "pointer",
+                            }}
+                          >
+                            저장
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div
+                        style={{
+                          display: "flex",
+                          maxWidth: "315px",
+                          padding: "var(--spacing-10) var(--spacing-12)",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          gap: "10px",
+                          borderRadius: "var(--radius-14)",
+                          background: isCurrentUser
+                            ? "var(--color-surface-brand-default, #F7971D)"
+                            : "var(--color-surface-default, #FFFFFF)",
+                          border: isCurrentUser
+                            ? "none"
+                            : "1px solid var(--color-border-default, #EDEDED)",
+                        }}
+                      >
+                        <div
+                          style={{
+                            color: isCurrentUser
+                              ? "var(--color-text-white, #FFF)"
+                              : "var(--color-text-default, #322F29)",
+                            fontFamily: "Pretendard",
+                            fontSize: "14px",
+                            fontStyle: "normal",
+                            fontWeight: 500,
+                            lineHeight: "20px",
+                            wordBreak: "break-word",
+                          }}
+                        >
+                          {msg.content}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
-              </div>
-            );
-          })
+              );
+            })
         )}
       </div>
+
+      {/* 컨텍스트 메뉴 */}
+      {contextMenu && (
+        <div
+          style={{
+            position: "fixed",
+            top: Math.min(contextMenu.y, window.innerHeight - 100),
+            left: Math.min(contextMenu.x + 20, window.innerWidth - 140),
+            background: "var(--color-surface-default, #FFFFFF)",
+            border: "1px solid var(--color-border-default, #EDEDED)",
+            borderRadius: "var(--radius-8)",
+            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+            zIndex: 2000,
+            minWidth: "120px",
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <button
+            type="button"
+            onClick={() => {
+              const message = messages.find(
+                (m) => m.id === contextMenu.messageId
+              );
+              if (message) {
+                setEditingMessageId(message.id);
+                setEditingContent(message.content);
+                setContextMenu(null);
+              }
+            }}
+            style={{
+              width: "100%",
+              padding: "var(--spacing-10) var(--spacing-12)",
+              border: "none",
+              borderBottom: "1px solid var(--color-border-default, #EDEDED)",
+              background: "transparent",
+              color: "var(--color-text-default, #322F29)",
+              fontFamily: "Pretendard",
+              fontSize: "14px",
+              fontWeight: 500,
+              textAlign: "left",
+              cursor: "pointer",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background =
+                "var(--color-surface-subtle, #F5F5F5)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "transparent";
+            }}
+          >
+            수정
+          </button>
+          <button
+            type="button"
+            onClick={() => handleDeleteMessage(contextMenu.messageId)}
+            style={{
+              width: "100%",
+              padding: "var(--spacing-10) var(--spacing-12)",
+              border: "none",
+              background: "transparent",
+              color: "var(--color-text-danger, #DC3545)",
+              fontFamily: "Pretendard",
+              fontSize: "14px",
+              fontWeight: 500,
+              textAlign: "left",
+              cursor: "pointer",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background =
+                "var(--color-surface-subtle, #F5F5F5)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "transparent";
+            }}
+          >
+            삭제
+          </button>
+        </div>
+      )}
 
       <div
         style={{

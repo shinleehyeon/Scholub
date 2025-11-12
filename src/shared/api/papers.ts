@@ -471,9 +471,15 @@ export const papersApi = {
       `/discussions/${encodeURIComponent(discussionId)}/messages?page=${page}&limit=${limit}`
     );
 
+    const messages = Array.isArray(response.data.data)
+      ? response.data.data
+      : Array.isArray(response.data)
+      ? response.data
+      : [];
+
     return {
-      messages: Array.isArray(response.data) ? response.data : [],
-      total: Array.isArray(response.data) ? response.data.length : 0,
+      messages,
+      total: messages.length,
       page,
       limit,
     };
@@ -495,6 +501,52 @@ export const papersApi = {
       content,
     });
 
-    return response.data;
+    return response.data.data;
+  },
+
+  async updateDiscussionMessage(
+    discussionId: string,
+    messageId: string,
+    content: string
+  ): Promise<DiscussionMessage> {
+    const response = await apiClient.patch<{
+      status: number;
+      method: string;
+      instance: string;
+      details: string;
+      data: DiscussionMessage | { data: DiscussionMessage };
+      errors: Record<string, unknown> | null;
+      timestamp: string;
+    }>(
+      `/discussions/${encodeURIComponent(discussionId)}/messages/${encodeURIComponent(messageId)}`,
+      {
+        content,
+      }
+    );
+
+    // API 응답 구조에 따라 data 또는 data.data에서 메시지 추출
+    if (response.data.data && typeof response.data.data === "object" && "id" in response.data.data) {
+      return response.data.data as DiscussionMessage;
+    }
+    if (response.data && typeof response.data === "object" && "id" in response.data) {
+      return response.data as DiscussionMessage;
+    }
+    throw new Error("Invalid API response structure");
+  },
+
+  async deleteDiscussionMessage(
+    discussionId: string,
+    messageId: string
+  ): Promise<void> {
+    await apiClient.delete<{
+      status: number;
+      method: string;
+      instance: string;
+      details: string;
+      errors: Record<string, unknown> | null;
+      timestamp: string;
+    }>(
+      `/discussions/${encodeURIComponent(discussionId)}/messages/${encodeURIComponent(messageId)}`
+    );
   },
 };
