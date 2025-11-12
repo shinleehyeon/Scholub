@@ -386,4 +386,46 @@ export const papersApi = {
 
     return response.data;
   },
+
+  async getDiscussions(
+    paperId: string,
+    page: number = 1,
+    limit: number = 20
+  ): Promise<
+    Array<{
+      id: string;
+      paperId: string;
+      title: string;
+      content: string;
+      creatorId: string;
+      participantCount: number;
+      messageCount: number;
+      createdAt: string;
+      updatedAt: string;
+    }>
+  > {
+    const response = await apiClient.get<{
+      status: number;
+      method: string;
+      instance: string;
+      details: string;
+      data: Array<{
+        id: string;
+        paperId: string;
+        title: string;
+        content: string;
+        creatorId: string;
+        participantCount: number;
+        messageCount: number;
+        createdAt: string;
+        updatedAt: string;
+      }>;
+      errors: Record<string, unknown> | null;
+      timestamp: string;
+    }>(
+      `/papers/${encodeURIComponent(paperId)}/discussions?page=${page}&limit=${limit}`
+    );
+
+    return response.data || [];
+  },
 };

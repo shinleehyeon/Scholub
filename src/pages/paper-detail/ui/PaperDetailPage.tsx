@@ -144,6 +144,20 @@ export default function PaperDetailPage() {
   const [discussionTitle, setDiscussionTitle] = useState("");
   const [discussionContent, setDiscussionContent] = useState("");
   const [isCreatingDiscussion, setIsCreatingDiscussion] = useState(false);
+  const [discussions, setDiscussions] = useState<
+    Array<{
+      id: string;
+      paperId: string;
+      title: string;
+      content: string;
+      creatorId: string;
+      participantCount: number;
+      messageCount: number;
+      createdAt: string;
+      updatedAt: string;
+    }>
+  >([]);
+  const [loadingDiscussions, setLoadingDiscussions] = useState(false);
   const popupPositionRef = useRef(popupPosition);
   const selectedTextRef = useRef(selectedText);
   const viewRecordedRef = useRef(false);
@@ -197,6 +211,30 @@ export default function PaperDetailPage() {
 
     fetchPaperDetail();
   }, [paperId]);
+
+  // 토론 목록 가져오기
+  useEffect(() => {
+    const fetchDiscussions = async () => {
+      if (!paper) return;
+
+      const idToUse = paper.id;
+      if (!idToUse) return;
+
+      setLoadingDiscussions(true);
+      try {
+        const discussionsData = await papersApi.getDiscussions(idToUse);
+        setDiscussions(discussionsData);
+      } catch (error) {
+        console.error("토론 목록 가져오기 실패:", error);
+        // 에러 발생 시 빈 배열로 설정
+        setDiscussions([]);
+      } finally {
+        setLoadingDiscussions(false);
+      }
+    };
+
+    fetchDiscussions();
+  }, [paper]);
 
   useEffect(() => {
     popupPositionRef.current = popupPosition;
@@ -1392,38 +1430,19 @@ export default function PaperDetailPage() {
             토론
           </div>
 
-          <div
-            style={{
-              display: "flex",
-              padding: "var(--spacing-16) var(--spacing-20)",
-              justifyContent: "space-between",
-              alignItems: "center",
-              alignSelf: "stretch",
-              borderRadius: "var(--radius-16)",
-              border: "1px solid var(--color-border-default)",
-              background: "var(--color-surface-subtle)",
-            }}
-          >
+          {loadingDiscussions ? (
             <div
               style={{
                 display: "flex",
-                flexDirection: "column",
-                alignItems: "flex-start",
-                gap: "var(--spacing-4)",
+                padding: "var(--spacing-16) var(--spacing-20)",
+                justifyContent: "center",
+                alignItems: "center",
+                alignSelf: "stretch",
+                borderRadius: "var(--radius-16)",
+                border: "1px solid var(--color-border-default)",
+                background: "var(--color-surface-subtle)",
               }}
             >
-              <div
-                style={{
-                  color: "#322F29",
-                  fontFamily: "Pretendard",
-                  fontSize: "17px",
-                  fontStyle: "normal",
-                  fontWeight: 500,
-                  lineHeight: "24px",
-                }}
-              >
-                아직 활성화된 토론이 없어요.
-              </div>
               <div
                 style={{
                   color: "var(--color-text-subtle)",
@@ -1434,30 +1453,10 @@ export default function PaperDetailPage() {
                   lineHeight: "20px",
                 }}
               >
-                위 버튼을 눌러 지금 바로 토론을 시작하세요
+                토론 목록을 불러오는 중...
               </div>
             </div>
-
-            <Button
-              variant="primary"
-              size="medium"
-              onClick={() => {
-                setShowDiscussionModal(true);
-              }}
-            >
-              토론 시작하기
-            </Button>
-          </div>
-
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "flex-start",
-              gap: "var(--spacing-14)",
-              alignSelf: "stretch",
-            }}
-          >
+          ) : discussions.length === 0 ? (
             <div
               style={{
                 display: "flex",
@@ -1467,201 +1466,136 @@ export default function PaperDetailPage() {
                 alignSelf: "stretch",
                 borderRadius: "var(--radius-16)",
                 border: "1px solid var(--color-border-default)",
-                background: "var(--color-surface-default)",
+                background: "var(--color-surface-subtle)",
               }}
             >
               <div
                 style={{
                   display: "flex",
-                  alignItems: "center",
-                  gap: "var(--spacing-14)",
+                  flexDirection: "column",
+                  alignItems: "flex-start",
+                  gap: "var(--spacing-4)",
                 }}
               >
-                <DocumentPaper size={26} />
-
                 <div
                   style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "flex-start",
-                    gap: "var(--spacing-4)",
+                    color: "#322F29",
+                    fontFamily: "Pretendard",
+                    fontSize: "17px",
+                    fontStyle: "normal",
+                    fontWeight: 500,
+                    lineHeight: "24px",
                   }}
                 >
-                  <div
-                    style={{
-                      color: "#322F29",
-                      fontFamily: "Pretendard",
-                      fontSize: "17px",
-                      fontStyle: "normal",
-                      fontWeight: 500,
-                      lineHeight: "24px",
-                    }}
-                  >
-                    구글 브레인은 해당 연구를 하기에 타당한가?
-                  </div>
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "var(--spacing-4)",
-                    }}
-                  >
-                    <MessageBubble size={16} color="#7D7D7D" />
-                    <div
-                      style={{
-                        color: "var(--color-text-subtle)",
-                        fontFamily: "Pretendard",
-                        fontSize: "14px",
-                        fontStyle: "normal",
-                        fontWeight: 500,
-                        lineHeight: "20px",
-                      }}
-                    >
-                      130+ 대화
-                    </div>
-                  </div>
+                  아직 활성화된 토론이 없어요.
+                </div>
+                <div
+                  style={{
+                    color: "var(--color-text-subtle)",
+                    fontFamily: "Pretendard",
+                    fontSize: "14px",
+                    fontStyle: "normal",
+                    fontWeight: 500,
+                    lineHeight: "20px",
+                  }}
+                >
+                  위 버튼을 눌러 지금 바로 토론을 시작하세요
                 </div>
               </div>
 
-              <ChevronRight size={24} fillColor="#7D7D7D" />
+              <Button
+                variant="primary"
+                size="medium"
+                onClick={() => {
+                  setShowDiscussionModal(true);
+                }}
+              >
+                토론 시작하기
+              </Button>
             </div>
-
+          ) : (
             <div
               style={{
                 display: "flex",
-                padding: "var(--spacing-16) var(--spacing-20)",
-                justifyContent: "space-between",
-                alignItems: "center",
+                flexDirection: "column",
+                gap: "var(--spacing-12)",
                 alignSelf: "stretch",
-                borderRadius: "var(--radius-16)",
-                border: "1px solid var(--color-border-default)",
-                background: "var(--color-surface-default)",
               }}
             >
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "var(--spacing-14)",
-                }}
-              >
-                <DocumentPaper size={26} />
-
+              {discussions.map((discussion) => (
                 <div
+                  key={discussion.id}
                   style={{
                     display: "flex",
-                    flexDirection: "column",
-                    alignItems: "flex-start",
-                    gap: "var(--spacing-4)",
+                    padding: "var(--spacing-16) var(--spacing-20)",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    alignSelf: "stretch",
+                    borderRadius: "var(--radius-16)",
+                    border: "1px solid var(--color-border-default)",
+                    background: "var(--color-surface-default)",
+                    cursor: "pointer",
+                  }}
+                  onClick={() => {
+                    // TODO: 토론 상세 페이지로 이동
+                    console.log("토론 클릭:", discussion.id);
                   }}
                 >
                   <div
                     style={{
-                      color: "#322F29",
-                      fontFamily: "Pretendard",
-                      fontSize: "17px",
-                      fontStyle: "normal",
-                      fontWeight: 500,
-                      lineHeight: "24px",
-                    }}
-                  >
-                    구글 브레인은 해당 연구를 하기에 타당한가?
-                  </div>
-                  <div
-                    style={{
                       display: "flex",
                       alignItems: "center",
-                      gap: "var(--spacing-4)",
+                      gap: "var(--spacing-14)",
+                      flex: 1,
                     }}
                   >
-                    <MessageBubble size={16} color="#7D7D7D" />
+                    <DocumentPaper size={26} />
+
                     <div
                       style={{
-                        color: "var(--color-text-subtle)",
-                        fontFamily: "Pretendard",
-                        fontSize: "14px",
-                        fontStyle: "normal",
-                        fontWeight: 500,
-                        lineHeight: "20px",
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "flex-start",
+                        gap: "var(--spacing-4)",
+                        flex: 1,
                       }}
                     >
-                      130+ 대화
+                      <div
+                        style={{
+                          color: "#322F29",
+                          fontFamily: "Pretendard",
+                          fontSize: "17px",
+                          fontStyle: "normal",
+                          fontWeight: 500,
+                          lineHeight: "24px",
+                        }}
+                      >
+                        {discussion.title}
+                      </div>
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "var(--spacing-4)",
+                          color: "var(--color-text-subtle, #7D7D7D)",
+                          fontFamily: "Pretendard",
+                          fontSize: "14px",
+                          fontStyle: "normal",
+                          fontWeight: 500,
+                          lineHeight: "20px",
+                        }}
+                      >
+                        <MessageBubble size={16} color="#7D7D7D" />
+                        {discussion.messageCount}+ 대화
+                      </div>
                     </div>
                   </div>
+
+                  <ChevronRight size={24} fillColor="#7D7D7D" />
                 </div>
-              </div>
-
-              <ChevronRight size={24} fillColor="#7D7D7D" />
+              ))}
             </div>
-
-            <div
-              style={{
-                display: "flex",
-                padding: "var(--spacing-16) var(--spacing-20)",
-                justifyContent: "space-between",
-                alignItems: "center",
-                alignSelf: "stretch",
-                borderRadius: "var(--radius-16)",
-                border: "1px solid var(--color-border-default)",
-                background: "var(--color-surface-default)",
-              }}
-            >
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "var(--spacing-14)",
-                }}
-              >
-                <DocumentPaper size={26} />
-
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "flex-start",
-                    gap: "var(--spacing-4)",
-                  }}
-                >
-                  <div
-                    style={{
-                      color: "#322F29",
-                      fontFamily: "Pretendard",
-                      fontSize: "17px",
-                      fontStyle: "normal",
-                      fontWeight: 500,
-                      lineHeight: "24px",
-                    }}
-                  >
-                    구글 브레인은 해당 연구를 하기에 타당한가?
-                  </div>
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "var(--spacing-4)",
-                    }}
-                  >
-                    <MessageBubble size={16} color="#7D7D7D" />
-                    <div
-                      style={{
-                        color: "var(--color-text-subtle)",
-                        fontFamily: "Pretendard",
-                        fontSize: "14px",
-                        fontStyle: "normal",
-                        fontWeight: 500,
-                        lineHeight: "20px",
-                      }}
-                    >
-                      130+ 대화
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <ChevronRight size={24} fillColor="#7D7D7D" />
-            </div>
-          </div>
+          )}
         </div>
       </div>
 
@@ -1954,7 +1888,17 @@ export default function PaperDetailPage() {
                     setShowDiscussionModal(false);
                     setDiscussionTitle("");
                     setDiscussionContent("");
-                    // TODO: 토론 목록 새로고침 또는 토론 페이지로 이동
+                    // 토론 목록 새로고침
+                    if (paper?.id) {
+                      try {
+                        const discussionsData = await papersApi.getDiscussions(
+                          paper.id
+                        );
+                        setDiscussions(discussionsData);
+                      } catch (error) {
+                        console.error("토론 목록 새로고침 실패:", error);
+                      }
+                    }
                   } catch (error) {
                     console.error("토론 생성 실패:", error);
                     let errorMessage = "토론 생성에 실패했습니다.";
