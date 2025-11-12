@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import ReactMarkdown from "react-markdown";
 import Sparkles from "@/shared/ui/icons/Sparkles";
 import Close from "@/shared/ui/icons/Close";
 import Send from "@/shared/ui/icons/Send";
@@ -87,23 +88,15 @@ export default function AIChat({
         content: userMessage,
       });
 
-      // 스트리밍 응답을 위한 임시 메시지 추가
-      const streamingMessageId = messages.length + 1;
-      setMessages((prev) => [
-        ...prev,
-        {
-          text: "",
-          isUser: false,
-        },
-      ]);
-
       let fullContent = "";
       let citations:
         | Array<{ title: string; url: string; snippet: string }>
         | undefined;
+      let isFirstChunk = true;
+      let streamingMessageId: number | null = null;
 
       try {
-        console.log("스트리밍 시작:", { openAIMessages, streamingMessageId });
+        console.log("스트리밍 시작:", { openAIMessages });
         // 스트리밍 API 호출 시도
         for await (const chunk of papersApi.searchPapersAIStream({
           messages: openAIMessages,
@@ -114,23 +107,39 @@ export default function AIChat({
           if (chunk.content) {
             fullContent += chunk.content;
             console.log("전체 내용 업데이트:", fullContent);
-            // 실시간으로 메시지 업데이트
-            setMessages((prev) => {
-              const updated = [...prev];
-              console.log(
-                "메시지 업데이트 전:",
-                updated.length,
-                "streamingMessageId:",
-                streamingMessageId
-              );
-              updated[streamingMessageId] = {
-                text: fullContent,
-                isUser: false,
-                citations: chunk.citations || citations,
-              };
-              console.log("메시지 업데이트 후:", updated[streamingMessageId]);
-              return updated;
-            });
+
+            // 첫 번째 글자를 받을 때만 메시지박스 생성
+            if (isFirstChunk) {
+              isFirstChunk = false;
+              setMessages((prev) => {
+                const newId = prev.length;
+                streamingMessageId = newId;
+                return [
+                  ...prev,
+                  {
+                    text: fullContent,
+                    isUser: false,
+                    citations: chunk.citations || citations,
+                  },
+                ];
+              });
+            } else {
+              // 이후에는 기존 메시지 업데이트
+              setMessages((prev) => {
+                const updated = [...prev];
+                if (
+                  streamingMessageId !== null &&
+                  updated[streamingMessageId]
+                ) {
+                  updated[streamingMessageId] = {
+                    text: fullContent,
+                    isUser: false,
+                    citations: chunk.citations || citations,
+                  };
+                }
+                return updated;
+              });
+            }
           }
           if (chunk.citations) {
             console.log("Citations 받음:", chunk.citations);
@@ -140,16 +149,20 @@ export default function AIChat({
         console.log("스트리밍 완료:", { fullContent, citations });
 
         // 최종 메시지 업데이트 (citations 포함)
-        setMessages((prev) => {
-          const updated = [...prev];
-          updated[streamingMessageId] = {
-            text: fullContent,
-            isUser: false,
-            citations:
-              citations && citations.length > 0 ? citations : undefined,
-          };
-          return updated;
-        });
+        if (streamingMessageId !== null) {
+          setMessages((prev) => {
+            const updated = [...prev];
+            if (updated[streamingMessageId!]) {
+              updated[streamingMessageId!] = {
+                text: fullContent,
+                isUser: false,
+                citations:
+                  citations && citations.length > 0 ? citations : undefined,
+              };
+            }
+            return updated;
+          });
+        }
       } catch (streamError) {
         // 스트리밍 실패 시 일반 API로 폴백
         console.warn("스트리밍 실패, 일반 API로 폴백:", streamError);
@@ -164,15 +177,28 @@ export default function AIChat({
           response.choices?.[0]?.message?.content || "응답을 받을 수 없습니다.";
         const responseCitations = response.citations || [];
 
+        // 폴백 시에도 메시지가 없으면 생성
         setMessages((prev) => {
-          const updated = [...prev];
-          updated[streamingMessageId] = {
-            text: aiContent,
-            isUser: false,
-            citations:
-              responseCitations.length > 0 ? responseCitations : undefined,
-          };
-          return updated;
+          if (streamingMessageId === null) {
+            return [
+              ...prev,
+              {
+                text: aiContent,
+                isUser: false,
+                citations:
+                  responseCitations.length > 0 ? responseCitations : undefined,
+              },
+            ];
+          } else {
+            const updated = [...prev];
+            updated[streamingMessageId] = {
+              text: aiContent,
+              isUser: false,
+              citations:
+                responseCitations.length > 0 ? responseCitations : undefined,
+            };
+            return updated;
+          }
         });
       }
     } catch (error) {
@@ -358,25 +384,211 @@ export default function AIChat({
                 border: "1px solid var(--color-border-default)",
                 background: msg.isUser
                   ? "var(--color-surface-default)"
-                  : "var(--color-surface-brand-default)",
+                  : "var(--color-surface-default)",
                 width: msg.isUser ? "auto" : "359px",
                 alignSelf: msg.isUser ? "flex-end" : "flex-start",
               }}
             >
-              <div
-                style={{
-                  color: msg.isUser
-                    ? "var(--color-text-default)"
-                    : "var(--color-text-white)",
-                  fontFamily: "Pretendard",
-                  fontSize: "17px",
-                  fontStyle: "normal",
-                  fontWeight: 500,
-                  lineHeight: "24px",
-                }}
-              >
-                {msg.text}
-              </div>
+              {msg.isUser ? (
+                <div
+                  style={{
+                    color: "var(--color-text-default)",
+                    fontFamily: "Pretendard",
+                    fontSize: "17px",
+                    fontStyle: "normal",
+                    fontWeight: 500,
+                    lineHeight: "24px",
+                    whiteSpace: "pre-wrap",
+                    wordBreak: "break-word",
+                  }}
+                >
+                  {msg.text}
+                </div>
+              ) : (
+                <div
+                  style={{
+                    color: "var(--color-text-default)",
+                    fontFamily: "Pretendard",
+                    fontSize: "17px",
+                    fontStyle: "normal",
+                    fontWeight: 400,
+                    lineHeight: "22px",
+                    whiteSpace: "pre-wrap",
+                    wordBreak: "break-word",
+                  }}
+                >
+                  <ReactMarkdown
+                    components={{
+                      p: ({ children }) => (
+                        <p
+                          style={{
+                            margin: "0 0 4px 0",
+                            lineHeight: "22px",
+                          }}
+                        >
+                          {children}
+                        </p>
+                      ),
+                      h1: ({ children }) => (
+                        <h1
+                          style={{
+                            fontSize: "24px",
+                            fontWeight: 600,
+                            margin: "8px 0 4px 0",
+                            lineHeight: "28px",
+                          }}
+                        >
+                          {children}
+                        </h1>
+                      ),
+                      h2: ({ children }) => (
+                        <h2
+                          style={{
+                            fontSize: "22px",
+                            fontWeight: 600,
+                            margin: "8px 0 3px 0",
+                            lineHeight: "26px",
+                          }}
+                        >
+                          {children}
+                        </h2>
+                      ),
+                      h3: ({ children }) => (
+                        <h3
+                          style={{
+                            fontSize: "20px",
+                            fontWeight: 600,
+                            margin: "8px 0 3px 0",
+                            lineHeight: "24px",
+                          }}
+                        >
+                          {children}
+                        </h3>
+                      ),
+                      h4: ({ children }) => (
+                        <h4
+                          style={{
+                            fontSize: "18px",
+                            fontWeight: 600,
+                            margin: "6px 0 2px 0",
+                            lineHeight: "22px",
+                          }}
+                        >
+                          {children}
+                        </h4>
+                      ),
+                      ul: ({ children }) => (
+                        <ul
+                          style={{
+                            margin: "2px 0",
+                            paddingLeft: "24px",
+                            listStyleType: "disc",
+                          }}
+                        >
+                          {children}
+                        </ul>
+                      ),
+                      ol: ({ children }) => (
+                        <ol
+                          style={{
+                            margin: "2px 0",
+                            paddingLeft: "24px",
+                            listStyleType: "decimal",
+                          }}
+                        >
+                          {children}
+                        </ol>
+                      ),
+                      li: ({ children }) => (
+                        <li
+                          style={{
+                            margin: "0 0 2px 0",
+                            lineHeight: "22px",
+                            paddingLeft: "4px",
+                          }}
+                        >
+                          {children}
+                        </li>
+                      ),
+                      code: ({ children }) => (
+                        <code
+                          style={{
+                            background: "var(--color-surface-subtle)",
+                            padding: "2px 6px",
+                            borderRadius: "4px",
+                            fontSize: "15px",
+                            fontFamily: "monospace",
+                            color: "var(--color-text-default)",
+                          }}
+                        >
+                          {children}
+                        </code>
+                      ),
+                      pre: ({ children }) => (
+                        <pre
+                          style={{
+                            background: "var(--color-surface-subtle)",
+                            padding: "12px",
+                            borderRadius: "8px",
+                            overflow: "auto",
+                            margin: "8px 0",
+                            fontSize: "15px",
+                            fontFamily: "monospace",
+                            lineHeight: "22px",
+                            color: "var(--color-text-default)",
+                          }}
+                        >
+                          {children}
+                        </pre>
+                      ),
+                      a: ({ href, children }) => (
+                        <a
+                          href={href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{
+                            color: "var(--color-brand-default)",
+                            textDecoration: "underline",
+                            textUnderlineOffset: "2px",
+                          }}
+                        >
+                          {children}
+                        </a>
+                      ),
+                      blockquote: ({ children }) => (
+                        <blockquote
+                          style={{
+                            borderLeft: "3px solid var(--color-border-default)",
+                            paddingLeft: "12px",
+                            margin: "8px 0",
+                            fontStyle: "italic",
+                            color: "var(--color-text-subtle)",
+                          }}
+                        >
+                          {children}
+                        </blockquote>
+                      ),
+                      hr: () => (
+                        <hr
+                          style={{
+                            border: "none",
+                            borderTop: "1px solid var(--color-border-default)",
+                            margin: "16px 0",
+                          }}
+                        />
+                      ),
+                      strong: ({ children }) => (
+                        <strong style={{ fontWeight: 600 }}>{children}</strong>
+                      ),
+                      em: ({ children }) => (
+                        <em style={{ fontStyle: "italic" }}>{children}</em>
+                      ),
+                    }}
+                  >
+                    {msg.text}
+                  </ReactMarkdown>
+                </div>
+              )}
               {msg.citations && msg.citations.length > 0 && (
                 <div
                   style={{
@@ -384,18 +596,12 @@ export default function AIChat({
                     flexDirection: "column",
                     gap: "var(--spacing-8)",
                     paddingTop: "var(--spacing-12)",
-                    borderTop: `1px solid ${
-                      msg.isUser
-                        ? "var(--color-border-default)"
-                        : "rgba(255, 255, 255, 0.2)"
-                    }`,
+                    borderTop: "1px solid var(--color-border-default)",
                   }}
                 >
                   <div
                     style={{
-                      color: msg.isUser
-                        ? "var(--color-text-subtle)"
-                        : "rgba(255, 255, 255, 0.8)",
+                      color: "var(--color-text-subtle)",
                       fontFamily: "Pretendard",
                       fontSize: "14px",
                       fontStyle: "normal",
@@ -417,18 +623,14 @@ export default function AIChat({
                         gap: "var(--spacing-4)",
                         padding: "var(--spacing-8) var(--spacing-12)",
                         borderRadius: "var(--radius-8)",
-                        background: msg.isUser
-                          ? "var(--color-surface-subtle)"
-                          : "rgba(255, 255, 255, 0.1)",
+                        background: "var(--color-surface-subtle)",
                         textDecoration: "none",
                         cursor: "pointer",
                       }}
                     >
                       <div
                         style={{
-                          color: msg.isUser
-                            ? "var(--color-text-default)"
-                            : "var(--color-text-white)",
+                          color: "var(--color-text-default)",
                           fontFamily: "Pretendard",
                           fontSize: "15px",
                           fontStyle: "normal",
@@ -441,9 +643,7 @@ export default function AIChat({
                       {citation.snippet && (
                         <div
                           style={{
-                            color: msg.isUser
-                              ? "var(--color-text-subtle)"
-                              : "rgba(255, 255, 255, 0.8)",
+                            color: "var(--color-text-subtle)",
                             fontFamily: "Pretendard",
                             fontSize: "13px",
                             fontStyle: "normal",
