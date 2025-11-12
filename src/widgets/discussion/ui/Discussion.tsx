@@ -7,12 +7,14 @@ interface DiscussionProps {
   title?: string;
   conversationCount?: number;
   onClose?: () => void;
+  hasAIChat?: boolean;
 }
 
 export default function Discussion({
   title = "구글 브레인은 해당 연구를 하기에 타당한가?",
   conversationCount = 130,
   onClose,
+  hasAIChat = false,
 }: DiscussionProps) {
   const [message, setMessage] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);

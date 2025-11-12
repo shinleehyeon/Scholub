@@ -12,6 +12,7 @@ interface AIChatProps {
   paperTitle?: string;
   paperId?: string;
   paperUrl?: string;
+  hasDiscussion?: boolean;
 }
 
 export default function AIChat({
@@ -20,6 +21,7 @@ export default function AIChat({
   paperTitle,
   paperId,
   paperUrl,
+  hasDiscussion = false,
 }: AIChatProps) {
   const [message, setMessage] = useState("");
   const [contextText, setContextText] = useState<string>("");

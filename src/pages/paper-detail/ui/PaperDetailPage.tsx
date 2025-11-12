@@ -811,7 +811,13 @@ export default function PaperDetailPage() {
                 variant="primary"
                 size="medium"
                 leadingIcon={<Sparkles color="#ffffff" />}
-                onClick={() => setShowAIChat(true)}
+                onClick={() => {
+                  if (showDiscussion) {
+                    setShowDiscussion(false);
+                    setSelectedDiscussion(null);
+                  }
+                  setShowAIChat(true);
+                }}
               >
                 AI 뷰어
               </Button>
@@ -1547,6 +1553,10 @@ export default function PaperDetailPage() {
                     cursor: "pointer",
                   }}
                   onClick={() => {
+                    if (showAIChat) {
+                      setShowAIChat(false);
+                      setSelectedTextForChat("");
+                    }
                     setSelectedDiscussion({
                       id: discussion.id,
                       title: discussion.title,
@@ -1648,6 +1658,10 @@ export default function PaperDetailPage() {
             }}
             onClick={(e) => {
               e.stopPropagation();
+              if (showDiscussion) {
+                setShowDiscussion(false);
+                setSelectedDiscussion(null);
+              }
               setSelectedTextForChat(selectedText);
               setShowAIChat(true);
               setPopupPosition(null);
