@@ -281,6 +281,7 @@ export default function Header({
               <NotificationPopover
                 isOpen={isNotificationOpen}
                 onClose={() => setIsNotificationOpen(false)}
+                onUnreadCountChange={setUnreadCount}
               />
             </div>
 

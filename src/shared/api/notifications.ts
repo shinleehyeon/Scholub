@@ -17,6 +17,7 @@ export interface Notification {
   relatedPaperId: string | null;
   relatedUserId: string | null;
   userId: string;
+  paperThumbnailUrl?: string | null;
 }
 
 export interface NotificationsResponse {

@@ -20,11 +20,13 @@ export interface NotificationItemData {
 interface NotificationPopoverProps {
   isOpen: boolean;
   onClose: () => void;
+  onUnreadCountChange?: (count: number) => void;
 }
 
 export default function NotificationPopover({
   isOpen,
   onClose,
+  onUnreadCountChange,
 }: NotificationPopoverProps) {
   const { showToast } = useToast();
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -72,16 +74,35 @@ export default function NotificationPopover({
   }, [isOpen, showToast]);
 
   const handleMarkAllAsRead = async () => {
+    // 낙관적 업데이트: 즉시 UI 업데이트
+    const previousNotifications = [...notifications]; // 이전 상태 저장
+    const previousUnreadCount = notifications.filter((n) => !n.isRead).length;
+    
+    const updatedNotifications = notifications.map((notif) => ({
+      ...notif,
+      isRead: true,
+    }));
+    setNotifications(updatedNotifications);
+    
+    // Header의 주황 점도 즉시 제거
+    if (onUnreadCountChange) {
+      onUnreadCountChange(0);
+    }
+
     try {
       await notificationsApi.markAllAsRead();
-      const updatedNotifications = notifications.map((notif) => ({
-        ...notif,
-        isRead: true,
-      }));
-      setNotifications(updatedNotifications);
       showToast("모든 알림이 읽음으로 표시되었습니다.", "success");
     } catch (error) {
       console.error("모두 읽기 실패:", error);
+      
+      // 실패 시 롤백: 이전 상태로 복원
+      setNotifications(previousNotifications);
+      
+      // Header의 주황 점도 복원
+      if (onUnreadCountChange) {
+        onUnreadCountChange(previousUnreadCount);
+      }
+      
       const errorMessage =
         error instanceof Error
           ? error.message
@@ -93,7 +114,9 @@ export default function NotificationPopover({
   const notificationItems: NotificationItemData[] = notifications.map(
     (notif) => ({
       id: notif.id,
-      imageUrl: "https://via.placeholder.com/50x50/CCCCCC/666666?text=N",
+      imageUrl:
+        notif.paperThumbnailUrl ||
+        "https://via.placeholder.com/50x50/CCCCCC/666666?text=N",
       message: notif.message,
       timestamp: formatTimestamp(notif.createdAt),
       isRead: notif.isRead,
