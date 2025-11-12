@@ -159,7 +159,7 @@ export default function SearchPage() {
             flexShrink: 0,
           }}
         >
-          <AIAnswerSection />
+          <AIAnswerSection searchQuery={searchQuery} />
         </div>
       </div>
     </div>

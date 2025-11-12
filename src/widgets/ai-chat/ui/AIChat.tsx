@@ -675,7 +675,7 @@ export default function AIChat({
                 gap: "4px",
               }}
             >
-              생각중
+              <span>생각중</span>
               <span
                 style={{
                   display: "inline-flex",
