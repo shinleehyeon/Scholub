@@ -77,7 +77,7 @@ const TableOfContentsItem = ({
         <Typography.Body
           kor={item.translatedLabel}
           style={{
-            color: "#000",
+            color: "var(--color-text-default)",
             flex: 1,
           }}
         >
@@ -172,7 +172,6 @@ export default function PaperDetailPage() {
   const viewRecordedRef = useRef(false);
   const discussionSectionRef = useRef<HTMLDivElement | null>(null);
 
-  // 5분 후 논문 조회 기록 API 호출
   useEffect(() => {
     if (!paperId || !paper || viewRecordedRef.current) {
       return;
@@ -186,11 +185,10 @@ export default function PaperDetailPage() {
           console.log("논문 조회 기록 완료:", paperId);
         } catch (error) {
           console.error("논문 조회 기록 실패:", error);
-          // 실패해도 사용자에게 알리지 않음 (백그라운드 작업)
         }
       },
       5 * 60 * 1000
-    ); // 5분 = 300000ms
+    );
 
     return () => {
       clearTimeout(timer);
@@ -222,7 +220,6 @@ export default function PaperDetailPage() {
     fetchPaperDetail();
   }, [paperId]);
 
-  // 토론 목록 가져오기
   useEffect(() => {
     const fetchDiscussions = async () => {
       if (!paper) return;
@@ -236,7 +233,6 @@ export default function PaperDetailPage() {
         setDiscussions(discussionsData);
       } catch (error) {
         console.error("토론 목록 가져오기 실패:", error);
-        // 에러 발생 시 빈 배열로 설정
         setDiscussions([]);
       } finally {
         setLoadingDiscussions(false);
@@ -393,7 +389,7 @@ export default function PaperDetailPage() {
             top: ${startRect.top - containerRect.top}px;
             bottom: ${containerRect.bottom - startRect.bottom}px;
             width: 1.5px;
-            background: #F7971D;
+            background: var(--color-brand-default);
             pointer-events: none;
             z-index: 1000;
           `;
@@ -408,7 +404,7 @@ export default function PaperDetailPage() {
             top: ${endRect.top - containerRect.top}px;
             bottom: ${containerRect.bottom - endRect.bottom}px;
             width: 1.5px;
-            background: #F7971D;
+            background: var(--color-brand-default);
             pointer-events: none;
             z-index: 1000;
           `;
@@ -558,11 +554,11 @@ export default function PaperDetailPage() {
     <div className="min-h-screen bg-white paper-detail-page">
       <style>{`
         .paper-detail-page ::selection {
-          background: rgba(247, 151, 29, 0.13);
+          background: var(--color-brand-subtle);
           color: inherit;
         }
         .paper-detail-page ::-moz-selection {
-          background: rgba(247, 151, 29, 0.13);
+          background: var(--color-brand-subtle);
           color: inherit;
         }
       `}</style>
@@ -645,7 +641,7 @@ export default function PaperDetailPage() {
 
             <div
               style={{
-                color: "#322F29",
+                color: "var(--color-text-default)",
                 fontFamily: "Pretendard",
                 fontSize: "26px",
                 fontStyle: "normal",
@@ -747,7 +743,7 @@ export default function PaperDetailPage() {
               >
                 <div
                   style={{
-                    color: "#000",
+                    color: "var(--color-text-default)",
                     fontFamily: "Pretendard",
                     fontSize: "17px",
                     fontStyle: "normal",
@@ -762,7 +758,7 @@ export default function PaperDetailPage() {
                 </div>
                 <div
                   style={{
-                    color: "#000",
+                    color: "var(--color-text-default)",
                     fontFamily: "Pretendard",
                     fontSize: "17px",
                     fontStyle: "normal",
@@ -774,7 +770,7 @@ export default function PaperDetailPage() {
                 </div>
                 <div
                   style={{
-                    color: "#000",
+                    color: "var(--color-text-default)",
                     fontFamily: "Pretendard",
                     fontSize: "17px",
                     fontStyle: "normal",
@@ -786,7 +782,7 @@ export default function PaperDetailPage() {
                 </div>
                 <div
                   style={{
-                    color: "#000",
+                    color: "var(--color-text-default)",
                     fontFamily: "Pretendard",
                     fontSize: "17px",
                     fontStyle: "normal",
@@ -811,7 +807,7 @@ export default function PaperDetailPage() {
               <Button
                 variant="primary"
                 size="medium"
-                leadingIcon={<Sparkles color="#ffffff" />}
+                leadingIcon={<Sparkles color="var(--color-text-white)" />}
                 onClick={() => {
                   if (showDiscussion) {
                     setShowDiscussion(false);
@@ -855,11 +851,11 @@ export default function PaperDetailPage() {
                   size="medium"
                   onClick={() => setLanguage(language === "ko" ? "en" : "ko")}
                   style={{
-                    color: "#F7971D",
+                    color: "var(--color-text-brand-default)",
                     background: "transparent",
                     border: "none",
                     textDecoration: "underline",
-                    textDecorationColor: "#F7971D",
+                    textDecorationColor: "var(--color-text-brand-default)",
                     textUnderlineOffset: "4px",
                   }}
                 >
@@ -931,7 +927,7 @@ export default function PaperDetailPage() {
             <Typography.Headline
               kor={abstractContent.translatedLabel}
               style={{
-                color: "#322F29",
+                color: "var(--color-text-default)",
                 scrollMarginTop: "121px",
               }}
             >
@@ -954,7 +950,7 @@ export default function PaperDetailPage() {
                     el;
               }}
               style={{
-                color: "#322F29",
+                color: "var(--color-text-default)",
                 fontFamily: "Pretendard",
                 fontSize: "17px",
                 fontStyle: "normal",
@@ -988,7 +984,7 @@ export default function PaperDetailPage() {
             <Typography.Headline
               kor={introductionContent.translatedLabel}
               style={{
-                color: "#322F29",
+                color: "var(--color-text-default)",
                 scrollMarginTop: "121px",
               }}
             >
@@ -1012,7 +1008,7 @@ export default function PaperDetailPage() {
                   ] = el;
               }}
               style={{
-                color: "#322F29",
+                color: "var(--color-text-default)",
                 fontFamily: "Pretendard",
                 fontSize: "17px",
                 fontStyle: "normal",
@@ -1047,7 +1043,7 @@ export default function PaperDetailPage() {
             <Typography.Headline
               kor={content.translatedLabel}
               style={{
-                color: "#322F29",
+                color: "var(--color-text-default)",
                 scrollMarginTop: "121px",
               }}
             >
@@ -1068,7 +1064,7 @@ export default function PaperDetailPage() {
                 contentRefs.current[index] = el;
               }}
               style={{
-                color: "#322F29",
+                color: "var(--color-text-default)",
                 fontFamily: "Pretendard",
                 fontSize: "17px",
                 fontStyle: "normal",
@@ -1105,7 +1101,8 @@ export default function PaperDetailPage() {
                 {content.imageCaption && (
                   <div
                     style={{
-                      color: "rgba(50, 47, 41, 0.80)",
+                      color: "var(--color-text-default)",
+                      opacity: 0.8,
                       textAlign: "center",
                       fontFamily: "Pretendard",
                       fontSize: "12px",
@@ -1160,7 +1157,7 @@ export default function PaperDetailPage() {
             >
               <div
                 style={{
-                  color: "#322F29",
+                  color: "var(--color-text-default)",
                   fontFamily: "Pretendard",
                   fontSize: "14px",
                   fontStyle: "normal",
@@ -1173,7 +1170,7 @@ export default function PaperDetailPage() {
               </div>
               <div
                 style={{
-                  color: "#000",
+                  color: "var(--color-text-default)",
                   fontFamily: "Pretendard",
                   fontSize: "17px",
                   fontStyle: "normal",
@@ -1198,7 +1195,6 @@ export default function PaperDetailPage() {
                 onClick={async () => {
                   if (!paper?.paperId && !paper?.id) return;
 
-                  // 낙관적 업데이트: 즉시 UI 업데이트
                   const previousIsLiked = isLiked;
                   const previousIsUnliked = isUnliked;
                   const previousLikeCount = paper.likeCount || 0;
@@ -1207,10 +1203,8 @@ export default function PaperDetailPage() {
                   const newIsLiked = !isLiked;
                   setIsLiked(newIsLiked);
 
-                  // 좋아요를 누르면 싫어요는 무조건 해제
                   if (newIsLiked) {
                     setIsUnliked(false);
-                    // 좋아요를 누르면 좋아요 카운트 증가, 싫어요가 있었다면 싫어요 카운트 감소
                     const newLikeCount = previousLikeCount + 1;
                     const newUnlikeCount = previousIsUnliked
                       ? Math.max(0, previousUnlikeCount - 1)
@@ -1221,7 +1215,6 @@ export default function PaperDetailPage() {
                       unlikeCount: newUnlikeCount,
                     });
                   } else {
-                    // 좋아요를 해제하면 좋아요 카운트 감소
                     const newLikeCount = Math.max(0, previousLikeCount - 1);
                     setPaper({
                       ...paper,
@@ -1230,25 +1223,21 @@ export default function PaperDetailPage() {
                   }
 
                   try {
-                    // POST 요청: 반응 토글
                     await papersApi.toggleReaction(
                       paper.paperId || paper.id,
                       "LIKE"
                     );
 
-                    // POST 완료 후 바로 GET 요청: 최신 통계 가져오기
                     const stats = await papersApi.getReactionStats(
                       paper.paperId || paper.id
                     );
 
-                    // GET 응답으로 카운트만 업데이트 (상태는 낙관적 업데이트에서 이미 설정됨)
                     setPaper({
                       ...paper,
                       likeCount: stats.likeCount,
                       unlikeCount: stats.unlikeCount,
                     });
                   } catch (error) {
-                    // 실패 시 이전 상태로 롤백
                     setIsLiked(previousIsLiked);
                     setIsUnliked(previousIsUnliked);
                     setPaper({
@@ -1283,7 +1272,7 @@ export default function PaperDetailPage() {
               >
                 <div
                   style={{
-                    color: "#322F29",
+                    color: "var(--color-text-default)",
                     textAlign: "center",
                     fontFamily: "Pretendard",
                     fontSize: "14px",
@@ -1296,11 +1285,15 @@ export default function PaperDetailPage() {
                 </div>
                 <SmileLike
                   size={50}
-                  color={isLiked ? "var(--color-brand-default)" : "#A9A8A6"}
+                  color={
+                    isLiked
+                      ? "var(--color-brand-default)"
+                      : "var(--color-text-subtle)"
+                  }
                 />
                 <div
                   style={{
-                    color: "#322F29",
+                    color: "var(--color-text-default)",
                     textAlign: "center",
                     fontFamily: "Pretendard",
                     fontSize: "14px",
@@ -1317,7 +1310,6 @@ export default function PaperDetailPage() {
                 onClick={async () => {
                   if (!paper?.paperId && !paper?.id) return;
 
-                  // 낙관적 업데이트: 즉시 UI 업데이트
                   const previousIsLiked = isLiked;
                   const previousIsUnliked = isUnliked;
                   const previousLikeCount = paper.likeCount || 0;
@@ -1326,10 +1318,8 @@ export default function PaperDetailPage() {
                   const newIsUnliked = !isUnliked;
                   setIsUnliked(newIsUnliked);
 
-                  // 싫어요를 누르면 좋아요는 무조건 해제
                   if (newIsUnliked) {
                     setIsLiked(false);
-                    // 싫어요를 누르면 싫어요 카운트 증가, 좋아요가 있었다면 좋아요 카운트 감소
                     const newUnlikeCount = previousUnlikeCount + 1;
                     const newLikeCount = previousIsLiked
                       ? Math.max(0, previousLikeCount - 1)
@@ -1340,7 +1330,6 @@ export default function PaperDetailPage() {
                       likeCount: newLikeCount,
                     });
                   } else {
-                    // 싫어요를 해제하면 싫어요 카운트 감소
                     const newUnlikeCount = Math.max(0, previousUnlikeCount - 1);
                     setPaper({
                       ...paper,
@@ -1349,25 +1338,21 @@ export default function PaperDetailPage() {
                   }
 
                   try {
-                    // POST 요청: 반응 토글
                     await papersApi.toggleReaction(
                       paper.paperId || paper.id,
                       "UNLIKE"
                     );
 
-                    // POST 완료 후 바로 GET 요청: 최신 통계 가져오기
                     const stats = await papersApi.getReactionStats(
                       paper.paperId || paper.id
                     );
 
-                    // GET 응답으로 카운트만 업데이트 (상태는 낙관적 업데이트에서 이미 설정됨)
                     setPaper({
                       ...paper,
                       likeCount: stats.likeCount,
                       unlikeCount: stats.unlikeCount,
                     });
                   } catch (error) {
-                    // 실패 시 이전 상태로 롤백
                     setIsLiked(previousIsLiked);
                     setIsUnliked(previousIsUnliked);
                     setPaper({
@@ -1402,7 +1387,7 @@ export default function PaperDetailPage() {
               >
                 <div
                   style={{
-                    color: "#322F29",
+                    color: "var(--color-text-default)",
                     textAlign: "center",
                     fontFamily: "Pretendard",
                     fontSize: "14px",
@@ -1415,11 +1400,15 @@ export default function PaperDetailPage() {
                 </div>
                 <FrownDislike
                   size={50}
-                  color={isUnliked ? "var(--color-brand-default)" : "#A9A8A6"}
+                  color={
+                    isUnliked
+                      ? "var(--color-brand-default)"
+                      : "var(--color-text-subtle)"
+                  }
                 />
                 <div
                   style={{
-                    color: "#322F29",
+                    color: "var(--color-text-default)",
                     textAlign: "center",
                     fontFamily: "Pretendard",
                     fontSize: "14px",
@@ -1452,7 +1441,7 @@ export default function PaperDetailPage() {
         >
           <div
             style={{
-              color: "#322F29",
+              color: "var(--color-text-default)",
               fontFamily: "Pretendard",
               fontSize: "24px",
               fontStyle: "normal",
@@ -1512,7 +1501,7 @@ export default function PaperDetailPage() {
               >
                 <div
                   style={{
-                    color: "#322F29",
+                    color: "var(--color-text-default)",
                     fontFamily: "Pretendard",
                     fontSize: "17px",
                     fontStyle: "normal",
@@ -1616,7 +1605,7 @@ export default function PaperDetailPage() {
                     >
                       <div
                         style={{
-                          color: "#322F29",
+                          color: "var(--color-text-default)",
                           fontFamily: "Pretendard",
                           fontSize: "17px",
                           fontStyle: "normal",
@@ -1639,13 +1628,19 @@ export default function PaperDetailPage() {
                           lineHeight: "20px",
                         }}
                       >
-                        <MessageBubble size={16} color="#7D7D7D" />
+                        <MessageBubble
+                          size={16}
+                          color="var(--color-text-subtle)"
+                        />
                         {discussion.messageCount}+ 대화
                       </div>
                     </div>
                   </div>
 
-                  <ChevronRight size={24} fillColor="#7D7D7D" />
+                  <ChevronRight
+                    size={24}
+                    fillColor="var(--color-text-subtle)"
+                  />
                 </div>
               ))}
             </div>
@@ -1698,7 +1693,7 @@ export default function PaperDetailPage() {
               setSelectedText("");
             }}
           >
-            <MessageBubble size={14} color="#7D7D7D" />
+            <MessageBubble size={14} color="var(--color-text-subtle)" />
             채팅으로 전송
           </div>
         </div>
@@ -1775,7 +1770,7 @@ export default function PaperDetailPage() {
             >
               <div
                 style={{
-                  color: "#322F29",
+                  color: "var(--color-text-default)",
                   fontFamily: "Pretendard",
                   fontSize: "24px",
                   fontStyle: "normal",
@@ -1826,7 +1821,7 @@ export default function PaperDetailPage() {
               >
                 <label
                   style={{
-                    color: "#322F29",
+                    color: "var(--color-text-default)",
                     fontFamily: "Pretendard",
                     fontSize: "14px",
                     fontStyle: "normal",
@@ -1854,7 +1849,7 @@ export default function PaperDetailPage() {
               >
                 <label
                   style={{
-                    color: "#322F29",
+                    color: "var(--color-text-default)",
                     fontFamily: "Pretendard",
                     fontSize: "14px",
                     fontStyle: "normal",
@@ -1887,9 +1882,9 @@ export default function PaperDetailPage() {
                     transition: "border-color 0.2s ease-in-out",
                   }}
                   onFocus={(e) => {
-                    e.target.style.borderColor = "#322F29";
+                    e.target.style.borderColor = "var(--color-text-default)";
                     e.target.style.boxShadow =
-                      "0 0 0 2px rgba(50, 47, 41, 0.1)";
+                      "0 0 0 2px rgba(21, 21, 21, 0.1)";
                   }}
                   onBlur={(e) => {
                     e.target.style.borderColor = "var(--color-border-default)";
@@ -1941,7 +1936,6 @@ export default function PaperDetailPage() {
 
                   setIsCreatingDiscussion(true);
                   try {
-                    // path parameter에는 UUID 형식의 id를 사용해야 함
                     const idToUse = paper?.id || paperId;
                     if (!idToUse) {
                       showToast("논문 ID를 찾을 수 없습니다.", "error");
@@ -1958,7 +1952,6 @@ export default function PaperDetailPage() {
                     setShowDiscussionModal(false);
                     setDiscussionTitle("");
                     setDiscussionContent("");
-                    // 토론 목록 새로고침
                     if (paper?.id) {
                       try {
                         const discussionsData = await papersApi.getDiscussions(
