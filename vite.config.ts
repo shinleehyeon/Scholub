@@ -11,6 +11,12 @@ export default defineConfig({
   },
   server: {
     proxy: {
+      "/api/search-papers": {
+        target: "https://dicon2.kur.kr",
+        changeOrigin: true,
+        secure: true,
+        rewrite: (path) => path, // 경로 그대로 유지
+      },
       "/api": {
         target: "https://scholub-api.alpa.dev/",
         changeOrigin: true,

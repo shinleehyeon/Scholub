@@ -25,7 +25,11 @@ export default function AIChat({
   const [contextText, setContextText] = useState<string>("");
   const [isHoveringContext, setIsHoveringContext] = useState(false);
   const [messages, setMessages] = useState<
-    Array<{ text: string; isUser: boolean }>
+    Array<{
+      text: string;
+      isUser: boolean;
+      citations?: Array<{ title: string; url: string; snippet: string }>;
+    }>
   >([]);
   const [isThinking, setIsThinking] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
@@ -56,23 +60,132 @@ export default function AIChat({
     "실험 결과의 의미는 무엇인가요?",
   ];
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     const fullMessage = contextText
       ? `${contextText}\n${message}`.trim()
       : message.trim();
-    if (fullMessage) {
-      setMessages([...messages, { text: fullMessage, isUser: true }]);
-      setMessage("");
-      setContextText("");
-      setIsThinking(true);
+    if (!fullMessage) return;
 
-      setTimeout(() => {
-        setIsThinking(false);
-        setMessages((prev) => [
-          ...prev,
-          { text: "AI 응답 메시지입니다.", isUser: false },
-        ]);
-      }, 2000);
+    // 사용자 메시지 추가
+    setMessages((prev) => [...prev, { text: fullMessage, isUser: true }]);
+    const userMessage = fullMessage;
+    setMessage("");
+    setContextText("");
+    setIsThinking(true);
+
+    try {
+      // OpenAI 형식: 전체 대화 히스토리를 messages 배열로 변환
+      // 프론트엔드에서 관리하는 messages를 OpenAI 형식으로 변환
+      const openAIMessages = messages.map((msg) => ({
+        role: msg.isUser ? ("user" as const) : ("assistant" as const),
+        content: msg.text,
+      }));
+
+      // 현재 사용자 메시지 추가
+      openAIMessages.push({
+        role: "user" as const,
+        content: userMessage,
+      });
+
+      // 스트리밍 응답을 위한 임시 메시지 추가
+      const streamingMessageId = messages.length + 1;
+      setMessages((prev) => [
+        ...prev,
+        {
+          text: "",
+          isUser: false,
+        },
+      ]);
+
+      let fullContent = "";
+      let citations:
+        | Array<{ title: string; url: string; snippet: string }>
+        | undefined;
+
+      try {
+        console.log("스트리밍 시작:", { openAIMessages, streamingMessageId });
+        // 스트리밍 API 호출 시도
+        for await (const chunk of papersApi.searchPapersAIStream({
+          messages: openAIMessages,
+          model: "sonar-pro",
+          temperature: 0.2,
+        })) {
+          console.log("스트리밍 청크 받음:", chunk);
+          if (chunk.content) {
+            fullContent += chunk.content;
+            console.log("전체 내용 업데이트:", fullContent);
+            // 실시간으로 메시지 업데이트
+            setMessages((prev) => {
+              const updated = [...prev];
+              console.log(
+                "메시지 업데이트 전:",
+                updated.length,
+                "streamingMessageId:",
+                streamingMessageId
+              );
+              updated[streamingMessageId] = {
+                text: fullContent,
+                isUser: false,
+                citations: chunk.citations || citations,
+              };
+              console.log("메시지 업데이트 후:", updated[streamingMessageId]);
+              return updated;
+            });
+          }
+          if (chunk.citations) {
+            console.log("Citations 받음:", chunk.citations);
+            citations = chunk.citations;
+          }
+        }
+        console.log("스트리밍 완료:", { fullContent, citations });
+
+        // 최종 메시지 업데이트 (citations 포함)
+        setMessages((prev) => {
+          const updated = [...prev];
+          updated[streamingMessageId] = {
+            text: fullContent,
+            isUser: false,
+            citations:
+              citations && citations.length > 0 ? citations : undefined,
+          };
+          return updated;
+        });
+      } catch (streamError) {
+        // 스트리밍 실패 시 일반 API로 폴백
+        console.warn("스트리밍 실패, 일반 API로 폴백:", streamError);
+
+        const response = await papersApi.searchPapersAI({
+          messages: openAIMessages,
+          model: "sonar-pro",
+          temperature: 0.2,
+        });
+
+        const aiContent =
+          response.choices?.[0]?.message?.content || "응답을 받을 수 없습니다.";
+        const responseCitations = response.citations || [];
+
+        setMessages((prev) => {
+          const updated = [...prev];
+          updated[streamingMessageId] = {
+            text: aiContent,
+            isUser: false,
+            citations:
+              responseCitations.length > 0 ? responseCitations : undefined,
+          };
+          return updated;
+        });
+      }
+    } catch (error) {
+      console.error("AI 채팅 오류:", error);
+      setMessages((prev) => [
+        ...prev,
+        {
+          text: "죄송합니다. 메시지를 처리하는 중 오류가 발생했습니다.",
+          isUser: false,
+        },
+      ]);
+    } finally {
+      setIsThinking(false);
     }
   };
 
@@ -236,12 +349,9 @@ export default function AIChat({
               key={index}
               style={{
                 display: "flex",
-                padding: msg.isUser
-                  ? "var(--spacing-16) var(--spacing-20)"
-                  : "var(--spacing-16) var(--spacing-20)",
-                justifyContent: "center",
-                alignItems: "center",
-                gap: "10px",
+                flexDirection: "column",
+                padding: "var(--spacing-16) var(--spacing-20)",
+                gap: "var(--spacing-12)",
                 borderRadius: msg.isUser
                   ? "var(--radius-16)"
                   : "var(--radius-20)",
@@ -267,6 +377,87 @@ export default function AIChat({
               >
                 {msg.text}
               </div>
+              {msg.citations && msg.citations.length > 0 && (
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "var(--spacing-8)",
+                    paddingTop: "var(--spacing-12)",
+                    borderTop: `1px solid ${
+                      msg.isUser
+                        ? "var(--color-border-default)"
+                        : "rgba(255, 255, 255, 0.2)"
+                    }`,
+                  }}
+                >
+                  <div
+                    style={{
+                      color: msg.isUser
+                        ? "var(--color-text-subtle)"
+                        : "rgba(255, 255, 255, 0.8)",
+                      fontFamily: "Pretendard",
+                      fontSize: "14px",
+                      fontStyle: "normal",
+                      fontWeight: 600,
+                      lineHeight: "20px",
+                    }}
+                  >
+                    출처:
+                  </div>
+                  {msg.citations.map((citation, citationIndex) => (
+                    <a
+                      key={citationIndex}
+                      href={citation.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "var(--spacing-4)",
+                        padding: "var(--spacing-8) var(--spacing-12)",
+                        borderRadius: "var(--radius-8)",
+                        background: msg.isUser
+                          ? "var(--color-surface-subtle)"
+                          : "rgba(255, 255, 255, 0.1)",
+                        textDecoration: "none",
+                        cursor: "pointer",
+                      }}
+                    >
+                      <div
+                        style={{
+                          color: msg.isUser
+                            ? "var(--color-text-default)"
+                            : "var(--color-text-white)",
+                          fontFamily: "Pretendard",
+                          fontSize: "15px",
+                          fontStyle: "normal",
+                          fontWeight: 600,
+                          lineHeight: "20px",
+                        }}
+                      >
+                        {citation.title}
+                      </div>
+                      {citation.snippet && (
+                        <div
+                          style={{
+                            color: msg.isUser
+                              ? "var(--color-text-subtle)"
+                              : "rgba(255, 255, 255, 0.8)",
+                            fontFamily: "Pretendard",
+                            fontSize: "13px",
+                            fontStyle: "normal",
+                            fontWeight: 400,
+                            lineHeight: "18px",
+                          }}
+                        >
+                          {citation.snippet}
+                        </div>
+                      )}
+                    </a>
+                  ))}
+                </div>
+              )}
             </div>
           ))}
           {isThinking && (
@@ -279,9 +470,66 @@ export default function AIChat({
                 fontStyle: "normal",
                 fontWeight: 500,
                 lineHeight: "24px",
+                display: "flex",
+                alignItems: "center",
+                gap: "4px",
               }}
             >
               생각중
+              <span
+                style={{
+                  display: "inline-flex",
+                  gap: "2px",
+                }}
+              >
+                <span
+                  style={{
+                    display: "inline-block",
+                    width: "4px",
+                    height: "4px",
+                    borderRadius: "50%",
+                    backgroundColor: "var(--color-text-subtle)",
+                    animation: "thinking-dot 1.4s infinite ease-in-out",
+                    animationDelay: "0s",
+                  }}
+                />
+                <span
+                  style={{
+                    display: "inline-block",
+                    width: "4px",
+                    height: "4px",
+                    borderRadius: "50%",
+                    backgroundColor: "var(--color-text-subtle)",
+                    animation: "thinking-dot 1.4s infinite ease-in-out",
+                    animationDelay: "0.2s",
+                  }}
+                />
+                <span
+                  style={{
+                    display: "inline-block",
+                    width: "4px",
+                    height: "4px",
+                    borderRadius: "50%",
+                    backgroundColor: "var(--color-text-subtle)",
+                    animation: "thinking-dot 1.4s infinite ease-in-out",
+                    animationDelay: "0.4s",
+                  }}
+                />
+              </span>
+              <style>
+                {`
+                  @keyframes thinking-dot {
+                    0%, 80%, 100% {
+                      transform: scale(0);
+                      opacity: 0.5;
+                    }
+                    40% {
+                      transform: scale(1);
+                      opacity: 1;
+                    }
+                  }
+                `}
+              </style>
             </div>
           )}
         </div>
