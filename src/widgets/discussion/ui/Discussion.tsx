@@ -58,7 +58,7 @@ export default function Discussion({
     fetchCurrentUser();
   }, []);
 
-  // 메시지 초기 로드 (한 번만 실행)
+  // 메시지 초기 로드 및 폴링 (웹소켓처럼 새 메시지만 추가)
   useEffect(() => {
     if (!discussionId) {
       // 외부에서 전달된 메시지 사용
@@ -68,29 +68,107 @@ export default function Discussion({
       return;
     }
 
-    // 이미 로드한 discussionId면 다시 로드하지 않음
-    if (loadedDiscussionId === discussionId) {
-      return;
-    }
-
-    const fetchMessages = async () => {
+    const fetchMessages = async (isInitialLoad = false) => {
       try {
-        setLoading(true);
+        if (isInitialLoad) {
+          setLoading(true);
+        }
         const messagesData = await papersApi.getDiscussionMessages(
           discussionId,
           1,
           20
         );
-        setMessages(messagesData.messages || []);
-        setLoadedDiscussionId(discussionId);
+        const serverMessages = messagesData.messages || [];
+
+        setMessages((prev) => {
+          // 초기 로드면 서버 메시지로 설정
+          if (isInitialLoad && prev.length === 0) {
+            return serverMessages.sort(
+              (a, b) =>
+                new Date(a.createdAt).getTime() -
+                new Date(b.createdAt).getTime()
+            );
+          }
+
+          // 낙관적 메시지(temp-로 시작하는 ID)는 유지
+          const tempMessages = prev.filter((msg) => msg.id.startsWith("temp-"));
+
+          // 기존 서버 메시지 ID 추출
+          const existingMessageIds = new Set(
+            prev
+              .filter((msg) => !msg.id.startsWith("temp-"))
+              .map((msg) => msg.id)
+          );
+
+          // 새로 추가된 메시지만 찾기
+          const newMessages = serverMessages.filter(
+            (msg) => !existingMessageIds.has(msg.id)
+          );
+
+          // 기존 메시지 중 업데이트된 내용이 있는지 확인
+          const updatedMessages = serverMessages.filter((serverMsg) => {
+            const existingMsg = prev.find((m) => m.id === serverMsg.id);
+            return (
+              existingMsg &&
+              (existingMsg.content !== serverMsg.content ||
+                existingMsg.isEdited !== serverMsg.isEdited)
+            );
+          });
+
+          // 변경사항이 없으면 이전 상태 유지 (UI 깜빡임 방지)
+          if (newMessages.length === 0 && updatedMessages.length === 0) {
+            return prev;
+          }
+
+          // 기존 메시지 업데이트
+          const updatedPrev = prev.map((msg) => {
+            const updated = updatedMessages.find((m) => m.id === msg.id);
+            return updated || msg;
+          });
+
+          // 새 메시지와 낙관적 메시지 추가
+          const combined = [...updatedPrev, ...newMessages, ...tempMessages];
+
+          // 중복 제거 및 시간순 정렬
+          const unique = combined
+            .filter(
+              (msg, index, self) =>
+                index === self.findIndex((m) => m.id === msg.id)
+            )
+            .sort(
+              (a, b) =>
+                new Date(a.createdAt).getTime() -
+                new Date(b.createdAt).getTime()
+            );
+
+          return unique;
+        });
+
+        if (isInitialLoad) {
+          setLoadedDiscussionId(discussionId);
+        }
       } catch (error) {
         console.error("메시지 가져오기 실패:", error);
       } finally {
-        setLoading(false);
+        if (isInitialLoad) {
+          setLoading(false);
+        }
       }
     };
 
-    fetchMessages();
+    // 초기 로드
+    if (loadedDiscussionId !== discussionId) {
+      fetchMessages(true);
+    }
+
+    // 5초마다 폴링 (새 메시지만 추가)
+    const pollingInterval = setInterval(() => {
+      fetchMessages(false);
+    }, 3000);
+
+    return () => {
+      clearInterval(pollingInterval);
+    };
   }, [discussionId, loadedDiscussionId, externalMessages]);
 
   // 메시지에서 사용자 ID 추출 및 사용자 정보 가져오기
