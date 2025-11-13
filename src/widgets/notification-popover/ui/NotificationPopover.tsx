@@ -120,6 +120,23 @@ export default function NotificationPopover({
     }
   };
 
+  const handleMarkAsRead = (notificationId: string) => {
+    // 낙관적 업데이트: 즉시 UI 업데이트
+    setNotifications((prev) => {
+      const updated = prev.map((notif) =>
+        notif.id === notificationId ? { ...notif, isRead: true } : notif
+      );
+
+      // 읽지 않은 알림 개수 업데이트
+      if (onUnreadCountChange) {
+        const unreadCount = updated.filter((n) => !n.isRead).length;
+        onUnreadCountChange(unreadCount);
+      }
+
+      return updated;
+    });
+  };
+
   const handleMarkAllAsRead = async () => {
     // 낙관적 업데이트: 즉시 UI 업데이트
     const previousNotifications = [...notifications]; // 이전 상태 저장
@@ -275,7 +292,7 @@ export default function NotificationPopover({
               lineHeight: "20px",
             }}
           >
-            읽은 것으로 표시
+            모두 읽음 처리
           </button>
         </div>
       )}
@@ -307,6 +324,7 @@ export default function NotificationPopover({
             {notificationItems.map((notification) => (
               <NotificationItem
                 key={notification.id}
+                id={notification.id}
                 imageUrl={notification.imageUrl}
                 message={notification.message}
                 timestamp={notification.timestamp}
@@ -314,6 +332,7 @@ export default function NotificationPopover({
                 relatedPaperId={notification.relatedPaperId}
                 relatedDiscussionId={notification.relatedDiscussionId}
                 onNavigate={onClose}
+                onMarkAsRead={handleMarkAsRead}
               />
             ))}
             {hasMore && (

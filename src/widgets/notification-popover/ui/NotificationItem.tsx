@@ -1,7 +1,9 @@
 import { Typography } from "@/shared/ui";
 import { useNavigate } from "react-router-dom";
+import { notificationsApi } from "@/shared/api/notifications";
 
 interface NotificationItemProps {
+  id: string;
   imageUrl: string;
   message: string;
   timestamp: string;
@@ -9,9 +11,11 @@ interface NotificationItemProps {
   relatedPaperId?: string | null;
   relatedDiscussionId?: string | null;
   onNavigate?: () => void;
+  onMarkAsRead?: (notificationId: string) => void;
 }
 
 export default function NotificationItem({
+  id,
   imageUrl,
   message,
   timestamp,
@@ -19,6 +23,7 @@ export default function NotificationItem({
   relatedPaperId,
   relatedDiscussionId,
   onNavigate,
+  onMarkAsRead,
 }: NotificationItemProps) {
   const navigate = useNavigate();
 
@@ -30,12 +35,23 @@ export default function NotificationItem({
     hasBoth: !!(relatedDiscussionId && relatedPaperId),
   });
 
-  const handleClick = () => {
+  const handleClick = async () => {
     console.log("알림 클릭:", {
+      id,
       relatedPaperId,
       relatedDiscussionId,
       hasBoth: !!(relatedDiscussionId && relatedPaperId),
     });
+
+    // 읽지 않은 알림이면 읽음 처리
+    if (!isRead) {
+      try {
+        await notificationsApi.markAsRead(id);
+        onMarkAsRead?.(id);
+      } catch (error) {
+        console.error("알림 읽음 처리 실패:", error);
+      }
+    }
 
     const validDiscussionId =
       relatedDiscussionId &&
