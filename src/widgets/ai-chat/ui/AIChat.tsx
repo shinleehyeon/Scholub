@@ -82,11 +82,33 @@ export default function AIChat({
         content: msg.text,
       }));
 
+      // 첫 메시지인 경우 PDF URL을 포함
+      // 이후 메시지에서는 대화 히스토리에 이미 포함되어 있으므로 별도로 포함하지 않음
+      const isFirstMessage = messages.length === 0;
+      
       // 현재 사용자 메시지 추가
-      openAIMessages.push({
-        role: "user" as const,
-        content: userMessage,
-      });
+      if (isFirstMessage && paperUrl) {
+        // OpenAI 파일 첨부 형식: content를 배열로 만들어 파일 URL 포함
+        openAIMessages.push({
+          role: "user" as const,
+          content: [
+            {
+              type: "input_text",
+              text: userMessage,
+            },
+            {
+              type: "input_file",
+              file_url: paperUrl,
+            },
+          ],
+        });
+      } else {
+        // 일반 메시지: 문자열 형식
+        openAIMessages.push({
+          role: "user" as const,
+          content: userMessage,
+        });
+      }
 
       let fullContent = "";
       let citations:
@@ -96,12 +118,15 @@ export default function AIChat({
       let streamingMessageId: number | null = null;
 
       try {
-        console.log("스트리밍 시작:", { openAIMessages });
+        console.log("스트리밍 시작:", { openAIMessages, paperUrl });
         // 스트리밍 API 호출 시도
+        // 첫 메시지인 경우에만 file_url 파라미터로 PDF URL 전달
+        const isFirstMessage = messages.length === 0;
         for await (const chunk of papersApi.searchPapersAIStream({
           messages: openAIMessages,
           model: "sonar-pro",
           temperature: 0.2,
+          ...(isFirstMessage && paperUrl && { file_url: paperUrl }),
         })) {
           console.log("스트리밍 청크 받음:", chunk);
           if (chunk.content) {
@@ -111,6 +136,7 @@ export default function AIChat({
             // 첫 번째 글자를 받을 때만 메시지박스 생성
             if (isFirstChunk) {
               isFirstChunk = false;
+              setIsThinking(false); // 첫 청크를 받으면 "생각중" 표시 종료
               setMessages((prev) => {
                 const newId = prev.length;
                 streamingMessageId = newId;

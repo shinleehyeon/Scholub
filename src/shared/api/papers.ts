@@ -651,7 +651,16 @@ export const papersApi = {
   },
 
   async *searchPapersAIStream(params: {
-    messages: Array<{ role: string; content: string }>;
+    messages: Array<{
+      role: string;
+      content:
+        | string
+        | Array<{
+            type: string;
+            text?: string;
+            file_url?: string;
+          }>;
+    }>;
     model?: string;
     temperature?: number;
     max_tokens?: number;
@@ -687,7 +696,11 @@ export const papersApi = {
       body: JSON.stringify(requestBody),
     });
 
-    console.log("[스트리밍 API] 응답 상태:", response.status, response.statusText);
+    console.log(
+      "[스트리밍 API] 응답 상태:",
+      response.status,
+      response.statusText
+    );
     console.log("[스트리밍 API] 응답 헤더:", {
       contentType: response.headers.get("content-type"),
       contentLength: response.headers.get("content-length"),
@@ -697,10 +710,10 @@ export const papersApi = {
       const errorText = await response.text();
       // HTML 에러 페이지인 경우 간단하게 표시
       const isHtmlError = errorText.trim().startsWith("<!DOCTYPE");
-      const errorMessage = isHtmlError 
+      const errorMessage = isHtmlError
         ? `서버 에러 (${response.status}): ${response.statusText}`
         : errorText.substring(0, 200);
-      
+
       console.error("[스트리밍 API] 오류 발생:", {
         status: response.status,
         statusText: response.statusText,
@@ -717,11 +730,11 @@ export const papersApi = {
     // Content-Type이 text/event-stream이 아니면 일반 JSON 응답으로 처리
     if (!contentType.includes("text/event-stream")) {
       console.log("일반 JSON 응답으로 처리");
-      
+
       // 응답 본문을 텍스트로 먼저 읽어서 확인
       const responseText = await response.text();
       console.log("응답 텍스트 (처음 500자):", responseText.substring(0, 500));
-      
+
       let data;
       try {
         data = JSON.parse(responseText);
@@ -734,7 +747,7 @@ export const papersApi = {
       console.log("choices:", data.choices);
       console.log("choices[0]:", data.choices?.[0]);
       console.log("choices[0].message:", data.choices?.[0]?.message);
-      
+
       const content = data.choices?.[0]?.message?.content || "";
       const citations = data.citations || [];
 
@@ -779,7 +792,9 @@ export const papersApi = {
     }
 
     let buffer = "";
-    let citations: Array<{ title: string; url: string; snippet: string }> | undefined;
+    let citations:
+      | Array<{ title: string; url: string; snippet: string }>
+      | undefined;
     let chunkCount = 0;
 
     try {
@@ -800,7 +815,7 @@ export const papersApi = {
         for (const line of lines) {
           if (line.trim() === "") continue;
           console.log("라인 처리:", line.substring(0, 200));
-          
+
           // SSE 형식: data: {...}
           if (line.startsWith("data: ")) {
             const data = line.slice(6);
@@ -812,7 +827,7 @@ export const papersApi = {
             try {
               const parsed = JSON.parse(data);
               console.log("파싱된 데이터:", parsed);
-              
+
               // OpenAI 스트리밍 형식 처리
               if (parsed.choices?.[0]?.delta?.content) {
                 const content = parsed.choices[0].delta.content;
@@ -833,13 +848,13 @@ export const papersApi = {
               // JSON 파싱 실패는 무시하고 계속 진행
               console.warn("스트리밍 데이터 파싱 실패:", e, "데이터:", data);
             }
-          } 
+          }
           // 일반 JSON 응답일 수도 있음 (SSE 형식이 아닌 경우)
           else if (line.trim().startsWith("{")) {
             try {
               const parsed = JSON.parse(line.trim());
               console.log("일반 JSON 응답 파싱:", parsed);
-              
+
               const content = parsed.choices?.[0]?.message?.content || "";
               const responseCitations = parsed.citations || [];
 
@@ -857,7 +872,12 @@ export const papersApi = {
                 citations = responseCitations;
               }
             } catch (e) {
-              console.warn("JSON 파싱 실패:", e, "라인:", line.substring(0, 100));
+              console.warn(
+                "JSON 파싱 실패:",
+                e,
+                "라인:",
+                line.substring(0, 100)
+              );
             }
           } else {
             console.log("인식되지 않은 형식, 라인:", line.substring(0, 100));

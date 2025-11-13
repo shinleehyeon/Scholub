@@ -873,7 +873,9 @@ export default function PaperDetailPage() {
                 size="medium"
                 leadingIcon={<DocumentIcon />}
                 onClick={() => {
-                  if (paper.url) {
+                  if (paper.pdfUrl) {
+                    window.open(paper.pdfUrl, "_blank");
+                  } else if (paper.url) {
                     window.open(paper.url, "_blank");
                   }
                 }}
@@ -1748,7 +1750,7 @@ export default function PaperDetailPage() {
           initialMessage={selectedTextForChat}
           paperTitle={paper.title}
           id={paper.id}
-          paperUrl={paper.url}
+          paperUrl={paper.pdfUrl || paper.url}
         />
       )}
 

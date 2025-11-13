@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Header } from "@/widgets/header";
 import { SubHeader } from "@/widgets/sub-header";
 import PopularPaperCard from "@/entities/paper/ui/PopularPaperCard";
@@ -19,6 +19,7 @@ interface CarouselItem {
 }
 
 export default function Home() {
+  const navigate = useNavigate();
   const [carouselItems, setCarouselItems] = useState<CarouselItem[]>([]);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [popularPapers, setPopularPapers] = useState<any[]>([]);
@@ -120,7 +121,6 @@ export default function Home() {
 
           return {
             id: paper.id,
-            id: paper.id,
             imageUrl,
             title: paper.title,
             subtitle,
@@ -158,7 +158,6 @@ export default function Home() {
           const description = paper.summary || "";
 
           return {
-            id: paper.id,
             id: paper.id,
             imageUrl,
             title: paper.title,
@@ -216,7 +215,6 @@ export default function Home() {
           const description = paper.summary || "";
 
           return {
-            id: paper.id,
             id: paper.id,
             imageUrl,
             title: paper.title,
@@ -302,6 +300,22 @@ export default function Home() {
           alignSelf: "stretch",
           width: "100%",
           overflow: "hidden",
+          cursor:
+            currentItem.id !== "loading" &&
+            currentItem.id !== "no-data" &&
+            currentItem.id !== "error"
+              ? "pointer"
+              : "default",
+        }}
+        onClick={() => {
+          if (
+            currentItem.id &&
+            currentItem.id !== "loading" &&
+            currentItem.id !== "no-data" &&
+            currentItem.id !== "error"
+          ) {
+            navigate(`/papers/${currentItem.id}`);
+          }
         }}
       >
         <div
@@ -336,6 +350,22 @@ export default function Home() {
           style={{
             position: "relative",
             zIndex: 1,
+            cursor:
+              currentItem.id !== "loading" &&
+              currentItem.id !== "no-data" &&
+              currentItem.id !== "error"
+                ? "pointer"
+                : "default",
+          }}
+          onClick={() => {
+            if (
+              currentItem.id &&
+              currentItem.id !== "loading" &&
+              currentItem.id !== "no-data" &&
+              currentItem.id !== "error"
+            ) {
+              navigate(`/papers/${currentItem.id}`);
+            }
           }}
         >
           <h1 className="text-white font-[Pretendard] text-[32px] font-bold leading-[44.8px] text-center m-0">
@@ -350,7 +380,10 @@ export default function Home() {
         {carouselItems.length > 1 && (
           <>
             <button
-              onClick={prevSlide}
+              onClick={(e) => {
+                e.stopPropagation();
+                prevSlide();
+              }}
               style={{
                 position: "absolute",
                 left: "var(--spacing-24)",
@@ -370,7 +403,10 @@ export default function Home() {
             </button>
 
             <button
-              onClick={nextSlide}
+              onClick={(e) => {
+                e.stopPropagation();
+                nextSlide();
+              }}
               style={{
                 position: "absolute",
                 right: "var(--spacing-24)",
