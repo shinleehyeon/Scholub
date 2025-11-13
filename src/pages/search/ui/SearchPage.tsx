@@ -11,6 +11,8 @@ export default function SearchPage() {
   const [searchParams] = useSearchParams();
   const searchQuery = searchParams.get("q") || "";
 
+  console.log("[SearchPage] 렌더링됨, searchQuery:", searchQuery);
+
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [total, setTotal] = useState(0);
@@ -158,6 +160,10 @@ export default function SearchPage() {
             flexShrink: 0,
           }}
         >
+          {console.log(
+            "[SearchPage] AIAnswerSection 렌더링 전, searchQuery:",
+            searchQuery
+          )}
           <AIAnswerSection searchQuery={searchQuery} />
         </div>
       </div>

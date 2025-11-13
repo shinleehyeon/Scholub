@@ -678,7 +678,7 @@ export const papersApi = {
       stream: true, // 스트리밍 활성화
     };
 
-    console.log("스트리밍 API 요청:", { url, requestBody });
+    console.log("[스트리밍 API] 요청 시작:", { url, requestBody });
     const response = await fetch(url, {
       method: "POST",
       headers: {
@@ -687,14 +687,27 @@ export const papersApi = {
       body: JSON.stringify(requestBody),
     });
 
-    console.log("스트리밍 응답 상태:", response.status, response.statusText);
-    console.log("스트리밍 응답 헤더:", Object.fromEntries(response.headers.entries()));
+    console.log("[스트리밍 API] 응답 상태:", response.status, response.statusText);
+    console.log("[스트리밍 API] 응답 헤더:", {
+      contentType: response.headers.get("content-type"),
+      contentLength: response.headers.get("content-length"),
+    });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("스트리밍 API 오류:", errorText);
+      // HTML 에러 페이지인 경우 간단하게 표시
+      const isHtmlError = errorText.trim().startsWith("<!DOCTYPE");
+      const errorMessage = isHtmlError 
+        ? `서버 에러 (${response.status}): ${response.statusText}`
+        : errorText.substring(0, 200);
+      
+      console.error("[스트리밍 API] 오류 발생:", {
+        status: response.status,
+        statusText: response.statusText,
+        error: errorMessage,
+      });
       throw new Error(
-        `AI API 요청 실패: ${response.status} ${response.statusText} - ${errorText}`
+        `AI API 요청 실패: ${response.status} ${response.statusText}`
       );
     }
 

@@ -14,94 +14,179 @@ export default function AIAnswerSection({
   className,
   searchQuery,
 }: AIAnswerSectionProps) {
+  console.log("[AIAnswerSection] 컴포넌트 렌더링됨, searchQuery:", searchQuery);
+
   const [aiAnswer, setAiAnswer] = useState<string>("");
   const [isThinking, setIsThinking] = useState(false);
   const [citations, setCitations] = useState<
     Array<{ title: string; url: string; snippet: string }> | undefined
   >(undefined);
 
+  console.log("[AIAnswerSection] useEffect 정의 전, searchQuery:", searchQuery);
+
+  // 테스트용 간단한 useEffect
   useEffect(() => {
-    const fetchAIAnswer = async () => {
-      if (!searchQuery || !searchQuery.trim()) {
-        setAiAnswer("");
-        setCitations(undefined);
-        setIsThinking(false);
-        return;
-      }
+    console.log("[AIAnswerSection] 테스트 useEffect 실행됨!");
+  }, []);
 
-      try {
-        setIsThinking(true);
-        setAiAnswer("");
+  useEffect(() => {
+    console.log("[AIAnswerSection] ========== useEffect 시작 ==========", {
+      searchQuery,
+      searchQueryType: typeof searchQuery,
+      searchQueryLength: searchQuery?.length,
+    });
 
-        // OpenAI 형식으로 메시지 생성
-        const openAIMessages = [
-          {
-            role: "user" as const,
-            content: searchQuery.trim(),
-          },
-        ];
-
-        let fullContent = "";
-        let isFirstChunk = true;
+    try {
+      const fetchAIAnswer = async () => {
+        console.log(
+          "[AIAnswerSection] fetchAIAnswer 함수 정의됨, searchQuery:",
+          searchQuery
+        );
+        if (!searchQuery || !searchQuery.trim()) {
+          console.log("[AIAnswerSection] searchQuery가 비어있음, 초기화");
+          setAiAnswer("");
+          setCitations(undefined);
+          setIsThinking(false);
+          return;
+        }
 
         try {
-          console.log("스트리밍 시작:", { openAIMessages });
-          // 스트리밍 API 호출
-          for await (const chunk of papersApi.searchPapersAIStream({
-            messages: openAIMessages,
-            model: "sonar-pro",
-            temperature: 0.2,
-          })) {
-            console.log("스트리밍 청크 받음:", chunk);
-            if (chunk.content) {
-              fullContent += chunk.content;
-              console.log("전체 내용 업데이트:", fullContent.substring(0, 100));
+          console.log("[AIAnswerSection] 스트리밍 준비 시작");
+          setIsThinking(true);
+          setAiAnswer("");
 
-              // 첫 번째 글자를 받을 때 상태 업데이트 시작
-              if (isFirstChunk) {
-                isFirstChunk = false;
-                console.log("첫 번째 청크 받음, 답변 표시 시작");
+          // OpenAI 형식으로 메시지 생성
+          const openAIMessages = [
+            {
+              role: "user" as const,
+              content: searchQuery.trim(),
+            },
+          ];
+
+          let fullContent = "";
+          let isFirstChunk = true;
+          let chunkIndex = 0;
+
+          try {
+            console.log("[AIAnswerSection] 스트리밍 시작:", { openAIMessages });
+            // 스트리밍 API 호출
+            console.log("[AIAnswerSection] searchPapersAIStream 호출 시작");
+            for await (const chunk of papersApi.searchPapersAIStream({
+              messages: openAIMessages,
+              model: "sonar-pro",
+              temperature: 0.2,
+            })) {
+              chunkIndex++;
+              console.log(
+                `[AIAnswerSection] 스트리밍 청크 #${chunkIndex} 받음:`,
+                {
+                  chunk: chunk,
+                  content: chunk.content,
+                  contentLength: chunk.content?.length || 0,
+                  hasCitations: !!chunk.citations,
+                  citations: chunk.citations,
+                }
+              );
+
+              if (chunk.content) {
+                fullContent += chunk.content;
+                console.log(
+                  `[AIAnswerSection] 전체 내용 업데이트 #${chunkIndex}:`,
+                  {
+                    chunkContent: chunk.content,
+                    fullContentLength: fullContent.length,
+                    fullContentPreview: fullContent.substring(0, 200),
+                  }
+                );
+
+                // 첫 번째 글자를 받을 때 상태 업데이트 시작
+                if (isFirstChunk) {
+                  isFirstChunk = false;
+                  setIsThinking(false); // 첫 청크가 오면 "생성중" 표시 종료
+                  console.log(
+                    "[AIAnswerSection] 첫 번째 청크 받음, 답변 표시 시작"
+                  );
+                }
+                setAiAnswer(fullContent);
               }
-              setAiAnswer(fullContent);
+              if (chunk.citations) {
+                console.log(
+                  `[AIAnswerSection] Citations 받음 #${chunkIndex}:`,
+                  chunk.citations
+                );
+                setCitations(chunk.citations);
+              }
             }
-            if (chunk.citations) {
-              console.log("Citations 받음:", chunk.citations);
-              setCitations(chunk.citations);
-            }
+            console.log("[AIAnswerSection] 스트리밍 완료:", {
+              totalChunks: chunkIndex,
+              fullContentLength: fullContent.length,
+              fullContentPreview: fullContent.substring(0, 200),
+              citations,
+            });
+          } catch (streamError) {
+            // 스트리밍 실패 시 일반 API로 폴백
+            console.error(
+              "[AIAnswerSection] 스트리밍 실패, 일반 API로 폴백:",
+              streamError
+            );
+            console.error("[AIAnswerSection] 스트리밍 에러 상세:", {
+              error: streamError,
+              message:
+                streamError instanceof Error
+                  ? streamError.message
+                  : String(streamError),
+              stack:
+                streamError instanceof Error ? streamError.stack : undefined,
+            });
+
+            const response = await papersApi.searchPapersAI({
+              messages: openAIMessages,
+              model: "sonar-pro",
+              temperature: 0.2,
+            });
+
+            const aiContent =
+              response.choices?.[0]?.message?.content ||
+              "응답을 받을 수 없습니다.";
+            const responseCitations = response.citations || [];
+
+            console.log("[AIAnswerSection] 폴백 API 응답 받음:", {
+              contentLength: aiContent.length,
+              citationsCount: responseCitations.length,
+            });
+
+            setAiAnswer(aiContent);
+            setCitations(
+              responseCitations.length > 0 ? responseCitations : undefined
+            );
           }
-          console.log("스트리밍 완료:", {
-            fullContent: fullContent.substring(0, 100),
-            citations,
+        } catch (error) {
+          console.error("[AIAnswerSection] AI 답변 오류:", error);
+          console.error("[AIAnswerSection] 에러 상세:", {
+            error: error,
+            message: error instanceof Error ? error.message : String(error),
+            stack: error instanceof Error ? error.stack : undefined,
           });
-        } catch (streamError) {
-          // 스트리밍 실패 시 일반 API로 폴백
-          console.warn("스트리밍 실패, 일반 API로 폴백:", streamError);
-
-          const response = await papersApi.searchPapersAI({
-            messages: openAIMessages,
-            model: "sonar-pro",
-            temperature: 0.2,
-          });
-
-          const aiContent =
-            response.choices?.[0]?.message?.content ||
-            "응답을 받을 수 없습니다.";
-          const responseCitations = response.citations || [];
-
-          setAiAnswer(aiContent);
-          setCitations(
-            responseCitations.length > 0 ? responseCitations : undefined
+          setAiAnswer("죄송합니다. AI 답변을 가져오는 중 오류가 발생했습니다.");
+        } finally {
+          console.log(
+            "[AIAnswerSection] finally 블록 실행, isThinking을 false로 설정"
           );
+          setIsThinking(false);
         }
-      } catch (error) {
-        console.error("AI 답변 오류:", error);
-        setAiAnswer("죄송합니다. AI 답변을 가져오는 중 오류가 발생했습니다.");
-      } finally {
-        setIsThinking(false);
-      }
-    };
+      };
 
-    fetchAIAnswer();
+      console.log("[AIAnswerSection] fetchAIAnswer 호출 전");
+      fetchAIAnswer();
+      console.log("[AIAnswerSection] fetchAIAnswer 호출 후");
+    } catch (error) {
+      console.error("[AIAnswerSection] useEffect에서 에러 발생:", error);
+      console.error("[AIAnswerSection] 에러 상세:", {
+        error: error,
+        message: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+      });
+    }
   }, [searchQuery]);
 
   return (
