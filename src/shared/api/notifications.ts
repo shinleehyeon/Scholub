@@ -4,6 +4,7 @@ export type NotificationType =
   | "RECOMMENDED_PAPER"
   | "SIMILAR_PAPER"
   | "OPPOSING_PAPER"
+  | "OPPOSING"
   | "DISCUSSION_ACTIVITY"
   | "SYSTEM";
 

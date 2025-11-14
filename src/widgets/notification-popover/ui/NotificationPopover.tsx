@@ -69,6 +69,9 @@ export default function NotificationPopover({
           if (data.meta) {
             setTotalPages(data.meta.totalPages);
             setHasMore(data.meta.page < data.meta.totalPages);
+          } else {
+            setTotalPages(1);
+            setHasMore(false);
           }
         } catch (error) {
           console.error("알림 로드 실패:", error);
@@ -93,7 +96,7 @@ export default function NotificationPopover({
   }, [isOpen, showToast]);
 
   const handleLoadMore = async () => {
-    if (loadingMore || !hasMore) return;
+    if (loadingMore || !hasMore || currentPage >= totalPages) return;
 
     try {
       setLoadingMore(true);
@@ -107,6 +110,8 @@ export default function NotificationPopover({
       if (data.meta) {
         setTotalPages(data.meta.totalPages);
         setHasMore(data.meta.page < data.meta.totalPages);
+      } else {
+        setHasMore(false);
       }
     } catch (error) {
       console.error("알림 추가 로드 실패:", error);

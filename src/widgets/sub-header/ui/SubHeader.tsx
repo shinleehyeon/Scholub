@@ -93,7 +93,7 @@ export default function SubHeader() {
             ))}
           </>
         )}
-        {loading && (
+        {loading && topCategories.length === 0 && (
           <>
             <div
               style={{

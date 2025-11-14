@@ -85,7 +85,7 @@ export default function AIChat({
       // 첫 메시지인 경우 PDF URL을 포함
       // 이후 메시지에서는 대화 히스토리에 이미 포함되어 있으므로 별도로 포함하지 않음
       const isFirstMessage = messages.length === 0;
-      
+
       // 현재 사용자 메시지 추가
       if (isFirstMessage && paperUrl) {
         // OpenAI 파일 첨부 형식: content를 배열로 만들어 파일 URL 포함

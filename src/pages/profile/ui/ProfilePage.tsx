@@ -184,10 +184,7 @@ export default function ProfilePage() {
     }
   };
 
-  const handleReactionLikeChange = async (
-    id: string,
-    isLiked: boolean
-  ) => {
+  const handleReactionLikeChange = async (id: string, isLiked: boolean) => {
     setReactionPapers((prev) => {
       if (!isLiked) {
         return prev.filter((paper) => paper.id !== id);

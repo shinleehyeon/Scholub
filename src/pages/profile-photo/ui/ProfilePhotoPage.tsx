@@ -133,11 +133,7 @@ export default function ProfilePhotoPage() {
             }}
           >
             {profileImage ? (
-              <Avatar
-                src={profileImage}
-                alt="프로필 이미지"
-                size={146}
-              />
+              <Avatar src={profileImage} alt="프로필 이미지" size={146} />
             ) : (
               <div
                 style={{
