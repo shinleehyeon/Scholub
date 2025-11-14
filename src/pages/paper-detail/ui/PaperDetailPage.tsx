@@ -18,6 +18,7 @@ import { papersApi } from "@/shared/api/papers";
 import type { Paper } from "@/shared/api/papers";
 import { useLanguage } from "@/shared/lib/language";
 import { useToast } from "@/shared/ui/Toast";
+import PopularPaperCard from "@/entities/paper/ui/PopularPaperCard";
 
 interface TableOfContentsItem {
   label: string;
@@ -168,6 +169,8 @@ export default function PaperDetailPage() {
     }>
   >([]);
   const [loadingDiscussions, setLoadingDiscussions] = useState(false);
+  const [similarPapers, setSimilarPapers] = useState<Paper[]>([]);
+  const [loadingSimilar, setLoadingSimilar] = useState(false);
   const popupPositionRef = useRef(popupPosition);
   const selectedTextRef = useRef(selectedText);
   const viewRecordedRef = useRef(false);
@@ -248,6 +251,25 @@ export default function PaperDetailPage() {
     };
 
     fetchDiscussions();
+  }, [paper]);
+
+  useEffect(() => {
+    const fetchSimilarPapers = async () => {
+      if (!paper?.id) return;
+
+      setLoadingSimilar(true);
+      try {
+        const papers = await papersApi.getSimilarPapers(paper.id, 20);
+        setSimilarPapers(papers);
+      } catch (error) {
+        console.error("유사 논문 로드 실패:", error);
+        setSimilarPapers([]);
+      } finally {
+        setLoadingSimilar(false);
+      }
+    };
+
+    fetchSimilarPapers();
   }, [paper]);
 
   // URL 쿼리스트링에서 discussion ID 확인하여 모달 열기
@@ -1687,6 +1709,97 @@ export default function PaperDetailPage() {
               ))}
             </div>
           )}
+        </div>
+
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "flex-start",
+            gap: "var(--spacing-14)",
+            alignSelf: "stretch",
+            maxWidth: "1200px",
+            width: "100%",
+            margin: "0 auto",
+            marginTop: "var(--spacing-32)",
+          }}
+        >
+          <div
+            style={{
+              color: "var(--color-text-default)",
+              fontFamily: "Pretendard",
+              fontSize: "24px",
+              fontStyle: "normal",
+              fontWeight: 500,
+              lineHeight: "30px",
+            }}
+          >
+            유사 논문
+          </div>
+
+          <div
+            style={{
+              display: "flex",
+              gap: "var(--spacing-16)",
+              overflowX: "auto",
+              width: "100%",
+              paddingBottom: "var(--spacing-8)",
+            }}
+            className="scrollbar-hide"
+          >
+            {loadingSimilar ? (
+              <div
+                style={{
+                  color: "var(--color-text-subtle)",
+                  fontFamily: "Pretendard",
+                  fontSize: "14px",
+                  fontStyle: "normal",
+                  fontWeight: 500,
+                  lineHeight: "20px",
+                }}
+              >
+                로딩 중...
+              </div>
+            ) : similarPapers.length > 0 ? (
+              similarPapers.map((paper) => {
+                const imageUrl =
+                  paper.thumbnailUrl ||
+                  paper.imageUrl ||
+                  paper.coverImage ||
+                  "https://via.placeholder.com/300x169/CCCCCC/666666?text=No+Image";
+                const category =
+                  paper.categories.length > 0
+                    ? paper.categories.slice(0, 2).join(", ") +
+                      (paper.categories.length > 2 ? ", ..." : "")
+                    : "분류 없음";
+                const subtitle = paper.summary || "";
+
+                return (
+                  <PopularPaperCard
+                    key={paper.id}
+                    id={paper.id}
+                    imageUrl={imageUrl}
+                    title={paper.title}
+                    subtitle={subtitle}
+                    category={category}
+                  />
+                );
+              })
+            ) : (
+              <div
+                style={{
+                  color: "var(--color-text-subtle)",
+                  fontFamily: "Pretendard",
+                  fontSize: "14px",
+                  fontStyle: "normal",
+                  fontWeight: 500,
+                  lineHeight: "20px",
+                }}
+              >
+                유사 논문이 없습니다.
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

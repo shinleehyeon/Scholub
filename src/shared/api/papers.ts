@@ -354,6 +354,16 @@ export const papersApi = {
     return Array.isArray(response.data) ? response.data : [];
   },
 
+  async getSimilarPapers(
+    paperId: string,
+    limit: number = 20
+  ): Promise<Paper[]> {
+    const response = await apiClient.get<LatestPapersResponse>(
+      `/papers/${encodeURIComponent(paperId)}/similar?limit=${limit}`
+    );
+    return Array.isArray(response.data) ? response.data : [];
+  },
+
   async recordPaperView(
     id: string
   ): Promise<{ success: boolean; paperViewId?: string }> {
