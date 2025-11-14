@@ -8,6 +8,7 @@ interface NotificationItemProps {
   message: string;
   timestamp: string;
   isRead?: boolean;
+  type?: string;
   relatedPaperId?: string | null;
   relatedDiscussionId?: string | null;
   onNavigate?: () => void;
@@ -20,6 +21,7 @@ export default function NotificationItem({
   message,
   timestamp,
   isRead = false,
+  type,
   relatedPaperId,
   relatedDiscussionId,
   onNavigate,
@@ -38,9 +40,11 @@ export default function NotificationItem({
   const handleClick = async () => {
     console.log("알림 클릭:", {
       id,
+      type,
       relatedPaperId,
       relatedDiscussionId,
       hasBoth: !!(relatedDiscussionId && relatedPaperId),
+      isDiscussionActivity: type === "DISCUSSION_ACTIVITY",
     });
 
     // 읽지 않은 알림이면 읽음 처리
@@ -50,6 +54,30 @@ export default function NotificationItem({
         onMarkAsRead?.(id);
       } catch (error) {
         console.error("알림 읽음 처리 실패:", error);
+      }
+    }
+
+    // DISCUSSION_ACTIVITY 타입이고 토론 ID가 있으면 토론 페이지로 이동
+    if (type === "DISCUSSION_ACTIVITY" && relatedPaperId) {
+      const validDiscussionId =
+        relatedDiscussionId &&
+        relatedDiscussionId !== "string" &&
+        relatedDiscussionId.trim() !== "";
+
+      if (validDiscussionId) {
+        const encodedDiscussionId = encodeURIComponent(relatedDiscussionId);
+        const url = `/papers/${relatedPaperId}?discussion=${encodedDiscussionId}`;
+        console.log("DISCUSSION_ACTIVITY 알림 이동:", {
+          url,
+          relatedPaperId,
+          relatedDiscussionId,
+          encodedDiscussionId,
+          type,
+        });
+        // navigate를 먼저 호출하고, 그 다음에 팝오버 닫기
+        navigate(url, { replace: false });
+        onNavigate?.();
+        return;
       }
     }
 

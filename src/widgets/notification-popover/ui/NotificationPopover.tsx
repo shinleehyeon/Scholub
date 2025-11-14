@@ -14,6 +14,7 @@ export interface NotificationItemData {
   message: string;
   timestamp: string;
   isRead: boolean;
+  type?: string;
   relatedPaperId?: string | null;
   relatedDiscussionId?: string | null;
 }
@@ -198,6 +199,7 @@ export default function NotificationPopover({
         message: notif.message,
         timestamp: formatTimestamp(notif.createdAt),
         isRead: notif.isRead,
+        type: notif.type,
         relatedPaperId: notif.relatedPaperId,
         relatedDiscussionId: validDiscussionId,
       };
@@ -337,6 +339,7 @@ export default function NotificationPopover({
                 message={notification.message}
                 timestamp={notification.timestamp}
                 isRead={notification.isRead}
+                type={notification.type}
                 relatedPaperId={notification.relatedPaperId}
                 relatedDiscussionId={notification.relatedDiscussionId}
                 onNavigate={onClose}

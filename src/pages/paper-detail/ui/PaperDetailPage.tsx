@@ -313,18 +313,9 @@ export default function PaperDetailPage() {
           });
           setShowDiscussion(true);
           console.log("Discussion 모달 열기 완료");
-
-          // 쿼리스트링에서 discussion 파라미터 제거 (URL 정리)
-          const newSearchParams = new URLSearchParams(searchParams);
-          newSearchParams.delete("discussion");
-          setSearchParams(newSearchParams, { replace: true });
         } catch (error) {
           console.error("토론 정보 가져오기 실패:", error);
           showToast("토론을 불러오는데 실패했습니다.", "error");
-          // 에러 발생 시에도 쿼리스트링 정리
-          const newSearchParams = new URLSearchParams(searchParams);
-          newSearchParams.delete("discussion");
-          setSearchParams(newSearchParams, { replace: true });
         }
       };
 
