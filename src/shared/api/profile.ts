@@ -68,6 +68,22 @@ export interface ReactedPapersResponse {
   timestamp: string;
 }
 
+export interface UserActivities {
+  userId: string;
+  interestedHashtags: string[];
+  interestedPaperUrls: string[];
+}
+
+export interface UserActivitiesResponse {
+  status: number;
+  method: string;
+  instance: string;
+  details: string;
+  data: UserActivities;
+  errors: Record<string, unknown> | null;
+  timestamp: string;
+}
+
 export const profileApi = {
   async getProfile(): Promise<UserProfile> {
     const response = await apiClient.get<ProfileResponse>("/users/me");
@@ -173,5 +189,17 @@ export const profileApi = {
       formData
     );
     return response.data;
+  },
+
+  async getUserActivities(): Promise<UserActivities | null> {
+    try {
+      const response = await apiClient.get<UserActivitiesResponse>(
+        "/users/me/activities"
+      );
+      return response.data;
+    } catch (error) {
+      console.error("사용자 활동 데이터 가져오기 실패:", error);
+      return null;
+    }
   },
 };

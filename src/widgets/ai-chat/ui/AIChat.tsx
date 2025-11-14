@@ -7,6 +7,7 @@ import Send from "@/shared/ui/icons/Send";
 import X from "@/shared/ui/icons/X";
 import ExternalLink from "@/shared/ui/icons/ExternalLink";
 import { papersApi } from "@/shared/api/papers";
+import { profileApi } from "@/shared/api/profile";
 
 interface AIChatProps {
   onClose?: () => void;
@@ -125,15 +126,30 @@ export default function AIChat({
       // 이후 메시지에서는 대화 히스토리에 이미 포함되어 있으므로 별도로 포함하지 않음
       const isFirstMessage = messages.length === 0;
 
+      // 첫 메시지인 경우 사용자 활동 데이터를 가져와서 컨텍스트에 포함 (사용자에게는 보이지 않음)
+      let userActivitiesContext = "";
+      if (isFirstMessage) {
+        try {
+          const activities = await profileApi.getUserActivities();
+          if (activities) {
+            // 사용자 활동 데이터를 JSON 형식으로 그대로 전달
+            userActivitiesContext = `\n\n사용자 활동 데이터: ${JSON.stringify(activities)}`;
+          }
+        } catch (error) {
+          console.error("사용자 활동 데이터 가져오기 실패:", error);
+        }
+      }
+
       // 현재 사용자 메시지 추가
       if (isFirstMessage && paperUrl) {
         // OpenAI 파일 첨부 형식: content를 배열로 만들어 파일 URL 포함
+        // 사용자 활동 정보를 텍스트에 포함 (사용자에게는 보이지 않음)
         openAIMessages.push({
           role: "user" as const,
           content: [
             {
               type: "input_text",
-              text: userMessage,
+              text: userMessage + userActivitiesContext,
             },
             {
               type: "input_file",
@@ -143,9 +159,12 @@ export default function AIChat({
         });
       } else {
         // 일반 메시지: 문자열 형식
+        // 첫 메시지인 경우에만 사용자 활동 정보 포함
         openAIMessages.push({
           role: "user" as const,
-          content: userMessage,
+          content: isFirstMessage
+            ? userMessage + userActivitiesContext
+            : userMessage,
         });
       }
 

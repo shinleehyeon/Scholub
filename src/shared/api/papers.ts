@@ -525,9 +525,7 @@ export const papersApi = {
       `/discussions/${encodeURIComponent(discussionId)}/messages?page=${page}&limit=${limit}`
     );
 
-    const messages = Array.isArray(response.data)
-      ? response.data
-      : [];
+    const messages = Array.isArray(response.data) ? response.data : [];
 
     return {
       messages,
@@ -596,9 +594,11 @@ export const papersApi = {
   },
 
   async searchPapersAI(params: {
-    messages: Array<{ 
-      role: string; 
-      content: string | Array<{ type: string; text?: string; file_url?: string }> 
+    messages: Array<{
+      role: string;
+      content:
+        | string
+        | Array<{ type: string; text?: string; file_url?: string }>;
     }>;
     model?: string;
     temperature?: number;
@@ -624,15 +624,12 @@ export const papersApi = {
   }> {
     // AI 채팅 API는 별도 서버로 요청
     // 개발 환경에서는 Vite 프록시를 통해 요청 (/api/search-papers)
-    // 프로덕션에서는 환경 변수 사용
-    const isDev = import.meta.env.DEV;
+    // Docker 환경(프로덕션)에서는 Nginx 프록시를 통해 요청 (/api/search-papers)
+    // 환경 변수가 있으면 사용, 없으면 프록시 사용
     const searchApiUrl = import.meta.env.VITE_SEARCH_API_URL;
-    if (!isDev && !searchApiUrl) {
-      throw new Error("VITE_SEARCH_API_URL 환경 변수가 설정되지 않았습니다.");
-    }
-    const url = isDev
-      ? "/api/search-papers" // Vite 프록시 사용
-      : `${searchApiUrl}/api/search-papers`; // 프로덕션은 환경 변수 사용
+    const url = searchApiUrl
+      ? `${searchApiUrl}/api/search-papers` // 환경 변수가 있으면 직접 URL 사용
+      : "/api/search-papers"; // 환경 변수가 없으면 프록시 사용 (개발/프로덕션 모두)
 
     const requestBody = {
       messages: params.messages,
@@ -684,15 +681,12 @@ export const papersApi = {
   > {
     // AI 채팅 API는 별도 서버로 요청
     // 개발 환경에서는 Vite 프록시를 통해 요청 (/api/search-papers)
-    // 프로덕션에서는 환경 변수 사용
-    const isDev = import.meta.env.DEV;
+    // Docker 환경(프로덕션)에서는 Nginx 프록시를 통해 요청 (/api/search-papers)
+    // 환경 변수가 있으면 사용, 없으면 프록시 사용
     const searchApiUrl = import.meta.env.VITE_SEARCH_API_URL;
-    if (!isDev && !searchApiUrl) {
-      throw new Error("VITE_SEARCH_API_URL 환경 변수가 설정되지 않았습니다.");
-    }
-    const url = isDev
-      ? "/api/search-papers" // Vite 프록시 사용
-      : `${searchApiUrl}/api/search-papers`; // 프로덕션은 환경 변수 사용
+    const url = searchApiUrl
+      ? `${searchApiUrl}/api/search-papers` // 환경 변수가 있으면 직접 URL 사용
+      : "/api/search-papers"; // 환경 변수가 없으면 프록시 사용 (개발/프로덕션 모두)
 
     const requestBody = {
       messages: params.messages,
