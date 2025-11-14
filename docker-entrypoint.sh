@@ -1,3 +1,8 @@
+#!/bin/sh
+
+# 환경 변수에서 API URL 가져오기
+# 포트 번호 포함 가능 (예: http://localhost:3000)
+# 환경 변수가 없으면 에러
 if [ -z "$API_BASE_URL" ]; then
   echo "❌ ERROR: API_BASE_URL 환경 변수가 설정되지 않았습니다."
   exit 1
@@ -8,9 +13,11 @@ if [ -z "$SEARCH_API_URL" ]; then
   exit 1
 fi
 
+# API URL에서 호스트명 추출 (프로토콜 제거)
 API_HOST=$(echo "$API_BASE_URL" | sed -e 's|^[^/]*//||' -e 's|/.*$||' -e 's|:.*$||')
 SEARCH_HOST=$(echo "$SEARCH_API_URL" | sed -e 's|^[^/]*//||' -e 's|/.*$||' -e 's|:.*$||')
 
+# Nginx 설정 파일 생성
 cat > /etc/nginx/conf.d/default.conf <<EOF
 server {
     listen 80;
@@ -107,5 +114,6 @@ echo "  API_HOST: ${API_HOST}"
 echo "  SEARCH_API_URL: ${SEARCH_API_URL}"
 echo "  SEARCH_HOST: ${SEARCH_HOST}"
 
+# Nginx 실행
 exec nginx -g "daemon off;"
 
