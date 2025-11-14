@@ -344,6 +344,16 @@ export const papersApi = {
     return response.data;
   },
 
+  async getOpposingPapers(
+    paperId: string,
+    limit: number = 20
+  ): Promise<Paper[]> {
+    const response = await apiClient.get<LatestPapersResponse>(
+      `/papers/${encodeURIComponent(paperId)}/opposing?limit=${limit}`
+    );
+    return Array.isArray(response.data) ? response.data : [];
+  },
+
   async recordPaperView(
     id: string
   ): Promise<{ success: boolean; paperViewId?: string }> {

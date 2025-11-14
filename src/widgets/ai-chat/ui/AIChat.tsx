@@ -410,7 +410,7 @@ export default function AIChat({
                 border: "1px solid var(--color-border-default)",
                 background: msg.isUser
                   ? "var(--color-surface-default)"
-                  : "var(--color-surface-default)",
+                  : "#F7971D",
                 width: msg.isUser ? "auto" : "359px",
                 alignSelf: msg.isUser ? "flex-end" : "flex-start",
               }}
@@ -433,12 +433,12 @@ export default function AIChat({
               ) : (
                 <div
                   style={{
-                    color: "var(--color-text-default)",
+                    color: "#FFFFFF",
                     fontFamily: "Pretendard",
-                    fontSize: "17px",
+                    fontSize: "15px",
                     fontStyle: "normal",
                     fontWeight: 400,
-                    lineHeight: "22px",
+                    lineHeight: "20px",
                     whiteSpace: "pre-wrap",
                     wordBreak: "break-word",
                   }}
@@ -449,7 +449,9 @@ export default function AIChat({
                         <p
                           style={{
                             margin: "0 0 4px 0",
-                            lineHeight: "22px",
+                            lineHeight: "20px",
+                            color: "#FFFFFF",
+                            fontSize: "15px",
                           }}
                         >
                           {children}
@@ -458,10 +460,11 @@ export default function AIChat({
                       h1: ({ children }) => (
                         <h1
                           style={{
-                            fontSize: "24px",
+                            fontSize: "20px",
                             fontWeight: 600,
                             margin: "8px 0 4px 0",
-                            lineHeight: "28px",
+                            lineHeight: "24px",
+                            color: "#FFFFFF",
                           }}
                         >
                           {children}
@@ -470,10 +473,11 @@ export default function AIChat({
                       h2: ({ children }) => (
                         <h2
                           style={{
-                            fontSize: "22px",
+                            fontSize: "18px",
                             fontWeight: 600,
                             margin: "8px 0 3px 0",
-                            lineHeight: "26px",
+                            lineHeight: "22px",
+                            color: "#FFFFFF",
                           }}
                         >
                           {children}
@@ -482,10 +486,11 @@ export default function AIChat({
                       h3: ({ children }) => (
                         <h3
                           style={{
-                            fontSize: "20px",
+                            fontSize: "17px",
                             fontWeight: 600,
                             margin: "8px 0 3px 0",
-                            lineHeight: "24px",
+                            lineHeight: "21px",
+                            color: "#FFFFFF",
                           }}
                         >
                           {children}
@@ -494,10 +499,11 @@ export default function AIChat({
                       h4: ({ children }) => (
                         <h4
                           style={{
-                            fontSize: "18px",
+                            fontSize: "16px",
                             fontWeight: 600,
                             margin: "6px 0 2px 0",
-                            lineHeight: "22px",
+                            lineHeight: "20px",
+                            color: "#FFFFFF",
                           }}
                         >
                           {children}
@@ -529,8 +535,10 @@ export default function AIChat({
                         <li
                           style={{
                             margin: "0 0 2px 0",
-                            lineHeight: "22px",
+                            lineHeight: "20px",
                             paddingLeft: "4px",
+                            color: "#FFFFFF",
+                            fontSize: "15px",
                           }}
                         >
                           {children}
@@ -542,7 +550,7 @@ export default function AIChat({
                             background: "var(--color-surface-subtle)",
                             padding: "2px 6px",
                             borderRadius: "4px",
-                            fontSize: "15px",
+                            fontSize: "13px",
                             fontFamily: "monospace",
                             color: "var(--color-text-default)",
                           }}
@@ -558,9 +566,9 @@ export default function AIChat({
                             borderRadius: "8px",
                             overflow: "auto",
                             margin: "8px 0",
-                            fontSize: "15px",
+                            fontSize: "13px",
                             fontFamily: "monospace",
-                            lineHeight: "22px",
+                            lineHeight: "20px",
                             color: "var(--color-text-default)",
                           }}
                         >
@@ -573,9 +581,10 @@ export default function AIChat({
                           target="_blank"
                           rel="noopener noreferrer"
                           style={{
-                            color: "var(--color-brand-default)",
+                            color: "#FFFFFF",
                             textDecoration: "underline",
                             textUnderlineOffset: "2px",
+                            opacity: 0.9,
                           }}
                         >
                           {children}
@@ -584,11 +593,11 @@ export default function AIChat({
                       blockquote: ({ children }) => (
                         <blockquote
                           style={{
-                            borderLeft: "3px solid var(--color-border-default)",
+                            borderLeft: "3px solid rgba(255, 255, 255, 0.3)",
                             paddingLeft: "12px",
                             margin: "8px 0",
                             fontStyle: "italic",
-                            color: "var(--color-text-subtle)",
+                            color: "#FFFFFF",
                           }}
                         >
                           {children}
@@ -622,12 +631,12 @@ export default function AIChat({
                     flexDirection: "column",
                     gap: "var(--spacing-8)",
                     paddingTop: "var(--spacing-12)",
-                    borderTop: "1px solid var(--color-border-default)",
+                    borderTop: "1px solid rgba(255, 255, 255, 0.3)",
                   }}
                 >
                   <div
                     style={{
-                      color: "var(--color-text-subtle)",
+                      color: "#FFFFFF",
                       fontFamily: "Pretendard",
                       fontSize: "14px",
                       fontStyle: "normal",
@@ -649,14 +658,14 @@ export default function AIChat({
                         gap: "var(--spacing-4)",
                         padding: "var(--spacing-8) var(--spacing-12)",
                         borderRadius: "var(--radius-8)",
-                        background: "var(--color-surface-subtle)",
+                        background: "#E6891A",
                         textDecoration: "none",
                         cursor: "pointer",
                       }}
                     >
                       <div
                         style={{
-                          color: "var(--color-text-default)",
+                          color: "#FFFFFF",
                           fontFamily: "Pretendard",
                           fontSize: "15px",
                           fontStyle: "normal",
@@ -669,7 +678,7 @@ export default function AIChat({
                       {citation.snippet && (
                         <div
                           style={{
-                            color: "var(--color-text-subtle)",
+                            color: "rgba(255, 255, 255, 0.9)",
                             fontFamily: "Pretendard",
                             fontSize: "13px",
                             fontStyle: "normal",

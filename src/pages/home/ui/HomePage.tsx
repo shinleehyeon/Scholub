@@ -491,6 +491,8 @@ export default function Home() {
             alignItems: "flex-start",
             gap: "var(--spacing-24)",
             flex: 1,
+            height: "calc(100vh - 121px)",
+            overflow: "hidden",
           }}
         >
           <h2 className="text-[var(--color-text-default)] font-[Pretendard] text-[24px] font-bold leading-[30px] m-0">
@@ -503,6 +505,8 @@ export default function Home() {
               flexDirection: "column",
               gap: "var(--spacing-24)",
               width: "100%",
+              overflowY: "auto",
+              flex: 1,
             }}
           >
             {loadingLatest ? (
@@ -560,6 +564,8 @@ export default function Home() {
             alignItems: "flex-start",
             gap: "var(--spacing-24)",
             flex: "1 0 0",
+            height: "calc(100vh - 121px)",
+            overflow: "hidden",
           }}
         >
           <div
@@ -594,6 +600,8 @@ export default function Home() {
               flexDirection: "column",
               gap: "var(--spacing-24)",
               width: "100%",
+              overflowY: "auto",
+              flex: 1,
             }}
           >
             {!isAuthenticated ? (
