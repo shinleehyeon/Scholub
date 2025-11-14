@@ -1,0 +1,17 @@
+services:
+  scholub:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-/api}
+    container_name: scholub-frontend
+    ports:
+      - "80:80"
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - API_BASE_URL=${API_BASE_URL:-https://scholub-api.alpa.dev}
+      - SEARCH_API_URL=${SEARCH_API_URL:-https://dicon2.kur.kr}
+    env_file:
+      - .env

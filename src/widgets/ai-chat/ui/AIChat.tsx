@@ -111,7 +111,12 @@ export default function AIChat({
     try {
       // OpenAI 형식: 전체 대화 히스토리를 messages 배열로 변환
       // 프론트엔드에서 관리하는 messages를 OpenAI 형식으로 변환
-      const openAIMessages = messages.map((msg) => ({
+      const openAIMessages: Array<{
+        role: "user" | "assistant";
+        content:
+          | string
+          | Array<{ type: string; text?: string; file_url?: string }>;
+      }> = messages.map((msg) => ({
         role: msg.isUser ? ("user" as const) : ("assistant" as const),
         content: msg.text,
       }));

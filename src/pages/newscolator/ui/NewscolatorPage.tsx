@@ -4,7 +4,7 @@ import { SubHeader } from "@/widgets/sub-header";
 import LatestResearchCard from "@/entities/paper/ui/LatestResearchCard";
 import { AIAnswerSection } from "@/widgets/ai-answer-section";
 import { papersApi } from "@/shared/api/papers";
-import { Typography, PaperCardSkeleton } from "@/shared/ui";
+import { Typography } from "@/shared/ui";
 
 export default function NewscolatorPage() {
   const [latestPapers, setLatestPapers] = useState<any[]>([]);

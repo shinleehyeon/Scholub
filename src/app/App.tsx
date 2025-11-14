@@ -6,7 +6,6 @@ import { HomePage } from "@/pages/home";
 import { NewscolatorPage } from "@/pages/newscolator";
 import { LoginPage } from "@/pages/login";
 import { RegisterPage } from "@/pages/register";
-import ComponentTest from "@/pages/ComponentTest";
 import { InterestAreasPage } from "@/pages/interest-areas";
 import { CategoryPage } from "@/pages/category";
 import { ProfilePage } from "@/pages/profile";
@@ -28,7 +27,6 @@ function App() {
               <Route path="/register" element={<RegisterPage />} />
               <Route path="/profile-photo" element={<ProfilePhotoPage />} />
               <Route path="/interest-areas" element={<InterestAreasPage />} />
-              <Route path="/component-test" element={<ComponentTest />} />
               <Route path="/category/:categoryId" element={<CategoryPage />} />
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/settings" element={<SettingsPage />} />

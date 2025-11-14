@@ -5,7 +5,6 @@ import { Discussion } from "@/widgets/discussion";
 import {
   Button,
   Typography,
-  TextLineSkeleton,
   PopularPaperCardSkeleton,
   ListItemSkeleton,
 } from "@/shared/ui";

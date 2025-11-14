@@ -2,10 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Header } from "@/widgets/header";
 import { SubHeader } from "@/widgets/sub-header";
-import { Chip } from "@/shared/ui";
-import { Button } from "@/shared/ui";
-import { Input } from "@/shared/ui";
-import { Typography } from "@/shared/ui";
+import { Chip, Button, Input, Typography, Skeleton } from "@/shared/ui";
 import { useToast } from "@/shared/ui/Toast";
 import { Check, Plus } from "lucide-react";
 import { categoriesApi } from "@/shared/api/categories";
@@ -225,7 +222,12 @@ export default function InterestAreas() {
             {loading ? (
               <>
                 {Array.from({ length: 6 }).map((_, i) => (
-                  <Skeleton key={i} width="200px" height="40px" borderRadius="20px" />
+                  <Skeleton
+                    key={i}
+                    width="200px"
+                    height="40px"
+                    borderRadius="20px"
+                  />
                 ))}
               </>
             ) : categories.length > 0 ? (

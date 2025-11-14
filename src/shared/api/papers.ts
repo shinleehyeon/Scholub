@@ -525,11 +525,9 @@ export const papersApi = {
       `/discussions/${encodeURIComponent(discussionId)}/messages?page=${page}&limit=${limit}`
     );
 
-    const messages = Array.isArray(response.data.data)
-      ? response.data.data
-      : Array.isArray(response.data)
-        ? response.data
-        : [];
+    const messages = Array.isArray(response.data)
+      ? response.data
+      : [];
 
     return {
       messages,
@@ -555,7 +553,7 @@ export const papersApi = {
       content,
     });
 
-    return response.data.data;
+    return response.data;
   },
 
   async updateDiscussionMessage(
@@ -568,7 +566,7 @@ export const papersApi = {
       method: string;
       instance: string;
       details: string;
-      data: DiscussionMessage | { data: DiscussionMessage };
+      data: DiscussionMessage;
       errors: Record<string, unknown> | null;
       timestamp: string;
     }>(
@@ -578,22 +576,7 @@ export const papersApi = {
       }
     );
 
-    // API 응답 구조에 따라 data 또는 data.data에서 메시지 추출
-    if (
-      response.data.data &&
-      typeof response.data.data === "object" &&
-      "id" in response.data.data
-    ) {
-      return response.data.data as DiscussionMessage;
-    }
-    if (
-      response.data &&
-      typeof response.data === "object" &&
-      "id" in response.data
-    ) {
-      return response.data as DiscussionMessage;
-    }
-    throw new Error("Invalid API response structure");
+    return response.data;
   },
 
   async deleteDiscussionMessage(
@@ -613,7 +596,10 @@ export const papersApi = {
   },
 
   async searchPapersAI(params: {
-    messages: Array<{ role: string; content: string }>;
+    messages: Array<{ 
+      role: string; 
+      content: string | Array<{ type: string; text?: string; file_url?: string }> 
+    }>;
     model?: string;
     temperature?: number;
     max_tokens?: number;
@@ -636,13 +622,17 @@ export const papersApi = {
       snippet: string;
     }>;
   }> {
-    // AI 채팅 API는 별도 서버(https://dicon2.kur.kr)로 요청
+    // AI 채팅 API는 별도 서버로 요청
     // 개발 환경에서는 Vite 프록시를 통해 요청 (/api/search-papers)
-    // 프로덕션에서는 직접 요청하거나 백엔드를 통해 프록시 필요
+    // 프로덕션에서는 환경 변수 사용
     const isDev = import.meta.env.DEV;
+    const searchApiUrl = import.meta.env.VITE_SEARCH_API_URL;
+    if (!isDev && !searchApiUrl) {
+      throw new Error("VITE_SEARCH_API_URL 환경 변수가 설정되지 않았습니다.");
+    }
     const url = isDev
       ? "/api/search-papers" // Vite 프록시 사용
-      : "https://dicon2.kur.kr/api/search-papers"; // 프로덕션은 직접 요청 (또는 백엔드 프록시)
+      : `${searchApiUrl}/api/search-papers`; // 프로덕션은 환경 변수 사용
 
     const requestBody = {
       messages: params.messages,
@@ -692,12 +682,17 @@ export const papersApi = {
     void,
     unknown
   > {
-    // AI 채팅 API는 별도 서버(https://dicon2.kur.kr)로 요청
+    // AI 채팅 API는 별도 서버로 요청
     // 개발 환경에서는 Vite 프록시를 통해 요청 (/api/search-papers)
+    // 프로덕션에서는 환경 변수 사용
     const isDev = import.meta.env.DEV;
+    const searchApiUrl = import.meta.env.VITE_SEARCH_API_URL;
+    if (!isDev && !searchApiUrl) {
+      throw new Error("VITE_SEARCH_API_URL 환경 변수가 설정되지 않았습니다.");
+    }
     const url = isDev
       ? "/api/search-papers" // Vite 프록시 사용
-      : "https://dicon2.kur.kr/api/search-papers"; // 프로덕션은 직접 요청
+      : `${searchApiUrl}/api/search-papers`; // 프로덕션은 환경 변수 사용
 
     const requestBody = {
       messages: params.messages,

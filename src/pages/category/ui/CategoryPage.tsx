@@ -4,7 +4,7 @@ import { Header } from "@/widgets/header";
 import { SubHeader } from "@/widgets/sub-header";
 import LatestResearchCard from "@/entities/paper/ui/LatestResearchCard";
 import Tag from "@/shared/ui/icons/Tag";
-import { Typography, PaperCardSkeleton } from "@/shared/ui";
+import { Typography } from "@/shared/ui";
 import { papersApi } from "@/shared/api/papers";
 
 export default function CategoryPage() {

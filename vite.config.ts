@@ -12,13 +12,13 @@ export default defineConfig({
   server: {
     proxy: {
       "/api/search-papers": {
-        target: "https://dicon2.kur.kr",
+        target: process.env.VITE_SEARCH_API_URL,
         changeOrigin: true,
         secure: true,
         rewrite: (path) => path, // 경로 그대로 유지
       },
       "/api": {
-        target: "https://scholub-api.alpa.dev/",
+        target: process.env.VITE_DEV_API_URL,
         changeOrigin: true,
         secure: true,
         rewrite: (path) => path.replace(/^\/api/, "/api"),

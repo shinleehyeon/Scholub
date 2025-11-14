@@ -1,9 +1,10 @@
 import { authApi } from "./auth";
 import { authStorage } from "@/shared/lib/auth";
 
-const API_BASE_URL = import.meta.env.DEV
-  ? "/api"
-  : "https://scholub-api.alpa.dev/api/";
+// 프로덕션에서는 항상 상대 경로(/api)를 사용하여 Nginx 프록시를 통해 요청
+// 개발 환경에서도 Vite 프록시를 통해 요청
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || (import.meta.env.DEV ? "/api" : "/api");
 
 export class ApiClient {
   private baseUrl: string;

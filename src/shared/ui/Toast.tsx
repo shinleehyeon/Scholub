@@ -3,7 +3,7 @@ import {
   useContext,
   useState,
   useCallback,
-  ReactNode,
+  type ReactNode,
 } from "react";
 import { X } from "lucide-react";
 

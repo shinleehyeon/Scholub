@@ -1,73 +1,115 @@
-# React + TypeScript + Vite
+# Scholub
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Scholub은 학술 논문 검색 및 관리 플랫폼입니다.
 
-Currently, two official plugins are available:
+## 🚀 빠른 시작
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+프로젝트를 처음 실행하는 경우, **[INSTALLATION.md](./INSTALLATION.md)** 파일을 참고하세요.
 
-## React Compiler
+### 간단한 실행 방법
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+1. **환경 변수 설정**
+   ```bash
+   cat > .env <<EOF
+   API_BASE_URL=https://scholub-api.alpa.dev
+   SEARCH_API_URL=https://dicon2.kur.kr
+   VITE_API_BASE_URL=/api
+   EOF
+   ```
 
-## Expanding the ESLint configuration
+2. **Docker로 실행**
+   ```bash
+   docker-compose up --build -d
+   ```
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+3. **브라우저에서 접속**
+   ```
+   http://localhost
+   ```
 
-```js
-export default defineConfig([
-  globalIgnores(["dist"]),
-  {
-    files: ["**/*.{ts,tsx}"],
-    extends: [
-      // Other configs...
+## 📚 문서
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+- **[INSTALLATION.md](./INSTALLATION.md)** - 설치 및 실행 가이드 (새 사용자 필수)
+- **[ENV_SETUP.md](./ENV_SETUP.md)** - 환경 변수 설정 상세 가이드
+- **[QUICK_START.md](./QUICK_START.md)** - 빠른 시작 가이드
+- **[DOCKER_TROUBLESHOOTING.md](./DOCKER_TROUBLESHOOTING.md)** - Docker 문제 해결 가이드
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ["./tsconfig.node.json", "./tsconfig.app.json"],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
+## 🛠 기술 스택
+
+- **Frontend**: React + TypeScript + Vite
+- **Build**: Docker + Nginx
+- **Package Manager**: npm
+
+## 📋 사전 요구사항
+
+- Docker Desktop (또는 Docker Engine + Docker Compose)
+- Git (선택사항)
+
+## 🔧 개발 환경 설정
+
+### 로컬 개발 (Docker 없이)
+
+1. **의존성 설치**
+   ```bash
+   npm install
+   ```
+
+2. **환경 변수 설정**
+   ```bash
+   # .env.local 파일 생성
+   VITE_API_BASE_URL=http://localhost:3000/api
+   ```
+
+3. **개발 서버 실행**
+   ```bash
+   npm run dev
+   ```
+
+## 📦 빌드
+
+### Docker를 사용한 빌드
+
+```bash
+docker-compose build
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### 로컬 빌드
 
-```js
-// eslint.config.js
-import reactX from "eslint-plugin-react-x";
-import reactDom from "eslint-plugin-react-dom";
-
-export default defineConfig([
-  globalIgnores(["dist"]),
-  {
-    files: ["**/*.{ts,tsx}"],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs["recommended-typescript"],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ["./tsconfig.node.json", "./tsconfig.app.json"],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
+```bash
+npm run build
 ```
+
+빌드된 파일은 `dist/` 디렉토리에 생성됩니다.
+
+## 🐛 문제 해결
+
+문제가 발생하면 다음을 확인하세요:
+
+1. Docker가 실행 중인지 확인
+2. `.env` 파일이 올바르게 설정되었는지 확인
+3. 포트 80이 사용 중이 아닌지 확인
+4. [DOCKER_TROUBLESHOOTING.md](./DOCKER_TROUBLESHOOTING.md) 참고
+
+## 📝 주요 명령어
+
+```bash
+# 컨테이너 시작 (백그라운드)
+docker-compose up -d
+
+# 컨테이너 중지
+docker-compose down
+
+# 로그 확인
+docker-compose logs -f
+
+# 컨테이너 재시작
+docker-compose restart
+
+# 완전히 재빌드
+docker-compose down
+docker-compose up --build -d
+```
+
+## 📄 라이선스
+
+이 프로젝트의 라이선스 정보는 프로젝트 소유자에게 문의하세요.
