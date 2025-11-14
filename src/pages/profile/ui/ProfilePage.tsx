@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Header } from "@/widgets/header";
 import { SubHeader } from "@/widgets/sub-header";
-import { Avatar, Button, Typography } from "@/shared/ui";
+import { Avatar, Button, Typography, PaperCardSkeleton, Skeleton } from "@/shared/ui";
 import LatestResearchCard from "@/entities/paper/ui/LatestResearchCard";
 import { profileApi, type UserProfile } from "@/shared/api/profile";
 import { useToast } from "@/shared/ui/Toast";
@@ -267,7 +267,11 @@ export default function ProfilePage() {
                 }}
               >
                 <Typography.Headline color="default">
-                  {loadingProfile ? "로딩 중..." : profile?.name || ""}
+                  {loadingProfile ? (
+                    <Skeleton width="120px" height="30px" />
+                  ) : (
+                    profile?.name || ""
+                  )}
                 </Typography.Headline>
                 <Typography.BodyLarge color="subtle">
                   {profile?.email || ""}
@@ -440,7 +444,11 @@ export default function ProfilePage() {
                 }}
               >
                 {loadingComments ? (
-                  <Typography.Body color="subtle">로딩 중...</Typography.Body>
+                  <>
+                    {Array.from({ length: 3 }).map((_, i) => (
+                      <PaperCardSkeleton key={i} />
+                    ))}
+                  </>
                 ) : commentPapers.length > 0 ? (
                   commentPapers.map((paper) => (
                     <LatestResearchCard

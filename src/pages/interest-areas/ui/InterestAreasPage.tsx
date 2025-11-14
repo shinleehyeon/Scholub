@@ -223,7 +223,11 @@ export default function InterestAreas() {
             }}
           >
             {loading ? (
-              <div>로딩 중...</div>
+              <>
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <Skeleton key={i} width="200px" height="40px" borderRadius="20px" />
+                ))}
+              </>
             ) : categories.length > 0 ? (
               categories.map((category) => {
                 const isSelected = selectedAreas.includes(category.category);

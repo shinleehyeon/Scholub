@@ -8,3 +8,10 @@ export { Logo } from "./Logo";
 export { default as Chip } from "./Chip";
 export { Typography } from "./Typography";
 export { PageLayout } from "./PageLayout";
+export {
+  Skeleton,
+  PaperCardSkeleton,
+  ListItemSkeleton,
+  TextLineSkeleton,
+  PopularPaperCardSkeleton,
+} from "./Skeleton/Skeleton";

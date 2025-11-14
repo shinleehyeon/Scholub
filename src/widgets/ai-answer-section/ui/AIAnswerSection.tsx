@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { Typography, Button } from "@/shared/ui";
 import Sparkles from "@/shared/ui/icons/Sparkles";
 import MessageBubble from "@/shared/ui/icons/MessageBubble";
@@ -335,6 +336,7 @@ export default function AIAnswerSection({
               }}
             >
               <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
                 components={{
                   p: ({ children }) => (
                     <p
@@ -499,6 +501,69 @@ export default function AIAnswerSection({
                   ),
                   em: ({ children }) => (
                     <em style={{ fontStyle: "italic" }}>{children}</em>
+                  ),
+                  table: ({ children }) => (
+                    <div
+                      style={{
+                        overflowX: "auto",
+                        margin: "12px 0",
+                      }}
+                    >
+                      <table
+                        style={{
+                          width: "100%",
+                          borderCollapse: "collapse",
+                          border: "1px solid var(--color-border-default)",
+                        }}
+                      >
+                        {children}
+                      </table>
+                    </div>
+                  ),
+                  thead: ({ children }) => (
+                    <thead
+                      style={{
+                        background: "var(--color-surface-subtle)",
+                      }}
+                    >
+                      {children}
+                    </thead>
+                  ),
+                  tbody: ({ children }) => <tbody>{children}</tbody>,
+                  tr: ({ children }) => (
+                    <tr
+                      style={{
+                        borderBottom: "1px solid var(--color-border-default)",
+                      }}
+                    >
+                      {children}
+                    </tr>
+                  ),
+                  th: ({ children }) => (
+                    <th
+                      style={{
+                        padding: "8px 12px",
+                        textAlign: "left",
+                        fontWeight: 600,
+                        fontSize: "15px",
+                        color: "var(--color-text-default)",
+                        border: "1px solid var(--color-border-default)",
+                      }}
+                    >
+                      {children}
+                    </th>
+                  ),
+                  td: ({ children }) => (
+                    <td
+                      style={{
+                        padding: "8px 12px",
+                        fontSize: "15px",
+                        color: "var(--color-text-default)",
+                        border: "1px solid var(--color-border-default)",
+                      }}
+                    >
+                      {children}
+                    </td>
                   ),
                 }}
               >

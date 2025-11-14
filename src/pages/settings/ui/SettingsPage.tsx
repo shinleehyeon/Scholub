@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import type { KeyboardEvent } from "react";
 import { Header } from "@/widgets/header";
 import { SubHeader } from "@/widgets/sub-header";
-import { Typography, Input, Chip, Button, Switch } from "@/shared/ui";
+import { Typography, Input, Chip, Button, Switch, ListItemSkeleton } from "@/shared/ui";
 import X from "@/shared/ui/icons/X";
 import { Check } from "lucide-react";
 import { preferencesApi } from "@/shared/api/preferences";

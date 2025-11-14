@@ -5,7 +5,7 @@ import { SubHeader } from "@/widgets/sub-header";
 import LatestResearchCard from "@/entities/paper/ui/LatestResearchCard";
 import { AIAnswerSection } from "@/widgets/ai-answer-section";
 import { papersApi } from "@/shared/api/papers";
-import { Typography } from "@/shared/ui";
+import { Typography, PaperCardSkeleton } from "@/shared/ui";
 
 export default function SearchPage() {
   const [searchParams] = useSearchParams();
@@ -123,7 +123,11 @@ export default function SearchPage() {
                 }}
               >
                 {loading ? (
-                  <Typography.Body color="subtle">로딩 중...</Typography.Body>
+                  <>
+                    {Array.from({ length: 3 }).map((_, i) => (
+                      <PaperCardSkeleton key={i} />
+                    ))}
+                  </>
                 ) : searchResults.length > 0 ? (
                   searchResults.map((paper) => (
                     <LatestResearchCard

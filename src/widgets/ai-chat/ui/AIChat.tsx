@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import Sparkles from "@/shared/ui/icons/Sparkles";
 import Close from "@/shared/ui/icons/Close";
 import Send from "@/shared/ui/icons/Send";
@@ -34,6 +35,39 @@ export default function AIChat({
   >([]);
   const [isThinking, setIsThinking] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
+
+  // 로컬 스토리지 키 생성
+  const storageKey = id
+    ? `ai-chat-${id}`
+    : paperTitle
+      ? `ai-chat-${paperTitle}`
+      : "ai-chat-default";
+
+  // 로컬 스토리지에서 채팅 기록 불러오기
+  useEffect(() => {
+    try {
+      const savedMessages = localStorage.getItem(storageKey);
+      if (savedMessages) {
+        const parsed = JSON.parse(savedMessages);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setMessages(parsed);
+        }
+      }
+    } catch (error) {
+      console.error("채팅 기록 불러오기 실패:", error);
+    }
+  }, [storageKey]);
+
+  // 메시지가 변경될 때마다 로컬 스토리지에 저장
+  useEffect(() => {
+    if (messages.length > 0) {
+      try {
+        localStorage.setItem(storageKey, JSON.stringify(messages));
+      } catch (error) {
+        console.error("채팅 기록 저장 실패:", error);
+      }
+    }
+  }, [messages, storageKey]);
 
   useEffect(() => {
     if (initialMessage) {
@@ -444,6 +478,7 @@ export default function AIChat({
                   }}
                 >
                   <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
                     components={{
                       p: ({ children }) => (
                         <p
@@ -617,6 +652,71 @@ export default function AIChat({
                       ),
                       em: ({ children }) => (
                         <em style={{ fontStyle: "italic" }}>{children}</em>
+                      ),
+                      table: ({ children }) => (
+                        <div
+                          style={{
+                            overflowX: "auto",
+                            margin: "12px 0",
+                          }}
+                        >
+                          <table
+                            style={{
+                              width: "100%",
+                              borderCollapse: "collapse",
+                              border: "1px solid rgba(255, 255, 255, 0.4)",
+                            }}
+                          >
+                            {children}
+                          </table>
+                        </div>
+                      ),
+                      thead: ({ children }) => (
+                        <thead
+                          style={{
+                            background: "rgba(255, 255, 255, 0.15)",
+                          }}
+                        >
+                          {children}
+                        </thead>
+                      ),
+                      tbody: ({ children }) => <tbody>{children}</tbody>,
+                      tr: ({ children }) => (
+                        <tr
+                          style={{
+                            borderBottom: "1px solid rgba(255, 255, 255, 0.3)",
+                          }}
+                        >
+                          {children}
+                        </tr>
+                      ),
+                      th: ({ children }) => (
+                        <th
+                          style={{
+                            padding: "10px 14px",
+                            textAlign: "left",
+                            fontWeight: 600,
+                            fontSize: "14px",
+                            color: "#FFFFFF",
+                            border: "1px solid rgba(255, 255, 255, 0.4)",
+                            background: "rgba(255, 255, 255, 0.1)",
+                          }}
+                        >
+                          {children}
+                        </th>
+                      ),
+                      td: ({ children }) => (
+                        <td
+                          style={{
+                            padding: "10px 14px",
+                            fontSize: "14px",
+                            color: "#FFFFFF",
+                            border: "1px solid rgba(255, 255, 255, 0.3)",
+                            lineHeight: "20px",
+                          }}
+                        >
+                          {children}
+                        </td>
                       ),
                     }}
                   >

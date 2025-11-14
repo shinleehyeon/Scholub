@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Typography } from "@/shared/ui";
+import { Typography, Skeleton } from "@/shared/ui";
 import { categoriesApi, type Category } from "@/shared/api/categories";
 
 export default function SubHeader() {
@@ -14,7 +14,8 @@ export default function SubHeader() {
         const categories = await categoriesApi.getCategories();
 
         const sorted = [...categories].sort((a, b) => b.count - a.count);
-        setTopCategories(sorted.slice(0, 3));
+        // 논문이 가장 많은 카테고리 하나를 최신연구 자리에 추가
+        setTopCategories(sorted.slice(0, 4));
       } catch (error) {
         console.error("카테고리 로드 실패:", error);
         setTopCategories([]);
@@ -51,36 +52,51 @@ export default function SubHeader() {
           gap: "var(--spacing-20)",
         }}
       >
-        <Link
-          to="/newscolar"
+        <Typography.Subtext color="subtle">카테고리</Typography.Subtext>
+        <div
           style={{
-            textDecoration: "none",
+            background: "var(--color-border-default)",
+            width: "1px",
+            height: "var(--spacing-12)",
           }}
-        >
-          <Typography.Subtext color="default">최신연구</Typography.Subtext>
-        </Link>
-        {topCategories.length > 0 && (
-          <>
-            <div
-              style={{
-                background: "var(--color-border-default)",
-                width: "1px",
-                height: "var(--spacing-12)",
-              }}
-            />
-            {topCategories.map((category, index) => (
-              <div key={category.category} style={{ display: "contents" }}>
-                <Link
-                  to={`/category/${encodeURIComponent(category.category)}`}
+        />
+        {topCategories.length > 0 ? (
+          topCategories.map((category, index) => (
+            <div key={category.category} style={{ display: "contents" }}>
+              <Link
+                to={`/category/${encodeURIComponent(category.category)}`}
+                style={{
+                  textDecoration: "none",
+                }}
+              >
+                <Typography.Subtext color="default">
+                  {category.category}
+                </Typography.Subtext>
+              </Link>
+              {index < topCategories.length - 1 && (
+                <div
                   style={{
-                    textDecoration: "none",
+                    background: "var(--color-border-default)",
+                    width: "1px",
+                    height: "var(--spacing-12)",
                   }}
-                >
-                  <Typography.Subtext color="default">
-                    {category.category}
-                  </Typography.Subtext>
-                </Link>
-                {index < topCategories.length - 1 && (
+                />
+              )}
+            </div>
+          ))
+        ) : loading ? (
+          <>
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div
+                key={i}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "var(--spacing-20)",
+                }}
+              >
+                <Skeleton width="80px" height="20px" />
+                {i < 3 && (
                   <div
                     style={{
                       background: "var(--color-border-default)",
@@ -92,19 +108,7 @@ export default function SubHeader() {
               </div>
             ))}
           </>
-        )}
-        {loading && topCategories.length === 0 && (
-          <>
-            <div
-              style={{
-                background: "var(--color-border-default)",
-                width: "1px",
-                height: "var(--spacing-12)",
-              }}
-            />
-            <Typography.Subtext color="subtle">로딩 중...</Typography.Subtext>
-          </>
-        )}
+        ) : null}
       </div>
     </div>
   );

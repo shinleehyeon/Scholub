@@ -7,7 +7,7 @@ import LatestResearchCard from "@/entities/paper/ui/LatestResearchCard";
 import ChevronLeft from "@/shared/ui/icons/ChevronLeft";
 import ChevronRight from "@/shared/ui/icons/ChevronRight";
 import Sparkles from "@/shared/ui/icons/Sparkles";
-import { Typography } from "@/shared/ui";
+import { Typography, PopularPaperCardSkeleton, PaperCardSkeleton } from "@/shared/ui";
 import { papersApi } from "@/shared/api/papers";
 import { authStorage } from "@/shared/lib/auth";
 
@@ -456,7 +456,11 @@ export default function Home() {
           className="scrollbar-hide"
         >
           {loadingPopular ? (
-            <div>로딩 중...</div>
+            <>
+              {Array.from({ length: 5 }).map((_, i) => (
+                <PopularPaperCardSkeleton key={i} />
+              ))}
+            </>
           ) : popularPapers.length > 0 ? (
             popularPapers.map((paper) => (
               <PopularPaperCard
@@ -510,7 +514,11 @@ export default function Home() {
             }}
           >
             {loadingLatest ? (
-              <div>로딩 중...</div>
+              <>
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <PaperCardSkeleton key={i} />
+                ))}
+              </>
             ) : latestPapers.length > 0 ? (
               <>
                 {latestPapers.slice(0, displayedLatestCount).map((paper) => (
@@ -630,7 +638,11 @@ export default function Home() {
                 </Link>
               </div>
             ) : loadingRecommended ? (
-              <div>로딩 중...</div>
+              <>
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <PaperCardSkeleton key={i} />
+                ))}
+              </>
             ) : recommendedPapers.length > 0 ? (
               <>
                 {recommendedPapers

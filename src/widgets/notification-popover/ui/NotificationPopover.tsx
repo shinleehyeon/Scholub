@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import NotificationItem from "./NotificationItem";
 import XIcon from "@/shared/ui/icons/X";
-import { Typography } from "@/shared/ui";
+import { Typography, ListItemSkeleton } from "@/shared/ui";
 import {
   notificationsApi,
   type Notification,
@@ -317,12 +317,15 @@ export default function NotificationPopover({
         {loading ? (
           <div
             style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "var(--spacing-8)",
               padding: "var(--spacing-16)",
-              textAlign: "center",
-              color: "var(--color-text-subtle)",
             }}
           >
-            로딩 중...
+            {Array.from({ length: 3 }).map((_, i) => (
+              <ListItemSkeleton key={i} />
+            ))}
           </div>
         ) : notificationItems.length > 0 ? (
           <>

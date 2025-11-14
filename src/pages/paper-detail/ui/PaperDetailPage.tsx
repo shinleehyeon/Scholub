@@ -2,7 +2,7 @@ import { Header } from "@/widgets/header";
 import { SubHeader } from "@/widgets/sub-header";
 import { AIChat } from "@/widgets/ai-chat";
 import { Discussion } from "@/widgets/discussion";
-import { Button, Typography } from "@/shared/ui";
+import { Button, Typography, TextLineSkeleton, PopularPaperCardSkeleton, ListItemSkeleton } from "@/shared/ui";
 import Sparkles from "@/shared/ui/icons/Sparkles";
 import SmileLike from "@/shared/ui/icons/SmileLike";
 import FrownDislike from "@/shared/ui/icons/FrownDislike";
@@ -2042,15 +2042,15 @@ export default function PaperDetailPage() {
             >
               <div
                 style={{
-                  color: "var(--color-text-subtle)",
-                  fontFamily: "Pretendard",
-                  fontSize: "14px",
-                  fontStyle: "normal",
-                  fontWeight: 500,
-                  lineHeight: "20px",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "var(--spacing-12)",
+                  width: "100%",
                 }}
               >
-                토론 목록을 불러오는 중...
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <ListItemSkeleton key={i} />
+                ))}
               </div>
             </div>
           ) : discussions.length === 0 ? (
@@ -2259,18 +2259,11 @@ export default function PaperDetailPage() {
             className="scrollbar-hide"
           >
             {loadingSimilar ? (
-              <div
-                style={{
-                  color: "var(--color-text-subtle)",
-                  fontFamily: "Pretendard",
-                  fontSize: "14px",
-                  fontStyle: "normal",
-                  fontWeight: 500,
-                  lineHeight: "20px",
-                }}
-              >
-                로딩 중...
-              </div>
+              <>
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <PopularPaperCardSkeleton key={i} />
+                ))}
+              </>
             ) : similarPapers.length > 0 ? (
               similarPapers.map((paper) => {
                 const imageUrl =
