@@ -50,10 +50,18 @@ server {
         proxy_ssl_verify off;
         proxy_ssl_verify_depth 2;
         
-        # 타임아웃 설정
+        # 스트리밍을 위한 버퍼링 비활성화
+        proxy_buffering off;
+        proxy_cache off;
+        proxy_request_buffering off;
+        
+        # 타임아웃 설정 (AI 스트리밍은 오래 걸릴 수 있으므로 충분히 길게 설정)
         proxy_connect_timeout 60s;
-        proxy_send_timeout 60s;
-        proxy_read_timeout 60s;
+        proxy_send_timeout 300s;
+        proxy_read_timeout 300s;
+        
+        # 청크 전송 활성화
+        chunked_transfer_encoding on;
         
         # CORS 헤더 추가 (프록시를 통하므로 CORS 문제 없음, 하지만 명시적으로 설정)
         add_header Access-Control-Allow-Origin * always;
@@ -84,10 +92,10 @@ server {
         proxy_ssl_verify off;
         proxy_ssl_verify_depth 2;
         
-        # 타임아웃 설정
+        # 타임아웃 설정 (AI 스트리밍은 오래 걸릴 수 있으므로 충분히 길게 설정)
         proxy_connect_timeout 60s;
-        proxy_send_timeout 60s;
-        proxy_read_timeout 60s;
+        proxy_send_timeout 300s;
+        proxy_read_timeout 300s;
         
         # CORS 헤더 추가 (프록시를 통하므로 CORS 문제 없음, 하지만 명시적으로 설정)
         add_header Access-Control-Allow-Origin * always;
