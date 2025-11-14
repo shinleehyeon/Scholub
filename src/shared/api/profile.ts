@@ -151,4 +151,27 @@ export const profileApi = {
     );
     return response.data;
   },
+
+  async updateProfile(data: {
+    name?: string;
+    profilePicture?: File;
+  }): Promise<UserProfile> {
+    const formData = new FormData();
+
+    if (data.name !== undefined) {
+      formData.append("name", data.name);
+    }
+
+    if (data.profilePicture) {
+      formData.append("profilePicture", data.profilePicture);
+    }
+
+    // FormData를 보낼 때는 Content-Type 헤더를 명시하지 않아야
+    // 브라우저가 자동으로 boundary를 포함한 올바른 Content-Type을 설정합니다.
+    const response = await apiClient.patch<ProfileResponse>(
+      "/users/me",
+      formData
+    );
+    return response.data;
+  },
 };

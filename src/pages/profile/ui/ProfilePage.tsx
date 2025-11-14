@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Header } from "@/widgets/header";
 import { SubHeader } from "@/widgets/sub-header";
 import {
@@ -7,10 +7,13 @@ import {
   Typography,
   PaperCardSkeleton,
   Skeleton,
+  Input,
 } from "@/shared/ui";
 import LatestResearchCard from "@/entities/paper/ui/LatestResearchCard";
 import { profileApi, type UserProfile } from "@/shared/api/profile";
 import { useToast } from "@/shared/ui/Toast";
+import Camera from "@/shared/ui/icons/Camera";
+import Close from "@/shared/ui/icons/Close";
 
 export default function ProfilePage() {
   const { showToast } = useToast();
@@ -42,6 +45,12 @@ export default function ProfilePage() {
   const [loadingProfile, setLoadingProfile] = useState(true);
   const [loadingReactions, setLoadingReactions] = useState(true);
   const [loadingComments, setLoadingComments] = useState(true);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editName, setEditName] = useState("");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const fetchProfileData = async () => {
@@ -206,6 +215,89 @@ export default function ProfilePage() {
     }
   };
 
+  const handleEditProfile = () => {
+    setEditName(profile?.name || "");
+    setPreviewUrl(profile?.profileImageUrl || null);
+    setSelectedFile(null);
+    setIsEditModalOpen(true);
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // 파일 크기 체크 (5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        showToast("파일 크기는 5MB를 초과할 수 없습니다.", "error");
+        return;
+      }
+
+      // 파일 타입 체크
+      const validTypes = [
+        "image/jpeg",
+        "image/jpg",
+        "image/png",
+        "image/gif",
+        "image/webp",
+      ];
+      if (!validTypes.includes(file.type)) {
+        showToast("JPG, JPEG, PNG, GIF, WEBP 형식만 지원됩니다.", "error");
+        return;
+      }
+
+      setSelectedFile(file);
+      const url = URL.createObjectURL(file);
+      setPreviewUrl(url);
+    }
+  };
+
+  const handleSaveProfile = async () => {
+    try {
+      setSaving(true);
+
+      const updateData: { name?: string; profilePicture?: File } = {};
+
+      if (editName.trim() && editName !== profile?.name) {
+        updateData.name = editName.trim();
+      }
+
+      if (selectedFile) {
+        updateData.profilePicture = selectedFile;
+      }
+
+      if (Object.keys(updateData).length === 0) {
+        showToast("변경된 내용이 없습니다.", "info");
+        setIsEditModalOpen(false);
+        return;
+      }
+
+      const updatedProfile = await profileApi.updateProfile(updateData);
+      setProfile(updatedProfile);
+      showToast("프로필이 업데이트되었습니다.", "success");
+      setIsEditModalOpen(false);
+
+      // 미리보기 URL 정리
+      if (previewUrl && selectedFile) {
+        URL.revokeObjectURL(previewUrl);
+      }
+      setSelectedFile(null);
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : "프로필 업데이트에 실패했습니다.";
+      showToast(errorMessage, "error");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleCloseModal = () => {
+    if (previewUrl && selectedFile) {
+      URL.revokeObjectURL(previewUrl);
+    }
+    setIsEditModalOpen(false);
+    setSelectedFile(null);
+    setPreviewUrl(null);
+  };
+
   return (
     <div className="min-h-screen bg-white" style={{ marginTop: "121px" }}>
       <Header />
@@ -285,8 +377,12 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            <Button variant="secondary" size="medium">
-              프로필 사진 수정
+            <Button
+              variant="secondary"
+              size="medium"
+              onClick={handleEditProfile}
+            >
+              프로필 수정
             </Button>
           </div>
 
@@ -492,6 +588,159 @@ export default function ProfilePage() {
           </div>
         </div>
       </div>
+
+      {/* 프로필 수정 모달 */}
+      {isEditModalOpen && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 1000,
+          }}
+          onClick={handleCloseModal}
+        >
+          <div
+            style={{
+              backgroundColor: "white",
+              borderRadius: "var(--radius-12)",
+              padding: "var(--spacing-32)",
+              width: "500px",
+              maxWidth: "90%",
+              position: "relative",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: "var(--spacing-24)",
+              }}
+            >
+              <Typography.Headline color="default">
+                프로필 수정
+              </Typography.Headline>
+              <button
+                onClick={handleCloseModal}
+                style={{
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  padding: "var(--spacing-4)",
+                }}
+              >
+                <Close size={24} />
+              </button>
+            </div>
+
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "var(--spacing-24)",
+              }}
+            >
+              {/* 프로필 사진 */}
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: "var(--spacing-12)",
+                }}
+              >
+                <div style={{ position: "relative" }}>
+                  <Avatar
+                    src={previewUrl || profile?.profileImageUrl || ""}
+                    alt="프로필 이미지"
+                    size={120}
+                  />
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    style={{
+                      position: "absolute",
+                      bottom: 0,
+                      right: 0,
+                      width: "36px",
+                      height: "36px",
+                      borderRadius: "50%",
+                      backgroundColor: "var(--color-brand-default)",
+                      border: "3px solid white",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      cursor: "pointer",
+                    }}
+                  >
+                    <Camera size={18} color="white" />
+                  </button>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+                    onChange={handleFileSelect}
+                    style={{ display: "none" }}
+                  />
+                </div>
+                <Typography.Subtext color="subtle">
+                  JPG, JPEG, PNG, GIF, WEBP (최대 5MB)
+                </Typography.Subtext>
+              </div>
+
+              {/* 이름 */}
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "var(--spacing-8)",
+                }}
+              >
+                <Typography.Body color="default">이름</Typography.Body>
+                <Input
+                  size="large"
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  placeholder="이름을 입력하세요"
+                />
+              </div>
+
+              {/* 버튼 */}
+              <div
+                style={{
+                  display: "flex",
+                  gap: "var(--spacing-12)",
+                  justifyContent: "flex-end",
+                }}
+              >
+                <Button
+                  variant="secondary"
+                  size="medium"
+                  onClick={handleCloseModal}
+                  disabled={saving}
+                >
+                  취소
+                </Button>
+                <Button
+                  variant="primary"
+                  size="medium"
+                  onClick={handleSaveProfile}
+                  disabled={saving}
+                >
+                  {saving ? "저장 중..." : "저장"}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
