@@ -19,6 +19,7 @@ import type { Paper } from "@/shared/api/papers";
 import { useLanguage } from "@/shared/lib/language";
 import { useToast } from "@/shared/ui/Toast";
 import PopularPaperCard from "@/entities/paper/ui/PopularPaperCard";
+import ReactMarkdown from "react-markdown";
 
 interface TableOfContentsItem {
   label: string;
@@ -1030,14 +1031,184 @@ export default function PaperDetailPage() {
                 fontStyle: "normal",
                 fontWeight: 400,
                 lineHeight: "30px",
-                whiteSpace: "pre-wrap",
                 alignSelf: "stretch",
                 position: "relative",
               }}
             >
-              {language === "ko" && abstractContent.translatedContent
-                ? abstractContent.translatedContent
-                : abstractContent.content || ""}
+              <ReactMarkdown
+                components={{
+                  p: ({ children }) => (
+                    <p
+                      style={{
+                        margin: "0 0 12px 0",
+                        lineHeight: "30px",
+                        color: "var(--color-text-default)",
+                        fontSize: "17px",
+                      }}
+                    >
+                      {children}
+                    </p>
+                  ),
+                  h1: ({ children }) => (
+                    <h1
+                      style={{
+                        fontSize: "24px",
+                        fontWeight: 600,
+                        margin: "16px 0 8px 0",
+                        lineHeight: "32px",
+                        color: "var(--color-text-default)",
+                      }}
+                    >
+                      {children}
+                    </h1>
+                  ),
+                  h2: ({ children }) => (
+                    <h2
+                      style={{
+                        fontSize: "22px",
+                        fontWeight: 600,
+                        margin: "14px 0 6px 0",
+                        lineHeight: "28px",
+                        color: "var(--color-text-default)",
+                      }}
+                    >
+                      {children}
+                    </h2>
+                  ),
+                  h3: ({ children }) => (
+                    <h3
+                      style={{
+                        fontSize: "20px",
+                        fontWeight: 600,
+                        margin: "12px 0 4px 0",
+                        lineHeight: "26px",
+                        color: "var(--color-text-default)",
+                      }}
+                    >
+                      {children}
+                    </h3>
+                  ),
+                  h4: ({ children }) => (
+                    <h4
+                      style={{
+                        fontSize: "18px",
+                        fontWeight: 600,
+                        margin: "10px 0 4px 0",
+                        lineHeight: "24px",
+                        color: "var(--color-text-default)",
+                      }}
+                    >
+                      {children}
+                    </h4>
+                  ),
+                  ul: ({ children }) => (
+                    <ul
+                      style={{
+                        margin: "8px 0",
+                        paddingLeft: "24px",
+                        listStyleType: "disc",
+                      }}
+                    >
+                      {children}
+                    </ul>
+                  ),
+                  ol: ({ children }) => (
+                    <ol
+                      style={{
+                        margin: "8px 0",
+                        paddingLeft: "24px",
+                        listStyleType: "decimal",
+                      }}
+                    >
+                      {children}
+                    </ol>
+                  ),
+                  li: ({ children }) => (
+                    <li
+                      style={{
+                        margin: "0 0 4px 0",
+                        lineHeight: "30px",
+                        paddingLeft: "4px",
+                        color: "var(--color-text-default)",
+                        fontSize: "17px",
+                      }}
+                    >
+                      {children}
+                    </li>
+                  ),
+                  code: ({ children }) => (
+                    <code
+                      style={{
+                        background: "var(--color-surface-subtle)",
+                        padding: "2px 6px",
+                        borderRadius: "4px",
+                        fontSize: "15px",
+                        fontFamily: "monospace",
+                        color: "var(--color-text-default)",
+                      }}
+                    >
+                      {children}
+                    </code>
+                  ),
+                  pre: ({ children }) => (
+                    <pre
+                      style={{
+                        background: "var(--color-surface-subtle)",
+                        padding: "12px",
+                        borderRadius: "8px",
+                        overflow: "auto",
+                        margin: "12px 0",
+                        fontSize: "15px",
+                        fontFamily: "monospace",
+                        lineHeight: "24px",
+                        color: "var(--color-text-default)",
+                      }}
+                    >
+                      {children}
+                    </pre>
+                  ),
+                  a: ({ href, children }) => (
+                    <a
+                      href={href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        color: "var(--color-brand-default)",
+                        textDecoration: "underline",
+                        textUnderlineOffset: "2px",
+                      }}
+                    >
+                      {children}
+                    </a>
+                  ),
+                  blockquote: ({ children }) => (
+                    <blockquote
+                      style={{
+                        borderLeft: "3px solid var(--color-border-default)",
+                        paddingLeft: "12px",
+                        margin: "12px 0",
+                        fontStyle: "italic",
+                        color: "var(--color-text-subtle)",
+                      }}
+                    >
+                      {children}
+                    </blockquote>
+                  ),
+                  hr: () => (
+                    <hr
+                      style={{
+                        border: "none",
+                        borderTop: "1px solid var(--color-border-default)",
+                        margin: "16px 0",
+                      }}
+                    />
+                  ),
+                }}
+              >
+                {language === "ko" && abstractContent.translatedContent
+                  ? abstractContent.translatedContent
+                  : abstractContent.content || ""}
+              </ReactMarkdown>
             </div>
           </div>
         )}
@@ -1088,14 +1259,184 @@ export default function PaperDetailPage() {
                 fontStyle: "normal",
                 fontWeight: 400,
                 lineHeight: "30px",
-                whiteSpace: "pre-wrap",
                 alignSelf: "stretch",
                 position: "relative",
               }}
             >
-              {language === "ko" && introductionContent.translatedContent
-                ? introductionContent.translatedContent
-                : introductionContent.content || ""}
+              <ReactMarkdown
+                components={{
+                  p: ({ children }) => (
+                    <p
+                      style={{
+                        margin: "0 0 12px 0",
+                        lineHeight: "30px",
+                        color: "var(--color-text-default)",
+                        fontSize: "17px",
+                      }}
+                    >
+                      {children}
+                    </p>
+                  ),
+                  h1: ({ children }) => (
+                    <h1
+                      style={{
+                        fontSize: "24px",
+                        fontWeight: 600,
+                        margin: "16px 0 8px 0",
+                        lineHeight: "32px",
+                        color: "var(--color-text-default)",
+                      }}
+                    >
+                      {children}
+                    </h1>
+                  ),
+                  h2: ({ children }) => (
+                    <h2
+                      style={{
+                        fontSize: "22px",
+                        fontWeight: 600,
+                        margin: "14px 0 6px 0",
+                        lineHeight: "28px",
+                        color: "var(--color-text-default)",
+                      }}
+                    >
+                      {children}
+                    </h2>
+                  ),
+                  h3: ({ children }) => (
+                    <h3
+                      style={{
+                        fontSize: "20px",
+                        fontWeight: 600,
+                        margin: "12px 0 4px 0",
+                        lineHeight: "26px",
+                        color: "var(--color-text-default)",
+                      }}
+                    >
+                      {children}
+                    </h3>
+                  ),
+                  h4: ({ children }) => (
+                    <h4
+                      style={{
+                        fontSize: "18px",
+                        fontWeight: 600,
+                        margin: "10px 0 4px 0",
+                        lineHeight: "24px",
+                        color: "var(--color-text-default)",
+                      }}
+                    >
+                      {children}
+                    </h4>
+                  ),
+                  ul: ({ children }) => (
+                    <ul
+                      style={{
+                        margin: "8px 0",
+                        paddingLeft: "24px",
+                        listStyleType: "disc",
+                      }}
+                    >
+                      {children}
+                    </ul>
+                  ),
+                  ol: ({ children }) => (
+                    <ol
+                      style={{
+                        margin: "8px 0",
+                        paddingLeft: "24px",
+                        listStyleType: "decimal",
+                      }}
+                    >
+                      {children}
+                    </ol>
+                  ),
+                  li: ({ children }) => (
+                    <li
+                      style={{
+                        margin: "0 0 4px 0",
+                        lineHeight: "30px",
+                        paddingLeft: "4px",
+                        color: "var(--color-text-default)",
+                        fontSize: "17px",
+                      }}
+                    >
+                      {children}
+                    </li>
+                  ),
+                  code: ({ children }) => (
+                    <code
+                      style={{
+                        background: "var(--color-surface-subtle)",
+                        padding: "2px 6px",
+                        borderRadius: "4px",
+                        fontSize: "15px",
+                        fontFamily: "monospace",
+                        color: "var(--color-text-default)",
+                      }}
+                    >
+                      {children}
+                    </code>
+                  ),
+                  pre: ({ children }) => (
+                    <pre
+                      style={{
+                        background: "var(--color-surface-subtle)",
+                        padding: "12px",
+                        borderRadius: "8px",
+                        overflow: "auto",
+                        margin: "12px 0",
+                        fontSize: "15px",
+                        fontFamily: "monospace",
+                        lineHeight: "24px",
+                        color: "var(--color-text-default)",
+                      }}
+                    >
+                      {children}
+                    </pre>
+                  ),
+                  a: ({ href, children }) => (
+                    <a
+                      href={href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        color: "var(--color-brand-default)",
+                        textDecoration: "underline",
+                        textUnderlineOffset: "2px",
+                      }}
+                    >
+                      {children}
+                    </a>
+                  ),
+                  blockquote: ({ children }) => (
+                    <blockquote
+                      style={{
+                        borderLeft: "3px solid var(--color-border-default)",
+                        paddingLeft: "12px",
+                        margin: "12px 0",
+                        fontStyle: "italic",
+                        color: "var(--color-text-subtle)",
+                      }}
+                    >
+                      {children}
+                    </blockquote>
+                  ),
+                  hr: () => (
+                    <hr
+                      style={{
+                        border: "none",
+                        borderTop: "1px solid var(--color-border-default)",
+                        margin: "16px 0",
+                      }}
+                    />
+                  ),
+                }}
+              >
+                {language === "ko" && introductionContent.translatedContent
+                  ? introductionContent.translatedContent
+                  : introductionContent.content || ""}
+              </ReactMarkdown>
             </div>
           </div>
         )}
@@ -1144,14 +1485,184 @@ export default function PaperDetailPage() {
                 fontStyle: "normal",
                 fontWeight: 400,
                 lineHeight: "30px",
-                whiteSpace: "pre-wrap",
                 alignSelf: "stretch",
                 position: "relative",
               }}
             >
-              {language === "ko" && content.translatedContent
-                ? content.translatedContent
-                : content.content || ""}
+              <ReactMarkdown
+                components={{
+                  p: ({ children }) => (
+                    <p
+                      style={{
+                        margin: "0 0 12px 0",
+                        lineHeight: "30px",
+                        color: "var(--color-text-default)",
+                        fontSize: "17px",
+                      }}
+                    >
+                      {children}
+                    </p>
+                  ),
+                  h1: ({ children }) => (
+                    <h1
+                      style={{
+                        fontSize: "24px",
+                        fontWeight: 600,
+                        margin: "16px 0 8px 0",
+                        lineHeight: "32px",
+                        color: "var(--color-text-default)",
+                      }}
+                    >
+                      {children}
+                    </h1>
+                  ),
+                  h2: ({ children }) => (
+                    <h2
+                      style={{
+                        fontSize: "22px",
+                        fontWeight: 600,
+                        margin: "14px 0 6px 0",
+                        lineHeight: "28px",
+                        color: "var(--color-text-default)",
+                      }}
+                    >
+                      {children}
+                    </h2>
+                  ),
+                  h3: ({ children }) => (
+                    <h3
+                      style={{
+                        fontSize: "20px",
+                        fontWeight: 600,
+                        margin: "12px 0 4px 0",
+                        lineHeight: "26px",
+                        color: "var(--color-text-default)",
+                      }}
+                    >
+                      {children}
+                    </h3>
+                  ),
+                  h4: ({ children }) => (
+                    <h4
+                      style={{
+                        fontSize: "18px",
+                        fontWeight: 600,
+                        margin: "10px 0 4px 0",
+                        lineHeight: "24px",
+                        color: "var(--color-text-default)",
+                      }}
+                    >
+                      {children}
+                    </h4>
+                  ),
+                  ul: ({ children }) => (
+                    <ul
+                      style={{
+                        margin: "8px 0",
+                        paddingLeft: "24px",
+                        listStyleType: "disc",
+                      }}
+                    >
+                      {children}
+                    </ul>
+                  ),
+                  ol: ({ children }) => (
+                    <ol
+                      style={{
+                        margin: "8px 0",
+                        paddingLeft: "24px",
+                        listStyleType: "decimal",
+                      }}
+                    >
+                      {children}
+                    </ol>
+                  ),
+                  li: ({ children }) => (
+                    <li
+                      style={{
+                        margin: "0 0 4px 0",
+                        lineHeight: "30px",
+                        paddingLeft: "4px",
+                        color: "var(--color-text-default)",
+                        fontSize: "17px",
+                      }}
+                    >
+                      {children}
+                    </li>
+                  ),
+                  code: ({ children }) => (
+                    <code
+                      style={{
+                        background: "var(--color-surface-subtle)",
+                        padding: "2px 6px",
+                        borderRadius: "4px",
+                        fontSize: "15px",
+                        fontFamily: "monospace",
+                        color: "var(--color-text-default)",
+                      }}
+                    >
+                      {children}
+                    </code>
+                  ),
+                  pre: ({ children }) => (
+                    <pre
+                      style={{
+                        background: "var(--color-surface-subtle)",
+                        padding: "12px",
+                        borderRadius: "8px",
+                        overflow: "auto",
+                        margin: "12px 0",
+                        fontSize: "15px",
+                        fontFamily: "monospace",
+                        lineHeight: "24px",
+                        color: "var(--color-text-default)",
+                      }}
+                    >
+                      {children}
+                    </pre>
+                  ),
+                  a: ({ href, children }) => (
+                    <a
+                      href={href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        color: "var(--color-brand-default)",
+                        textDecoration: "underline",
+                        textUnderlineOffset: "2px",
+                      }}
+                    >
+                      {children}
+                    </a>
+                  ),
+                  blockquote: ({ children }) => (
+                    <blockquote
+                      style={{
+                        borderLeft: "3px solid var(--color-border-default)",
+                        paddingLeft: "12px",
+                        margin: "12px 0",
+                        fontStyle: "italic",
+                        color: "var(--color-text-subtle)",
+                      }}
+                    >
+                      {children}
+                    </blockquote>
+                  ),
+                  hr: () => (
+                    <hr
+                      style={{
+                        border: "none",
+                        borderTop: "1px solid var(--color-border-default)",
+                        margin: "16px 0",
+                      }}
+                    />
+                  ),
+                }}
+              >
+                {language === "ko" && content.translatedContent
+                  ? content.translatedContent
+                  : content.content || ""}
+              </ReactMarkdown>
             </div>
 
             {content.imageUrl && (
