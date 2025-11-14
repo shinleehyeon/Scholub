@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Header } from "@/widgets/header";
 import { SubHeader } from "@/widgets/sub-header";
@@ -8,6 +8,7 @@ import ChevronLeft from "@/shared/ui/icons/ChevronLeft";
 import ChevronRight from "@/shared/ui/icons/ChevronRight";
 import Sparkles from "@/shared/ui/icons/Sparkles";
 import { Typography, PopularPaperCardSkeleton, PaperCardSkeleton } from "@/shared/ui";
+import { useAIChat } from "@/shared/lib/ai-chat-context";
 import { papersApi } from "@/shared/api/papers";
 import { authStorage } from "@/shared/lib/auth";
 
@@ -32,6 +33,8 @@ export default function Home() {
   const [isAutoSlidePaused, setIsAutoSlidePaused] = useState(false);
   const [displayedLatestCount, setDisplayedLatestCount] = useState(7);
   const [displayedRecommendedCount, setDisplayedRecommendedCount] = useState(7);
+  const { isAIChatOpen } = useAIChat();
+  const [selectedPaperType, setSelectedPaperType] = useState<"latest" | "recommended">("latest");
 
   useEffect(() => {
     const fetchHeadlines = async () => {
@@ -289,17 +292,19 @@ export default function Home() {
         style={{
           position: "relative",
           display: "flex",
-          height: "371px",
+          height: isAIChatOpen ? "250px" : "371px",
           padding: "55px",
-          paddingTop: "251px",
+          paddingTop: isAIChatOpen ? "130px" : "251px",
           paddingBottom: "42px",
           flexDirection: "column",
           justifyContent: "flex-end",
           alignItems: "center",
           gap: "7px",
           alignSelf: "stretch",
-          width: "100%",
+          width: isAIChatOpen ? "calc(100% - 512px)" : "100%",
+          marginRight: isAIChatOpen ? "512px" : "0",
           overflow: "hidden",
+          transition: "all 0.3s ease-in-out",
           cursor:
             currentItem.id !== "loading" &&
             currentItem.id !== "no-data" &&
@@ -478,102 +483,18 @@ export default function Home() {
         </div>
       </div>
 
-      <div
-        style={{
-          display: "flex",
-          padding: "var(--spacing-48) var(--spacing-24)",
-          justifyContent: "center",
-          alignItems: "flex-start",
-          gap: "var(--spacing-64)",
-          alignSelf: "stretch",
-        }}
-      >
+      {isAIChatOpen ? (
         <div
           style={{
             display: "flex",
-            flexDirection: "column",
+            padding: "var(--spacing-48) var(--spacing-24)",
+            justifyContent: "center",
             alignItems: "flex-start",
-            gap: "var(--spacing-24)",
-            flex: 1,
-            height: "calc(100vh - 121px)",
-            overflow: "hidden",
-          }}
-        >
-          <h2 className="text-[var(--color-text-default)] font-[Pretendard] text-[24px] font-bold leading-[30px] m-0">
-            최신 연구
-          </h2>
-
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: "var(--spacing-24)",
-              width: "100%",
-              overflowY: "auto",
-              flex: 1,
-            }}
-          >
-            {loadingLatest ? (
-              <>
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <PaperCardSkeleton key={i} />
-                ))}
-              </>
-            ) : latestPapers.length > 0 ? (
-              <>
-                {latestPapers.slice(0, displayedLatestCount).map((paper) => (
-                  <LatestResearchCard
-                    key={paper.id}
-                    id={paper.id}
-                    imageUrl={paper.imageUrl}
-                    category={paper.category}
-                    title={paper.title}
-                    description={paper.description}
-                    likes={paper.likes}
-                    comments={paper.comments}
-                    isLiked={paper.isLiked}
-                  />
-                ))}
-                {latestPapers.length > displayedLatestCount && (
-                  <button
-                    onClick={() => setDisplayedLatestCount((prev) => prev + 7)}
-                    style={{
-                      display: "flex",
-                      padding: "var(--spacing-12) var(--spacing-24)",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      gap: "var(--spacing-8)",
-                      borderRadius: "var(--radius-8)",
-                      background: "transparent",
-                      border: "1px solid var(--color-border-default)",
-                      cursor: "pointer",
-                      alignSelf: "center",
-                      fontFamily: "Pretendard",
-                      fontSize: "14px",
-                      fontWeight: 500,
-                      lineHeight: "20px",
-                      color: "var(--color-text-default)",
-                    }}
-                  >
-                    더보기
-                  </button>
-                )}
-              </>
-            ) : (
-              <div>최신 연구가 없습니다.</div>
-            )}
-          </div>
-        </div>
-
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "flex-start",
-            gap: "var(--spacing-24)",
-            flex: "1 0 0",
-            height: "calc(100vh - 121px)",
-            overflow: "hidden",
+            gap: "var(--spacing-64)",
+            alignSelf: "stretch",
+            width: "calc(100% - 512px)",
+            marginRight: "512px",
+            transition: "all 0.3s ease-in-out",
           }}
         >
           <div
@@ -581,73 +502,259 @@ export default function Home() {
               display: "flex",
               flexDirection: "column",
               alignItems: "flex-start",
+              gap: "var(--spacing-24)",
+              flex: 1,
+              height: "calc(100vh - 121px)",
+              overflow: "hidden",
             }}
           >
             <div
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: "var(--spacing-4)",
-                marginBottom: "var(--spacing-6)",
+                gap: "var(--spacing-8)",
+                width: "100%",
               }}
             >
-              <Sparkles size={13} />
-              <Typography.Subtext color="subtle">
-                최근 Deaminative 논문을 확인해서
-              </Typography.Subtext>
+              <h2 className="text-[var(--color-text-default)] font-[Pretendard] text-[24px] font-bold leading-[30px] m-0">
+                {selectedPaperType === "latest" ? "최신 연구" : "추천 논문"}
+              </h2>
+              <div
+                style={{
+                  position: "relative",
+                  display: "inline-block",
+                }}
+              >
+                <select
+                  value={selectedPaperType}
+                  onChange={(e) =>
+                    setSelectedPaperType(
+                      e.target.value as "latest" | "recommended"
+                    )
+                  }
+                  style={{
+                    appearance: "none",
+                    padding: "4px 24px 4px 8px",
+                    border: "1px solid var(--color-border-default)",
+                    borderRadius: "4px",
+                    background: "var(--color-surface-default)",
+                    fontFamily: "Pretendard",
+                    fontSize: "14px",
+                    fontWeight: 500,
+                    color: "var(--color-text-default)",
+                    cursor: "pointer",
+                  }}
+                >
+                  <option value="latest">최신 연구</option>
+                  <option value="recommended">추천 논문</option>
+                </select>
+                <ChevronRight
+                  size={16}
+                  style={{
+                    position: "absolute",
+                    right: "8px",
+                    top: "50%",
+                    transform: "translateY(-50%) rotate(90deg)",
+                    pointerEvents: "none",
+                  }}
+                />
+              </div>
             </div>
 
-            <h2 className="text-[var(--color-text-default)] font-[Pretendard] text-[24px] font-bold leading-[30px] m-0">
-              추천 논문
-            </h2>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "var(--spacing-24)",
+                width: "100%",
+                overflowY: "auto",
+                flex: 1,
+              }}
+            >
+              {selectedPaperType === "latest" ? (
+                <>
+                  {loadingLatest ? (
+                    <>
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <PaperCardSkeleton key={i} />
+                      ))}
+                    </>
+                  ) : latestPapers.length > 0 ? (
+                    <>
+                      {latestPapers.slice(0, displayedLatestCount).map((paper) => (
+                        <LatestResearchCard
+                          key={paper.id}
+                          id={paper.id}
+                          imageUrl={paper.imageUrl}
+                          category={paper.category}
+                          title={paper.title}
+                          description={paper.description}
+                          likes={paper.likes}
+                          comments={paper.comments}
+                          isLiked={paper.isLiked}
+                        />
+                      ))}
+                      {latestPapers.length > displayedLatestCount && (
+                        <button
+                          onClick={() =>
+                            setDisplayedLatestCount((prev) => prev + 7)
+                          }
+                          style={{
+                            display: "flex",
+                            padding: "var(--spacing-12) var(--spacing-24)",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            gap: "var(--spacing-8)",
+                            borderRadius: "var(--radius-8)",
+                            background: "transparent",
+                            border: "1px solid var(--color-border-default)",
+                            cursor: "pointer",
+                            alignSelf: "center",
+                            fontFamily: "Pretendard",
+                            fontSize: "14px",
+                            fontWeight: 500,
+                            lineHeight: "20px",
+                            color: "var(--color-text-default)",
+                          }}
+                        >
+                          더보기
+                        </button>
+                      )}
+                    </>
+                  ) : (
+                    <div>최신 연구가 없습니다.</div>
+                  )}
+                </>
+              ) : (
+                <>
+                  {!isAuthenticated ? (
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        padding: "var(--spacing-48) var(--spacing-24)",
+                        gap: "var(--spacing-16)",
+                      }}
+                    >
+                      <Typography.BodyLarge color="subtle" className="text-center">
+                        추천 논문을 확인하려면 로그인이 필요합니다.
+                      </Typography.BodyLarge>
+                      <Link
+                        to="/login"
+                        style={{
+                          textDecoration: "none",
+                        }}
+                      >
+                        <Typography.BodyLarge color="brand" className="text-center">
+                          로그인하러 가기 →
+                        </Typography.BodyLarge>
+                      </Link>
+                    </div>
+                  ) : loadingRecommended ? (
+                    <>
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <PaperCardSkeleton key={i} />
+                      ))}
+                    </>
+                  ) : recommendedPapers.length > 0 ? (
+                    <>
+                      {recommendedPapers
+                        .slice(0, displayedRecommendedCount)
+                        .map((paper) => (
+                          <LatestResearchCard
+                            key={paper.id}
+                            id={paper.id}
+                            imageUrl={paper.imageUrl}
+                            category={paper.category}
+                            title={paper.title}
+                            description={paper.description}
+                            likes={paper.likes}
+                            comments={paper.comments}
+                            isLiked={paper.isLiked}
+                          />
+                        ))}
+                      {recommendedPapers.length > displayedRecommendedCount && (
+                        <button
+                          onClick={() =>
+                            setDisplayedRecommendedCount((prev) => prev + 7)
+                          }
+                          style={{
+                            display: "flex",
+                            padding: "var(--spacing-12) var(--spacing-24)",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            gap: "var(--spacing-8)",
+                            borderRadius: "var(--radius-8)",
+                            background: "transparent",
+                            border: "1px solid var(--color-border-default)",
+                            cursor: "pointer",
+                            alignSelf: "center",
+                            fontFamily: "Pretendard",
+                            fontSize: "14px",
+                            fontWeight: 500,
+                            lineHeight: "20px",
+                            color: "var(--color-text-default)",
+                          }}
+                        >
+                          더보기
+                        </button>
+                      )}
+                    </>
+                  ) : (
+                    <div>추천 논문이 없습니다.</div>
+                  )}
+                </>
+              )}
+            </div>
           </div>
-
+        </div>
+      ) : (
+        <div
+          style={{
+            display: "flex",
+            padding: "var(--spacing-48) var(--spacing-24)",
+            justifyContent: "center",
+            alignItems: "flex-start",
+            gap: "var(--spacing-64)",
+            alignSelf: "stretch",
+          }}
+        >
           <div
             style={{
               display: "flex",
               flexDirection: "column",
+              alignItems: "flex-start",
               gap: "var(--spacing-24)",
-              width: "100%",
-              overflowY: "auto",
               flex: 1,
+              height: "calc(100vh - 121px)",
+              overflow: "hidden",
             }}
           >
-            {!isAuthenticated ? (
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  padding: "var(--spacing-48) var(--spacing-24)",
-                  gap: "var(--spacing-16)",
-                }}
-              >
-                <Typography.BodyLarge color="subtle" className="text-center">
-                  추천 논문을 확인하려면 로그인이 필요합니다.
-                </Typography.BodyLarge>
-                <Link
-                  to="/login"
-                  style={{
-                    textDecoration: "none",
-                  }}
-                >
-                  <Typography.BodyLarge color="brand" className="text-center">
-                    로그인하러 가기 →
-                  </Typography.BodyLarge>
-                </Link>
-              </div>
-            ) : loadingRecommended ? (
-              <>
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <PaperCardSkeleton key={i} />
-                ))}
-              </>
-            ) : recommendedPapers.length > 0 ? (
-              <>
-                {recommendedPapers
-                  .slice(0, displayedRecommendedCount)
-                  .map((paper) => (
+            <h2 className="text-[var(--color-text-default)] font-[Pretendard] text-[24px] font-bold leading-[30px] m-0">
+              최신 연구
+            </h2>
+
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "var(--spacing-24)",
+                width: "100%",
+                overflowY: "auto",
+                flex: 1,
+              }}
+            >
+              {loadingLatest ? (
+                <>
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <PaperCardSkeleton key={i} />
+                  ))}
+                </>
+              ) : latestPapers.length > 0 ? (
+                <>
+                  {latestPapers.slice(0, displayedLatestCount).map((paper) => (
                     <LatestResearchCard
                       key={paper.id}
                       id={paper.id}
@@ -660,39 +767,166 @@ export default function Home() {
                       isLiked={paper.isLiked}
                     />
                   ))}
-                {recommendedPapers.length > displayedRecommendedCount && (
-                  <button
-                    onClick={() =>
-                      setDisplayedRecommendedCount((prev) => prev + 7)
-                    }
+                  {latestPapers.length > displayedLatestCount && (
+                    <button
+                      onClick={() => setDisplayedLatestCount((prev) => prev + 7)}
+                      style={{
+                        display: "flex",
+                        padding: "var(--spacing-12) var(--spacing-24)",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        gap: "var(--spacing-8)",
+                        borderRadius: "var(--radius-8)",
+                        background: "transparent",
+                        border: "1px solid var(--color-border-default)",
+                        cursor: "pointer",
+                        alignSelf: "center",
+                        fontFamily: "Pretendard",
+                        fontSize: "14px",
+                        fontWeight: 500,
+                        lineHeight: "20px",
+                        color: "var(--color-text-default)",
+                      }}
+                    >
+                      더보기
+                    </button>
+                  )}
+                </>
+              ) : (
+                <div>최신 연구가 없습니다.</div>
+              )}
+            </div>
+          </div>
+
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "flex-start",
+              gap: "var(--spacing-24)",
+              flex: "1 0 0",
+              height: "calc(100vh - 121px)",
+              overflow: "hidden",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "flex-start",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "var(--spacing-4)",
+                  marginBottom: "var(--spacing-6)",
+                }}
+              >
+                <Sparkles size={13} />
+                <Typography.Subtext color="subtle">
+                  최근 Deaminative 논문을 확인해서
+                </Typography.Subtext>
+              </div>
+
+              <h2 className="text-[var(--color-text-default)] font-[Pretendard] text-[24px] font-bold leading-[30px] m-0">
+                추천 논문
+              </h2>
+            </div>
+
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "var(--spacing-24)",
+                width: "100%",
+                overflowY: "auto",
+                flex: 1,
+              }}
+            >
+              {!isAuthenticated ? (
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    padding: "var(--spacing-48) var(--spacing-24)",
+                    gap: "var(--spacing-16)",
+                  }}
+                >
+                  <Typography.BodyLarge color="subtle" className="text-center">
+                    추천 논문을 확인하려면 로그인이 필요합니다.
+                  </Typography.BodyLarge>
+                  <Link
+                    to="/login"
                     style={{
-                      display: "flex",
-                      padding: "var(--spacing-12) var(--spacing-24)",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      gap: "var(--spacing-8)",
-                      borderRadius: "var(--radius-8)",
-                      background: "transparent",
-                      border: "1px solid var(--color-border-default)",
-                      cursor: "pointer",
-                      alignSelf: "center",
-                      fontFamily: "Pretendard",
-                      fontSize: "14px",
-                      fontWeight: 500,
-                      lineHeight: "20px",
-                      color: "var(--color-text-default)",
+                      textDecoration: "none",
                     }}
                   >
-                    더보기
-                  </button>
-                )}
-              </>
-            ) : (
-              <div>추천 논문이 없습니다.</div>
-            )}
+                    <Typography.BodyLarge color="brand" className="text-center">
+                      로그인하러 가기 →
+                    </Typography.BodyLarge>
+                  </Link>
+                </div>
+              ) : loadingRecommended ? (
+                <>
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <PaperCardSkeleton key={i} />
+                  ))}
+                </>
+              ) : recommendedPapers.length > 0 ? (
+                <>
+                  {recommendedPapers
+                    .slice(0, displayedRecommendedCount)
+                    .map((paper) => (
+                      <LatestResearchCard
+                        key={paper.id}
+                        id={paper.id}
+                        imageUrl={paper.imageUrl}
+                        category={paper.category}
+                        title={paper.title}
+                        description={paper.description}
+                        likes={paper.likes}
+                        comments={paper.comments}
+                        isLiked={paper.isLiked}
+                      />
+                    ))}
+                  {recommendedPapers.length > displayedRecommendedCount && (
+                    <button
+                      onClick={() =>
+                        setDisplayedRecommendedCount((prev) => prev + 7)
+                      }
+                      style={{
+                        display: "flex",
+                        padding: "var(--spacing-12) var(--spacing-24)",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        gap: "var(--spacing-8)",
+                        borderRadius: "var(--radius-8)",
+                        background: "transparent",
+                        border: "1px solid var(--color-border-default)",
+                        cursor: "pointer",
+                        alignSelf: "center",
+                        fontFamily: "Pretendard",
+                        fontSize: "14px",
+                        fontWeight: 500,
+                        lineHeight: "20px",
+                        color: "var(--color-text-default)",
+                      }}
+                    >
+                      더보기
+                    </button>
+                  )}
+                </>
+              ) : (
+                <div>추천 논문이 없습니다.</div>
+              )}
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

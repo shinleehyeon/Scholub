@@ -2,7 +2,13 @@ import { Header } from "@/widgets/header";
 import { SubHeader } from "@/widgets/sub-header";
 import { AIChat } from "@/widgets/ai-chat";
 import { Discussion } from "@/widgets/discussion";
-import { Button, Typography, TextLineSkeleton, PopularPaperCardSkeleton, ListItemSkeleton } from "@/shared/ui";
+import {
+  Button,
+  Typography,
+  TextLineSkeleton,
+  PopularPaperCardSkeleton,
+  ListItemSkeleton,
+} from "@/shared/ui";
 import Sparkles from "@/shared/ui/icons/Sparkles";
 import SmileLike from "@/shared/ui/icons/SmileLike";
 import FrownDislike from "@/shared/ui/icons/FrownDislike";

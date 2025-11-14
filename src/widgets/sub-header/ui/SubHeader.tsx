@@ -1,11 +1,17 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { Typography, Skeleton } from "@/shared/ui";
+import { Link, useLocation } from "react-router-dom";
+import { Typography, Skeleton, Button } from "@/shared/ui";
 import { categoriesApi, type Category } from "@/shared/api/categories";
+import { AIChat } from "@/widgets/ai-chat";
+import Sparkles from "@/shared/ui/icons/Sparkles";
+import { useAIChat } from "@/shared/lib/ai-chat-context";
 
 export default function SubHeader() {
+  const location = useLocation();
+  const isHomePage = location.pathname === "/";
   const [topCategories, setTopCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const { isAIChatOpen, setIsAIChatOpen } = useAIChat();
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -37,7 +43,7 @@ export default function SubHeader() {
         display: "flex",
         height: "50px",
         padding: "0 var(--spacing-24)",
-        justifyContent: "flex-start",
+        justifyContent: "space-between",
         alignItems: "center",
         alignSelf: "stretch",
         borderBottom: "1px solid var(--color-border-default)",
@@ -110,6 +116,24 @@ export default function SubHeader() {
           </>
         ) : null}
       </div>
+      {isHomePage && (
+        <Button
+          variant="secondary"
+          size="medium"
+          leadingIcon={
+            <Sparkles size={16} color="var(--color-brand-default)" />
+          }
+          onClick={() => setIsAIChatOpen(true)}
+          style={{
+            flexShrink: 0,
+          }}
+        >
+          AI 채팅
+        </Button>
+      )}
+      {isHomePage && isAIChatOpen && (
+        <AIChat onClose={() => setIsAIChatOpen(false)} />
+      )}
     </div>
   );
 }

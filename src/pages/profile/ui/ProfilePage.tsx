@@ -1,7 +1,13 @@
 import { useState, useEffect } from "react";
 import { Header } from "@/widgets/header";
 import { SubHeader } from "@/widgets/sub-header";
-import { Avatar, Button, Typography, PaperCardSkeleton, Skeleton } from "@/shared/ui";
+import {
+  Avatar,
+  Button,
+  Typography,
+  PaperCardSkeleton,
+  Skeleton,
+} from "@/shared/ui";
 import LatestResearchCard from "@/entities/paper/ui/LatestResearchCard";
 import { profileApi, type UserProfile } from "@/shared/api/profile";
 import { useToast } from "@/shared/ui/Toast";

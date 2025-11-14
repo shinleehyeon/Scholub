@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ToastProvider } from "@/shared/ui/Toast";
 import { LanguageProvider } from "@/shared/lib/language";
+import { AIChatProvider } from "@/shared/lib/ai-chat-context";
 import { HomePage } from "@/pages/home";
 import { NewscolatorPage } from "@/pages/newscolator";
 import { LoginPage } from "@/pages/login";
@@ -18,22 +19,24 @@ function App() {
   return (
     <LanguageProvider>
       <ToastProvider>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/newscolar" element={<NewscolatorPage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-            <Route path="/profile-photo" element={<ProfilePhotoPage />} />
-            <Route path="/interest-areas" element={<InterestAreasPage />} />
-            <Route path="/component-test" element={<ComponentTest />} />
-            <Route path="/category/:categoryId" element={<CategoryPage />} />
-            <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/settings" element={<SettingsPage />} />
-            <Route path="/search" element={<SearchPage />} />
-            <Route path="/papers/:paperId" element={<PaperDetailPage />} />
-          </Routes>
-        </BrowserRouter>
+        <AIChatProvider>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/newscolar" element={<NewscolatorPage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
+              <Route path="/profile-photo" element={<ProfilePhotoPage />} />
+              <Route path="/interest-areas" element={<InterestAreasPage />} />
+              <Route path="/component-test" element={<ComponentTest />} />
+              <Route path="/category/:categoryId" element={<CategoryPage />} />
+              <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/settings" element={<SettingsPage />} />
+              <Route path="/search" element={<SearchPage />} />
+              <Route path="/papers/:paperId" element={<PaperDetailPage />} />
+            </Routes>
+          </BrowserRouter>
+        </AIChatProvider>
       </ToastProvider>
     </LanguageProvider>
   );
