@@ -13,7 +13,6 @@ import { SettingsPage } from "@/pages/settings";
 import { ProfilePhotoPage } from "@/pages/profile-photo";
 import { SearchPage } from "@/pages/search";
 import { PaperDetailPage } from "@/pages/paper-detail";
-import { PaperDetailTestPage } from "@/pages/paper-detail-test";
 
 function App() {
   return (
@@ -33,10 +32,6 @@ function App() {
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/search" element={<SearchPage />} />
             <Route path="/papers/:paperId" element={<PaperDetailPage />} />
-            <Route
-              path="/paper-detail-test"
-              element={<PaperDetailTestPage />}
-            />
           </Routes>
         </BrowserRouter>
       </ToastProvider>
