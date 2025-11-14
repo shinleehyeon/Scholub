@@ -12,7 +12,6 @@ export default function ProfilePage() {
   const [reactionPapers, setReactionPapers] = useState<
     Array<{
       id: string;
-      id: string;
       title: string;
       description: string;
       category: string;
@@ -24,7 +23,6 @@ export default function ProfilePage() {
   >([]);
   const [commentPapers, setCommentPapers] = useState<
     Array<{
-      id: string;
       id: string;
       title: string;
       description: string;
@@ -74,7 +72,6 @@ export default function ProfilePage() {
 
           return {
             id: paper.id,
-            id: paper.id,
             title: paper.title,
             description,
             category,
@@ -111,7 +108,6 @@ export default function ProfilePage() {
           const description = paper.description || paper.summary || "";
 
           return {
-            id: paper.id,
             id: paper.id,
             title: paper.title,
             description,
@@ -335,7 +331,7 @@ export default function ProfilePage() {
                   lineHeight: "140%",
                 }}
               >
-                댓글
+                토론 참여
               </Typography.Subtext>
               <Typography.Headline color="default">
                 {commentPapers.length}개

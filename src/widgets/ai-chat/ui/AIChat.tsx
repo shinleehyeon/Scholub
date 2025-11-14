@@ -257,7 +257,7 @@ export default function AIChat({
         borderLeft: "1px solid var(--color-border-default)",
         background: "var(--color-surface-subtle)",
         boxShadow: "0 2px 4px 0 rgba(0, 0, 0, 0.05)",
-        zIndex: 1000,
+        zIndex: 50,
       }}
     >
       <div
@@ -435,10 +435,10 @@ export default function AIChat({
                   style={{
                     color: "#FFFFFF",
                     fontFamily: "Pretendard",
-                    fontSize: "15px",
+                    fontSize: "14px",
                     fontStyle: "normal",
                     fontWeight: 400,
-                    lineHeight: "20px",
+                    lineHeight: "19px",
                     whiteSpace: "pre-wrap",
                     wordBreak: "break-word",
                   }}
@@ -449,9 +449,9 @@ export default function AIChat({
                         <p
                           style={{
                             margin: "0 0 4px 0",
-                            lineHeight: "20px",
+                            lineHeight: "19px",
                             color: "#FFFFFF",
-                            fontSize: "15px",
+                            fontSize: "14px",
                           }}
                         >
                           {children}
@@ -460,10 +460,10 @@ export default function AIChat({
                       h1: ({ children }) => (
                         <h1
                           style={{
-                            fontSize: "20px",
+                            fontSize: "18px",
                             fontWeight: 600,
                             margin: "8px 0 4px 0",
-                            lineHeight: "24px",
+                            lineHeight: "22px",
                             color: "#FFFFFF",
                           }}
                         >
@@ -473,10 +473,10 @@ export default function AIChat({
                       h2: ({ children }) => (
                         <h2
                           style={{
-                            fontSize: "18px",
+                            fontSize: "16px",
                             fontWeight: 600,
                             margin: "8px 0 3px 0",
-                            lineHeight: "22px",
+                            lineHeight: "20px",
                             color: "#FFFFFF",
                           }}
                         >
@@ -486,10 +486,10 @@ export default function AIChat({
                       h3: ({ children }) => (
                         <h3
                           style={{
-                            fontSize: "17px",
+                            fontSize: "15px",
                             fontWeight: 600,
                             margin: "8px 0 3px 0",
-                            lineHeight: "21px",
+                            lineHeight: "19px",
                             color: "#FFFFFF",
                           }}
                         >
@@ -499,10 +499,10 @@ export default function AIChat({
                       h4: ({ children }) => (
                         <h4
                           style={{
-                            fontSize: "16px",
+                            fontSize: "14px",
                             fontWeight: 600,
                             margin: "6px 0 2px 0",
-                            lineHeight: "20px",
+                            lineHeight: "18px",
                             color: "#FFFFFF",
                           }}
                         >
@@ -535,10 +535,10 @@ export default function AIChat({
                         <li
                           style={{
                             margin: "0 0 2px 0",
-                            lineHeight: "20px",
+                            lineHeight: "19px",
                             paddingLeft: "4px",
                             color: "#FFFFFF",
-                            fontSize: "15px",
+                            fontSize: "14px",
                           }}
                         >
                           {children}

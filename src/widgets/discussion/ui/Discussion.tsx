@@ -819,7 +819,7 @@ export default function Discussion({
         borderLeft: "1px solid var(--color-border-default)",
         background: "var(--color-surface-default)",
         boxShadow: "0 2px 4px 0 rgba(0, 0, 0, 0.05)",
-        zIndex: 1000,
+        zIndex: 999,
       }}
     >
       <div
@@ -1187,7 +1187,7 @@ export default function Discussion({
             border: "1px solid var(--color-border-default, #EDEDED)",
             borderRadius: "var(--radius-8)",
             boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
-            zIndex: 2000,
+            zIndex: 50,
             minWidth: "120px",
           }}
           onClick={(e) => e.stopPropagation()}

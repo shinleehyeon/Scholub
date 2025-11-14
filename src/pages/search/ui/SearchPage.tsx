@@ -160,10 +160,6 @@ export default function SearchPage() {
             flexShrink: 0,
           }}
         >
-          {console.log(
-            "[SearchPage] AIAnswerSection 렌더링 전, searchQuery:",
-            searchQuery
-          )}
           <AIAnswerSection searchQuery={searchQuery} />
         </div>
       </div>

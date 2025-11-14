@@ -231,7 +231,7 @@ export default function NotificationPopover({
         borderRadius: "var(--radius-16)",
         border: "1px solid var(--color-border-default)",
         boxShadow: "0px 4px 16px rgba(0, 0, 0, 0.1)",
-        zIndex: 1000,
+        zIndex: 10001,
         overflow: "hidden",
       }}
     >
