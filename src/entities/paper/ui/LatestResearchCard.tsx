@@ -158,7 +158,7 @@ export default function LatestResearchCard({
         }}
       >
         <Typography.Subtext color="brand" className="mb-[var(--spacing-4)]">
-          {category.split(" > ")[0]}
+          {category.split(" > ").slice(0, 3).join(" > ")}
         </Typography.Subtext>
 
         <Typography.BodyLarge color="default" className="mb-[var(--spacing-4)]">

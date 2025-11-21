@@ -70,7 +70,7 @@ export default function PopularPaperCard({
         </Typography.Subtext>
 
         <Typography.Subtext color="brand">
-          {category.split(" > ")[0]}
+          {category.split(" > ").slice(0, 3).join(" > ")}
         </Typography.Subtext>
       </div>
     </div>
