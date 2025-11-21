@@ -69,7 +69,9 @@ export default function PopularPaperCard({
           {subtitle}
         </Typography.Subtext>
 
-        <Typography.Subtext color="brand">{category}</Typography.Subtext>
+        <Typography.Subtext color="brand">
+          {category.split(" > ")[0]}
+        </Typography.Subtext>
       </div>
     </div>
   );

@@ -7,7 +7,11 @@ import LatestResearchCard from "@/entities/paper/ui/LatestResearchCard";
 import ChevronLeft from "@/shared/ui/icons/ChevronLeft";
 import ChevronRight from "@/shared/ui/icons/ChevronRight";
 import Sparkles from "@/shared/ui/icons/Sparkles";
-import { Typography, PopularPaperCardSkeleton, PaperCardSkeleton } from "@/shared/ui";
+import {
+  Typography,
+  PopularPaperCardSkeleton,
+  PaperCardSkeleton,
+} from "@/shared/ui";
 import { useAIChat } from "@/shared/lib/ai-chat-context";
 import { papersApi } from "@/shared/api/papers";
 import { authStorage } from "@/shared/lib/auth";
@@ -34,7 +38,9 @@ export default function Home() {
   const [displayedLatestCount, setDisplayedLatestCount] = useState(7);
   const [displayedRecommendedCount, setDisplayedRecommendedCount] = useState(7);
   const { isAIChatOpen } = useAIChat();
-  const [selectedPaperType, setSelectedPaperType] = useState<"latest" | "recommended">("latest");
+  const [selectedPaperType, setSelectedPaperType] = useState<
+    "latest" | "recommended"
+  >("latest");
 
   useEffect(() => {
     const fetchHeadlines = async () => {
@@ -581,19 +587,21 @@ export default function Home() {
                     </>
                   ) : latestPapers.length > 0 ? (
                     <>
-                      {latestPapers.slice(0, displayedLatestCount).map((paper) => (
-                        <LatestResearchCard
-                          key={paper.id}
-                          id={paper.id}
-                          imageUrl={paper.imageUrl}
-                          category={paper.category}
-                          title={paper.title}
-                          description={paper.description}
-                          likes={paper.likes}
-                          comments={paper.comments}
-                          isLiked={paper.isLiked}
-                        />
-                      ))}
+                      {latestPapers
+                        .slice(0, displayedLatestCount)
+                        .map((paper) => (
+                          <LatestResearchCard
+                            key={paper.id}
+                            id={paper.id}
+                            imageUrl={paper.imageUrl}
+                            category={paper.category}
+                            title={paper.title}
+                            description={paper.description}
+                            likes={paper.likes}
+                            comments={paper.comments}
+                            isLiked={paper.isLiked}
+                          />
+                        ))}
                       {latestPapers.length > displayedLatestCount && (
                         <button
                           onClick={() =>
@@ -638,7 +646,10 @@ export default function Home() {
                         gap: "var(--spacing-16)",
                       }}
                     >
-                      <Typography.BodyLarge color="subtle" className="text-center">
+                      <Typography.BodyLarge
+                        color="subtle"
+                        className="text-center"
+                      >
                         추천 논문을 확인하려면 로그인이 필요합니다.
                       </Typography.BodyLarge>
                       <Link
@@ -647,7 +658,10 @@ export default function Home() {
                           textDecoration: "none",
                         }}
                       >
-                        <Typography.BodyLarge color="brand" className="text-center">
+                        <Typography.BodyLarge
+                          color="brand"
+                          className="text-center"
+                        >
                           로그인하러 가기 →
                         </Typography.BodyLarge>
                       </Link>
@@ -769,7 +783,9 @@ export default function Home() {
                   ))}
                   {latestPapers.length > displayedLatestCount && (
                     <button
-                      onClick={() => setDisplayedLatestCount((prev) => prev + 7)}
+                      onClick={() =>
+                        setDisplayedLatestCount((prev) => prev + 7)
+                      }
                       style={{
                         display: "flex",
                         padding: "var(--spacing-12) var(--spacing-24)",
