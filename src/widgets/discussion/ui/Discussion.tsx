@@ -3,9 +3,12 @@ import MessageBubble from "@/shared/ui/icons/MessageBubble";
 import X from "@/shared/ui/icons/X";
 import Send from "@/shared/ui/icons/Send";
 import Avatar from "@/shared/ui/Avatar";
+import { Modal } from "@/shared/ui/Modal";
 import type { DiscussionMessage } from "@/shared/api/papers";
 import { papersApi } from "@/shared/api/papers";
 import { profileApi, type UserProfile } from "@/shared/api/profile";
+import { profanityFilter } from "@/shared/lib/profanity-filter";
+import { useDiscussion } from "@/shared/lib/discussion-context";
 
 interface DiscussionProps {
   discussionId?: string;
@@ -41,6 +44,8 @@ export default function Discussion({
   } | null>(null);
   const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
   const [editingContent, setEditingContent] = useState("");
+  const [isProfanityModalOpen, setIsProfanityModalOpen] = useState(false);
+  const { discussionMessage, setDiscussionMessage } = useDiscussion();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const editTextareaRef = useRef<HTMLTextAreaElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
@@ -82,6 +87,19 @@ export default function Discussion({
 
     fetchCurrentUser();
   }, []);
+
+  // AI 답변 인용 메시지 처리
+  useEffect(() => {
+    if (discussionMessage) {
+      setMessage(discussionMessage);
+      setDiscussionMessage("");
+      // textarea 높이 조정
+      if (textareaRef.current) {
+        textareaRef.current.style.height = "auto";
+        textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 120)}px`;
+      }
+    }
+  }, [discussionMessage, setDiscussionMessage]);
 
   // 메시지 초기 로드 및 폴링 (웹소켓처럼 새 메시지만 추가)
   useEffect(() => {
@@ -661,6 +679,12 @@ export default function Discussion({
     }
 
     const messageContent = message.trim();
+
+    // 욕설 감지
+    if (profanityFilter.isProfane(messageContent)) {
+      setIsProfanityModalOpen(true);
+      return;
+    }
     const optimisticId = `temp-${Date.now()}`;
     const timestamp = Date.now();
     setSending(true); // 폴링 일시 중단
@@ -1361,6 +1385,36 @@ export default function Discussion({
           </button>
         </div>
       </div>
+
+      {/* 욕설 감지 모달 */}
+      <Modal
+        isOpen={isProfanityModalOpen}
+        onClose={() => setIsProfanityModalOpen(false)}
+        title="부적절한 언어 감지"
+      >
+        <p style={{ marginBottom: "var(--spacing-16)" }}>
+          메시지에 부적절한 언어가 포함되어 있습니다. 건전한 토론 문화를 위해
+          다른 표현을 사용해 주세요.
+        </p>
+        <button
+          type="button"
+          onClick={() => setIsProfanityModalOpen(false)}
+          style={{
+            width: "100%",
+            padding: "var(--spacing-10) var(--spacing-16)",
+            borderRadius: "var(--radius-8)",
+            border: "none",
+            background: "var(--color-surface-brand-default, #F7971D)",
+            color: "var(--color-text-white, #FFF)",
+            fontFamily: "Pretendard",
+            fontSize: "14px",
+            fontWeight: 500,
+            cursor: "pointer",
+          }}
+        >
+          확인
+        </button>
+      </Modal>
     </div>
   );
 }

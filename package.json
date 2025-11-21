@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "ai": "^5.0.92",
+    "badwords-ko": "^1.0.4",
     "lucide-react": "^0.545.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",

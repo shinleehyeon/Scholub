@@ -25,6 +25,10 @@ import { useLanguage } from "@/shared/lib/language";
 import { useToast } from "@/shared/ui/Toast";
 import PopularPaperCard from "@/entities/paper/ui/PopularPaperCard";
 import ReactMarkdown from "react-markdown";
+import {
+  DiscussionProvider,
+  useDiscussion,
+} from "@/shared/lib/discussion-context";
 
 interface TableOfContentsItem {
   label: string;
@@ -132,11 +136,12 @@ interface PaperContent {
   }>;
 }
 
-export default function PaperDetailPage() {
+function PaperDetailPageContent() {
   const { paperId: id } = useParams<{ paperId: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
   const { language, setLanguage } = useLanguage();
   const { showToast } = useToast();
+  const { openDiscussion, closeDiscussion } = useDiscussion();
   const [paper, setPaper] = useState<Paper | null>(null);
   const [loading, setLoading] = useState(true);
   const contentRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -2351,6 +2356,55 @@ export default function PaperDetailPage() {
             <MessageBubble size={14} color="var(--color-text-subtle)" />
             채팅으로 전송
           </div>
+          <div
+            style={{
+              width: "1px",
+              height: "16px",
+              background: "var(--color-border-default)",
+            }}
+          />
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "var(--spacing-4)",
+              color: "var(--color-text-subtle)",
+              fontFamily: "Pretendard",
+              fontSize: "14px",
+              fontStyle: "normal",
+              fontWeight: 500,
+              lineHeight: "20px",
+              cursor: "pointer",
+            }}
+            onClick={(e) => {
+              e.stopPropagation();
+              openDiscussion(selectedText);
+              // 토론 섹션으로 스크롤
+              if (discussionSectionRef.current) {
+                discussionSectionRef.current.scrollIntoView({
+                  behavior: "smooth",
+                  block: "start",
+                });
+              }
+              // 첫 번째 토론이 있으면 열기, 없으면 새 토론 생성 모달 열기
+              if (discussions.length > 0) {
+                setSelectedDiscussion({
+                  id: discussions[0].id,
+                  title: discussions[0].title,
+                  messageCount: discussions[0].messageCount,
+                });
+                setShowDiscussion(true);
+              } else {
+                setShowDiscussionModal(true);
+                setDiscussionContent(selectedText);
+              }
+              setPopupPosition(null);
+              setSelectedText("");
+            }}
+          >
+            <MessageBubble size={14} color="var(--color-text-subtle)" />
+            인용하기
+          </div>
         </div>
       )}
 
@@ -2364,6 +2418,29 @@ export default function PaperDetailPage() {
           paperTitle={paper.title}
           id={paper.id}
           paperUrl={paper.pdfUrl || paper.url}
+          onQuote={(content) => {
+            openDiscussion(content);
+            // 토론 섹션으로 스크롤
+            if (discussionSectionRef.current) {
+              discussionSectionRef.current.scrollIntoView({
+                behavior: "smooth",
+                block: "start",
+              });
+            }
+            // 첫 번째 토론이 있으면 열기, 없으면 새 토론 생성 모달 열기
+            if (discussions.length > 0) {
+              setSelectedDiscussion({
+                id: discussions[0].id,
+                title: discussions[0].title,
+                messageCount: discussions[0].messageCount,
+              });
+              setShowDiscussion(true);
+            } else {
+              setShowDiscussionModal(true);
+            }
+            setShowAIChat(false);
+            setSelectedTextForChat("");
+          }}
         />
       )}
 
@@ -2375,6 +2452,7 @@ export default function PaperDetailPage() {
           onClose={() => {
             setShowDiscussion(false);
             setSelectedDiscussion(null);
+            closeDiscussion();
           }}
         />
       )}
@@ -2638,5 +2716,13 @@ export default function PaperDetailPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function PaperDetailPage() {
+  return (
+    <DiscussionProvider>
+      <PaperDetailPageContent />
+    </DiscussionProvider>
   );
 }

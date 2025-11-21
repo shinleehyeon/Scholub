@@ -9,11 +9,13 @@ import { papersApi } from "@/shared/api/papers";
 interface AIAnswerSectionProps {
   className?: string;
   searchQuery?: string;
+  onQuote?: (content: string) => void;
 }
 
 export default function AIAnswerSection({
   className,
   searchQuery,
+  onQuote,
 }: AIAnswerSectionProps) {
   console.log("[AIAnswerSection] 컴포넌트 렌더링됨, searchQuery:", searchQuery);
 
@@ -655,18 +657,40 @@ export default function AIAnswerSection({
       </div>
 
       {aiAnswer && (
-        <Button
-          variant="secondary"
-          size="medium"
-          leadingIcon={<MessageBubble color="var(--color-text-subtle)" />}
-          onClick={() => {}}
+        <div
           style={{
+            display: "flex",
+            gap: "var(--spacing-8)",
             marginTop: "var(--spacing-8)",
             flexShrink: 0,
+            width: "100%",
           }}
         >
-          AI 탭으로 이동
-        </Button>
+          {onQuote && (
+            <Button
+              variant="secondary"
+              size="medium"
+              leadingIcon={<MessageBubble color="var(--color-text-subtle)" />}
+              onClick={() => onQuote(aiAnswer)}
+              style={{
+                flex: 1,
+              }}
+            >
+              인용하기
+            </Button>
+          )}
+          <Button
+            variant="secondary"
+            size="medium"
+            leadingIcon={<MessageBubble color="var(--color-text-subtle)" />}
+            onClick={() => {}}
+            style={{
+              flex: onQuote ? 1 : "none",
+            }}
+          >
+            AI 탭으로 이동
+          </Button>
+        </div>
       )}
     </div>
   );

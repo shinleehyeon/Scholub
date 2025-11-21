@@ -6,6 +6,7 @@ import Close from "@/shared/ui/icons/Close";
 import Send from "@/shared/ui/icons/Send";
 import X from "@/shared/ui/icons/X";
 import ExternalLink from "@/shared/ui/icons/ExternalLink";
+import MessageBubble from "@/shared/ui/icons/MessageBubble";
 import { papersApi } from "@/shared/api/papers";
 import { profileApi } from "@/shared/api/profile";
 
@@ -15,6 +16,7 @@ interface AIChatProps {
   paperTitle?: string;
   id?: string;
   paperUrl?: string;
+  onQuote?: (content: string) => void;
 }
 
 export default function AIChat({
@@ -23,6 +25,7 @@ export default function AIChat({
   paperTitle,
   id,
   paperUrl,
+  onQuote,
 }: AIChatProps) {
   const [message, setMessage] = useState("");
   const [contextText, setContextText] = useState<string>("");
@@ -489,264 +492,295 @@ export default function AIChat({
                   {msg.text}
                 </div>
               ) : (
-                <div
-                  style={{
-                    color: "#FFFFFF",
-                    fontFamily: "Pretendard",
-                    fontSize: "14px",
-                    fontStyle: "normal",
-                    fontWeight: 400,
-                    lineHeight: "19px",
-                    whiteSpace: "pre-wrap",
-                    wordBreak: "break-word",
-                  }}
-                >
-                  <ReactMarkdown
-                    remarkPlugins={[remarkGfm]}
-                    components={{
-                      p: ({ children }) => (
-                        <p
-                          style={{
-                            margin: "0 0 4px 0",
-                            lineHeight: "19px",
-                            color: "#FFFFFF",
-                            fontSize: "14px",
-                          }}
-                        >
-                          {children}
-                        </p>
-                      ),
-                      h1: ({ children }) => (
-                        <h1
-                          style={{
-                            fontSize: "18px",
-                            fontWeight: 600,
-                            margin: "8px 0 4px 0",
-                            lineHeight: "22px",
-                            color: "#FFFFFF",
-                          }}
-                        >
-                          {children}
-                        </h1>
-                      ),
-                      h2: ({ children }) => (
-                        <h2
-                          style={{
-                            fontSize: "16px",
-                            fontWeight: 600,
-                            margin: "8px 0 3px 0",
-                            lineHeight: "20px",
-                            color: "#FFFFFF",
-                          }}
-                        >
-                          {children}
-                        </h2>
-                      ),
-                      h3: ({ children }) => (
-                        <h3
-                          style={{
-                            fontSize: "15px",
-                            fontWeight: 600,
-                            margin: "8px 0 3px 0",
-                            lineHeight: "19px",
-                            color: "#FFFFFF",
-                          }}
-                        >
-                          {children}
-                        </h3>
-                      ),
-                      h4: ({ children }) => (
-                        <h4
-                          style={{
-                            fontSize: "14px",
-                            fontWeight: 600,
-                            margin: "6px 0 2px 0",
-                            lineHeight: "18px",
-                            color: "#FFFFFF",
-                          }}
-                        >
-                          {children}
-                        </h4>
-                      ),
-                      ul: ({ children }) => (
-                        <ul
-                          style={{
-                            margin: "2px 0",
-                            paddingLeft: "24px",
-                            listStyleType: "disc",
-                          }}
-                        >
-                          {children}
-                        </ul>
-                      ),
-                      ol: ({ children }) => (
-                        <ol
-                          style={{
-                            margin: "2px 0",
-                            paddingLeft: "24px",
-                            listStyleType: "decimal",
-                          }}
-                        >
-                          {children}
-                        </ol>
-                      ),
-                      li: ({ children }) => (
-                        <li
-                          style={{
-                            margin: "0 0 2px 0",
-                            lineHeight: "19px",
-                            paddingLeft: "4px",
-                            color: "#FFFFFF",
-                            fontSize: "14px",
-                          }}
-                        >
-                          {children}
-                        </li>
-                      ),
-                      code: ({ children }) => (
-                        <code
-                          style={{
-                            background: "var(--color-surface-subtle)",
-                            padding: "2px 6px",
-                            borderRadius: "4px",
-                            fontSize: "13px",
-                            fontFamily: "monospace",
-                            color: "var(--color-text-default)",
-                          }}
-                        >
-                          {children}
-                        </code>
-                      ),
-                      pre: ({ children }) => (
-                        <pre
-                          style={{
-                            background: "var(--color-surface-subtle)",
-                            padding: "12px",
-                            borderRadius: "8px",
-                            overflow: "auto",
-                            margin: "8px 0",
-                            fontSize: "13px",
-                            fontFamily: "monospace",
-                            lineHeight: "20px",
-                            color: "var(--color-text-default)",
-                          }}
-                        >
-                          {children}
-                        </pre>
-                      ),
-                      a: ({ href, children }) => (
-                        <a
-                          href={href}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          style={{
-                            color: "#FFFFFF",
-                            textDecoration: "underline",
-                            textUnderlineOffset: "2px",
-                            opacity: 0.9,
-                          }}
-                        >
-                          {children}
-                        </a>
-                      ),
-                      blockquote: ({ children }) => (
-                        <blockquote
-                          style={{
-                            borderLeft: "3px solid rgba(255, 255, 255, 0.3)",
-                            paddingLeft: "12px",
-                            margin: "8px 0",
-                            fontStyle: "italic",
-                            color: "#FFFFFF",
-                          }}
-                        >
-                          {children}
-                        </blockquote>
-                      ),
-                      hr: () => (
-                        <hr
-                          style={{
-                            border: "none",
-                            borderTop: "1px solid var(--color-border-default)",
-                            margin: "16px 0",
-                          }}
-                        />
-                      ),
-                      strong: ({ children }) => (
-                        <strong style={{ fontWeight: 600 }}>{children}</strong>
-                      ),
-                      em: ({ children }) => (
-                        <em style={{ fontStyle: "italic" }}>{children}</em>
-                      ),
-                      table: ({ children }) => (
-                        <div
-                          style={{
-                            overflowX: "auto",
-                            margin: "12px 0",
-                          }}
-                        >
-                          <table
+                <>
+                  <div
+                    style={{
+                      color: "#FFFFFF",
+                      fontFamily: "Pretendard",
+                      fontSize: "14px",
+                      fontStyle: "normal",
+                      fontWeight: 400,
+                      lineHeight: "19px",
+                      whiteSpace: "pre-wrap",
+                      wordBreak: "break-word",
+                    }}
+                  >
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      components={{
+                        p: ({ children }) => (
+                          <p
                             style={{
-                              width: "100%",
-                              borderCollapse: "collapse",
-                              border: "1px solid rgba(255, 255, 255, 0.4)",
+                              margin: "0 0 4px 0",
+                              lineHeight: "19px",
+                              color: "#FFFFFF",
+                              fontSize: "14px",
                             }}
                           >
                             {children}
-                          </table>
-                        </div>
-                      ),
-                      thead: ({ children }) => (
-                        <thead
-                          style={{
-                            background: "rgba(255, 255, 255, 0.15)",
-                          }}
-                        >
-                          {children}
-                        </thead>
-                      ),
-                      tbody: ({ children }) => <tbody>{children}</tbody>,
-                      tr: ({ children }) => (
-                        <tr
-                          style={{
-                            borderBottom: "1px solid rgba(255, 255, 255, 0.3)",
-                          }}
-                        >
-                          {children}
-                        </tr>
-                      ),
-                      th: ({ children }) => (
-                        <th
-                          style={{
-                            padding: "10px 14px",
-                            textAlign: "left",
-                            fontWeight: 600,
-                            fontSize: "14px",
-                            color: "#FFFFFF",
-                            border: "1px solid rgba(255, 255, 255, 0.4)",
-                            background: "rgba(255, 255, 255, 0.1)",
-                          }}
-                        >
-                          {children}
-                        </th>
-                      ),
-                      td: ({ children }) => (
-                        <td
-                          style={{
-                            padding: "10px 14px",
-                            fontSize: "14px",
-                            color: "#FFFFFF",
-                            border: "1px solid rgba(255, 255, 255, 0.3)",
-                            lineHeight: "20px",
-                          }}
-                        >
-                          {children}
-                        </td>
-                      ),
-                    }}
-                  >
-                    {msg.text}
-                  </ReactMarkdown>
-                </div>
+                          </p>
+                        ),
+                        h1: ({ children }) => (
+                          <h1
+                            style={{
+                              fontSize: "18px",
+                              fontWeight: 600,
+                              margin: "8px 0 4px 0",
+                              lineHeight: "22px",
+                              color: "#FFFFFF",
+                            }}
+                          >
+                            {children}
+                          </h1>
+                        ),
+                        h2: ({ children }) => (
+                          <h2
+                            style={{
+                              fontSize: "16px",
+                              fontWeight: 600,
+                              margin: "8px 0 3px 0",
+                              lineHeight: "20px",
+                              color: "#FFFFFF",
+                            }}
+                          >
+                            {children}
+                          </h2>
+                        ),
+                        h3: ({ children }) => (
+                          <h3
+                            style={{
+                              fontSize: "15px",
+                              fontWeight: 600,
+                              margin: "8px 0 3px 0",
+                              lineHeight: "19px",
+                              color: "#FFFFFF",
+                            }}
+                          >
+                            {children}
+                          </h3>
+                        ),
+                        h4: ({ children }) => (
+                          <h4
+                            style={{
+                              fontSize: "14px",
+                              fontWeight: 600,
+                              margin: "6px 0 2px 0",
+                              lineHeight: "18px",
+                              color: "#FFFFFF",
+                            }}
+                          >
+                            {children}
+                          </h4>
+                        ),
+                        ul: ({ children }) => (
+                          <ul
+                            style={{
+                              margin: "2px 0",
+                              paddingLeft: "24px",
+                              listStyleType: "disc",
+                            }}
+                          >
+                            {children}
+                          </ul>
+                        ),
+                        ol: ({ children }) => (
+                          <ol
+                            style={{
+                              margin: "2px 0",
+                              paddingLeft: "24px",
+                              listStyleType: "decimal",
+                            }}
+                          >
+                            {children}
+                          </ol>
+                        ),
+                        li: ({ children }) => (
+                          <li
+                            style={{
+                              margin: "0 0 2px 0",
+                              lineHeight: "19px",
+                              paddingLeft: "4px",
+                              color: "#FFFFFF",
+                              fontSize: "14px",
+                            }}
+                          >
+                            {children}
+                          </li>
+                        ),
+                        code: ({ children }) => (
+                          <code
+                            style={{
+                              background: "var(--color-surface-subtle)",
+                              padding: "2px 6px",
+                              borderRadius: "4px",
+                              fontSize: "13px",
+                              fontFamily: "monospace",
+                              color: "var(--color-text-default)",
+                            }}
+                          >
+                            {children}
+                          </code>
+                        ),
+                        pre: ({ children }) => (
+                          <pre
+                            style={{
+                              background: "var(--color-surface-subtle)",
+                              padding: "12px",
+                              borderRadius: "8px",
+                              overflow: "auto",
+                              margin: "8px 0",
+                              fontSize: "13px",
+                              fontFamily: "monospace",
+                              lineHeight: "20px",
+                              color: "var(--color-text-default)",
+                            }}
+                          >
+                            {children}
+                          </pre>
+                        ),
+                        a: ({ href, children }) => (
+                          <a
+                            href={href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                              color: "#FFFFFF",
+                              textDecoration: "underline",
+                              textUnderlineOffset: "2px",
+                              opacity: 0.9,
+                            }}
+                          >
+                            {children}
+                          </a>
+                        ),
+                        blockquote: ({ children }) => (
+                          <blockquote
+                            style={{
+                              borderLeft: "3px solid rgba(255, 255, 255, 0.3)",
+                              paddingLeft: "12px",
+                              margin: "8px 0",
+                              fontStyle: "italic",
+                              color: "#FFFFFF",
+                            }}
+                          >
+                            {children}
+                          </blockquote>
+                        ),
+                        hr: () => (
+                          <hr
+                            style={{
+                              border: "none",
+                              borderTop:
+                                "1px solid var(--color-border-default)",
+                              margin: "16px 0",
+                            }}
+                          />
+                        ),
+                        strong: ({ children }) => (
+                          <strong style={{ fontWeight: 600 }}>
+                            {children}
+                          </strong>
+                        ),
+                        em: ({ children }) => (
+                          <em style={{ fontStyle: "italic" }}>{children}</em>
+                        ),
+                        table: ({ children }) => (
+                          <div
+                            style={{
+                              overflowX: "auto",
+                              margin: "12px 0",
+                            }}
+                          >
+                            <table
+                              style={{
+                                width: "100%",
+                                borderCollapse: "collapse",
+                                border: "1px solid rgba(255, 255, 255, 0.4)",
+                              }}
+                            >
+                              {children}
+                            </table>
+                          </div>
+                        ),
+                        thead: ({ children }) => (
+                          <thead
+                            style={{
+                              background: "rgba(255, 255, 255, 0.15)",
+                            }}
+                          >
+                            {children}
+                          </thead>
+                        ),
+                        tbody: ({ children }) => <tbody>{children}</tbody>,
+                        tr: ({ children }) => (
+                          <tr
+                            style={{
+                              borderBottom:
+                                "1px solid rgba(255, 255, 255, 0.3)",
+                            }}
+                          >
+                            {children}
+                          </tr>
+                        ),
+                        th: ({ children }) => (
+                          <th
+                            style={{
+                              padding: "10px 14px",
+                              textAlign: "left",
+                              fontWeight: 600,
+                              fontSize: "14px",
+                              color: "#FFFFFF",
+                              border: "1px solid rgba(255, 255, 255, 0.4)",
+                              background: "rgba(255, 255, 255, 0.1)",
+                            }}
+                          >
+                            {children}
+                          </th>
+                        ),
+                        td: ({ children }) => (
+                          <td
+                            style={{
+                              padding: "10px 14px",
+                              fontSize: "14px",
+                              color: "#FFFFFF",
+                              border: "1px solid rgba(255, 255, 255, 0.3)",
+                              lineHeight: "20px",
+                            }}
+                          >
+                            {children}
+                          </td>
+                        ),
+                      }}
+                    >
+                      {msg.text}
+                    </ReactMarkdown>
+                  </div>
+                  {onQuote && (
+                    <button
+                      type="button"
+                      onClick={() => onQuote(msg.text)}
+                      style={{
+                        display: "flex",
+                        padding: "var(--spacing-6) var(--spacing-10)",
+                        alignItems: "center",
+                        gap: "var(--spacing-4)",
+                        borderRadius: "var(--radius-8)",
+                        border: "1px solid rgba(255, 255, 255, 0.3)",
+                        background: "rgba(255, 255, 255, 0.1)",
+                        color: "#FFFFFF",
+                        fontFamily: "Pretendard",
+                        fontSize: "12px",
+                        fontWeight: 500,
+                        cursor: "pointer",
+                        alignSelf: "flex-end",
+                        marginTop: "var(--spacing-8)",
+                      }}
+                    >
+                      <MessageBubble size={14} color="#FFFFFF" />
+                      인용하기
+                    </button>
+                  )}
+                </>
               )}
               {msg.citations && msg.citations.length > 0 && (
                 <div
