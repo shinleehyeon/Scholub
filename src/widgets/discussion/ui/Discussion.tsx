@@ -45,6 +45,8 @@ export default function Discussion({
   const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
   const [editingContent, setEditingContent] = useState("");
   const [isProfanityModalOpen, setIsProfanityModalOpen] = useState(false);
+  const [quotedText, setQuotedText] = useState<string>("");
+  const [isHoveringQuotedText, setIsHoveringQuotedText] = useState(false);
   const { discussionMessage, setDiscussionMessage } = useDiscussion();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const editTextareaRef = useRef<HTMLTextAreaElement>(null);
@@ -91,7 +93,7 @@ export default function Discussion({
   // AI 답변 인용 메시지 처리
   useEffect(() => {
     if (discussionMessage) {
-      setMessage(discussionMessage);
+      setQuotedText(discussionMessage);
       setDiscussionMessage("");
       // textarea 높이 조정
       if (textareaRef.current) {
@@ -674,17 +676,22 @@ export default function Discussion({
 
   // 메시지 전송 함수 (낙관적 업데이트)
   const handleSendMessage = async () => {
-    if (!message.trim() || !discussionId || sending || !currentUser) {
+    // quotedText가 있으면 메시지 앞에 추가
+    const fullMessage = quotedText
+      ? `${quotedText}\n${message}`.trim()
+      : message.trim();
+
+    if (!fullMessage || !discussionId || sending || !currentUser) {
       return;
     }
 
-    const messageContent = message.trim();
-
     // 욕설 감지
-    if (profanityFilter.isProfane(messageContent)) {
+    if (profanityFilter.isProfane(fullMessage)) {
       setIsProfanityModalOpen(true);
       return;
     }
+
+    const messageContent = fullMessage;
     const optimisticId = `temp-${Date.now()}`;
     const timestamp = Date.now();
     setSending(true); // 폴링 일시 중단
@@ -720,6 +727,7 @@ export default function Discussion({
 
     // 입력 필드 초기화
     setMessage("");
+    setQuotedText("");
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
     }
@@ -1162,35 +1170,116 @@ export default function Discussion({
                       <div
                         style={{
                           display: "flex",
+                          flexDirection: "column",
                           maxWidth: "315px",
-                          padding: "var(--spacing-10) var(--spacing-12)",
-                          justifyContent: "center",
-                          alignItems: "center",
-                          gap: "10px",
-                          borderRadius: "var(--radius-14)",
-                          background: isCurrentUser
-                            ? "var(--color-surface-brand-default, #F7971D)"
-                            : "var(--color-surface-default, #FFFFFF)",
-                          border: isCurrentUser
-                            ? "none"
-                            : "1px solid var(--color-border-default, #EDEDED)",
+                          gap: "var(--spacing-8)",
                         }}
                       >
-                        <div
-                          style={{
-                            color: isCurrentUser
-                              ? "var(--color-text-white, #FFF)"
-                              : "var(--color-text-default, #322F29)",
-                            fontFamily: "Pretendard",
-                            fontSize: "14px",
-                            fontStyle: "normal",
-                            fontWeight: 500,
-                            lineHeight: "20px",
-                            wordBreak: "break-word",
-                          }}
-                        >
-                          {msg.content}
-                        </div>
+                        {/* 인용 텍스트 파싱 */}
+                        {(() => {
+                          const content = msg.content;
+                          // 줄바꿈으로 인용 부분과 메시지 부분 분리
+                          const newlineIndex = content.indexOf("\n");
+                          // 줄바꿈이 있고, 인용 부분이 비어있지 않은 경우
+                          const hasQuote =
+                            newlineIndex >= 0 &&
+                            newlineIndex < content.length - 1;
+                          const quotedPart = hasQuote
+                            ? content.substring(0, newlineIndex).trim()
+                            : "";
+                          const messagePart = hasQuote
+                            ? content.substring(newlineIndex + 1).trim()
+                            : content;
+
+                          return (
+                            <>
+                              {hasQuote && quotedPart && (
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: "var(--spacing-6)",
+                                    padding:
+                                      "var(--spacing-8) var(--spacing-10)",
+                                    borderRadius: "var(--radius-8)",
+                                    background: "transparent",
+                                    border:
+                                      "1px solid var(--color-text-subtle, #7D7D7D)",
+                                  }}
+                                >
+                                  <div
+                                    style={{
+                                      color:
+                                        "var(--color-text-subtle, #7D7D7D)",
+                                      fontFamily: "Pretendard",
+                                      fontSize: "14px",
+                                      fontStyle: "normal",
+                                      fontWeight: 600,
+                                      lineHeight: "20px",
+                                      flexShrink: 0,
+                                    }}
+                                  >
+                                    @
+                                  </div>
+                                  <div
+                                    style={{
+                                      color:
+                                        "var(--color-text-subtle, #7D7D7D)",
+                                      fontFamily: "Pretendard",
+                                      fontSize: "12px",
+                                      fontStyle: "normal",
+                                      fontWeight: 500,
+                                      lineHeight: "18px",
+                                      wordBreak: "break-word",
+                                      overflow: "hidden",
+                                      textOverflow: "ellipsis",
+                                      display: "-webkit-box",
+                                      WebkitLineClamp: 2,
+                                      WebkitBoxOrient: "vertical",
+                                    }}
+                                  >
+                                    {quotedPart}
+                                  </div>
+                                </div>
+                              )}
+                              {messagePart && (
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    padding:
+                                      "var(--spacing-10) var(--spacing-12)",
+                                    justifyContent: "center",
+                                    alignItems: "center",
+                                    gap: "10px",
+                                    borderRadius: "var(--radius-14)",
+                                    background: isCurrentUser
+                                      ? "var(--color-surface-brand-default, #F7971D)"
+                                      : "var(--color-surface-default, #FFFFFF)",
+                                    border: isCurrentUser
+                                      ? "none"
+                                      : "1px solid var(--color-border-default, #EDEDED)",
+                                  }}
+                                >
+                                  <div
+                                    style={{
+                                      color: isCurrentUser
+                                        ? "var(--color-text-white, #FFF)"
+                                        : "var(--color-text-default, #322F29)",
+                                      fontFamily: "Pretendard",
+                                      fontSize: "14px",
+                                      fontStyle: "normal",
+                                      fontWeight: 500,
+                                      lineHeight: "20px",
+                                      wordBreak: "break-word",
+                                    }}
+                                  >
+                                    {messagePart}
+                                  </div>
+                                </div>
+                              )}
+                            </>
+                          );
+                        })()}
                       </div>
                     )}
                   </div>
@@ -1302,11 +1391,68 @@ export default function Discussion({
             background: "var(--color-surface-subtle, #F9F9F9)",
           }}
         >
+          {quotedText && (
+            <div
+              onMouseEnter={() => setIsHoveringQuotedText(true)}
+              onMouseLeave={() => setIsHoveringQuotedText(false)}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "var(--spacing-8)",
+                padding: "var(--spacing-8) var(--spacing-12)",
+                borderRadius: "var(--radius-8)",
+                background: "var(--color-surface-brand-subtle)",
+                width: "fit-content",
+                maxWidth: "100%",
+                cursor: "pointer",
+              }}
+              onClick={() => {
+                setQuotedText("");
+                setMessage("");
+              }}
+            >
+              {isHoveringQuotedText ? (
+                <X size={16} color="var(--color-brand-default)" />
+              ) : (
+                <div
+                  style={{
+                    color: "var(--color-brand-default)",
+                    fontFamily: "Pretendard",
+                    fontSize: "16px",
+                    fontStyle: "normal",
+                    fontWeight: 600,
+                    lineHeight: "20px",
+                    flexShrink: 0,
+                  }}
+                >
+                  @
+                </div>
+              )}
+              <div
+                style={{
+                  color: "var(--color-text-default)",
+                  fontFamily: "Pretendard",
+                  fontSize: "14px",
+                  fontStyle: "normal",
+                  fontWeight: 500,
+                  lineHeight: "20px",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                  maxWidth: "400px",
+                }}
+              >
+                {quotedText}
+              </div>
+            </div>
+          )}
           <textarea
             ref={textareaRef}
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-            placeholder="메시지를 입력하세요"
+            placeholder={
+              quotedText ? "메시지를 입력하세요" : "메시지를 입력하세요"
+            }
             rows={1}
             style={{
               width: "100%",
