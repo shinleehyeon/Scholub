@@ -1,0 +1,23 @@
+model Reaction {
+  id String @id @default(uuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  paperId String
+  paper   Paper  @relation(fields: [paperId], references: [id], onDelete: Cascade)
+
+  type ReactionType
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, paperId, type])
+  @@index([userId])
+  @@index([paperId])
+  @@index([type])
+}
+
+enum ReactionType {
+  LIKE
+  UNLIKE
+}

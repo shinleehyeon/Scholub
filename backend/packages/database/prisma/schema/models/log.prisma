@@ -1,0 +1,28 @@
+model Log {
+  id BigInt @id @default(autoincrement())
+
+  level      LogLevel
+  service    String   @db.VarChar(100)
+  message    String   @db.VarChar(500)
+  stackTrace String?  @db.Text
+  context    Json?    @db.JsonB
+  userId     String?  @db.VarChar(36)
+  requestId  String?  @db.VarChar(36)
+
+  createdAt DateTime @default(now()) @db.Timestamptz
+
+  @@index([createdAt(sort: Desc)])
+  @@index([level, createdAt(sort: Desc)])
+  @@index([service, createdAt(sort: Desc)])
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([requestId])
+  @@map("logs")
+}
+
+enum LogLevel {
+  INFO
+  WARN
+  ERROR
+  DEBUG
+  SUCCESS
+}

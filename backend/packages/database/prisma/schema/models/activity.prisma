@@ -1,0 +1,30 @@
+model UserActivity {
+  id String @id @default(uuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  paperId String?
+  paper   Paper?  @relation(fields: [paperId], references: [id], onDelete: Cascade)
+
+  type ActivityType
+
+  metadata Json?
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([paperId])
+  @@index([type])
+  @@index([createdAt])
+}
+
+enum ActivityType {
+  STAY_LONG_TIME
+  REACT_LIKE
+  REACT_UNLIKE
+  START_DISCUSSION
+  JOIN_DISCUSSION
+  CHAT_DISCUSSION
+  CHAT_MESSAGE
+}

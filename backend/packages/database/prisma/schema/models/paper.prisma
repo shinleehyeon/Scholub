@@ -1,0 +1,57 @@
+model Paper {
+  id String @id @default(uuid())
+
+  paperId String @unique
+
+  title      String
+  categories String[]
+  authors    String[]
+
+  summary           String
+  translatedSummary String?
+
+  content Json
+
+  hashtags           String[] @default([])
+  translatedHashtags String[] @default([])
+
+  doi    String  @unique
+  url    String?
+  pdfUrl String?
+
+  issuedAt DateTime?
+
+  likeCount   Int @default(0)
+  unlikeCount Int @default(0)
+
+  totalViewCount Int     @default(0)
+  thumbnailId    String? @unique
+
+  thumbnail Asset? @relation("PaperThumbnail", fields: [thumbnailId], references: [id])
+
+  pdfId String @unique
+  pdf   Asset  @relation("PaperPdf", fields: [pdfId], references: [id])
+
+  reactions Reaction[]
+
+  paperViews PaperView[]
+
+  discussions Discussion[]
+
+  relatedPapers PaperRelation[] @relation("SourcePaper")
+
+  relatingPapers PaperRelation[] @relation("RelatedPaper")
+
+  userRecommendations UserRecommendation[]
+
+  notifications Notification[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userActivities UserActivity[]
+
+  @@index([doi])
+  @@index([createdAt])
+  @@index([categories])
+}

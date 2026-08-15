@@ -1,0 +1,19 @@
+model Asset {
+  id String @id @default(uuid())
+
+  filename         String
+  originalFilename String
+  contentType      String
+  fileSize         BigInt
+  key              String @unique
+
+  paperPdf Paper? @relation("PaperPdf")
+
+  paperThumbnail Paper? @relation("PaperThumbnail")
+
+  userAvatar User? @relation("UserAvatar")
+
+  createdAt DateTime @default(now())
+
+  @@index([key])
+}

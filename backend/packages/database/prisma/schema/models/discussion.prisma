@@ -1,0 +1,49 @@
+model Discussion {
+  id String @id @default(uuid())
+
+  paperId String
+  paper   Paper  @relation(fields: [paperId], references: [id], onDelete: Cascade)
+
+  title String
+
+  content String @db.Text
+
+  creatorId String
+  creator   User   @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+
+  participantCount Int @default(0)
+
+  messageCount Int @default(0)
+
+  messages DiscussionMessage[]
+
+  notifications Notification[] @relation("DiscussionNotifications")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([paperId])
+  @@index([creatorId])
+  @@index([createdAt])
+}
+
+model DiscussionMessage {
+  id String @id @default(uuid())
+
+  discussionId String
+  discussion   Discussion @relation(fields: [discussionId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  content String @db.Text
+
+  isEdited Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([discussionId])
+  @@index([userId])
+  @@index([createdAt])
+}

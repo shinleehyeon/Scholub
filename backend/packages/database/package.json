@@ -1,0 +1,141 @@
+{
+	"name": "@scholub/database",
+	"version": "0.0.1",
+	"description": "NestJS Template Database Schema",
+	"scripts": {
+		"prepublishOnly": "pnpm run format && pnpm run generate",
+		"format": "prisma format",
+		"pregenerate": "rimraf client",
+		"generate": "prisma generate",
+		"migrate": "prisma migrate dev",
+		"migrate:prod": "prisma migrate deploy",
+		"migrate:reset": "prisma migrate reset",
+		"studio": "prisma studio",
+		"seed": "tsx prisma/seed.ts"
+	},
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/jwkwon0817/nestjs-template.git"
+	},
+	"author": {
+		"name": "Jeewon Kwon",
+		"email": "jeewon.kwon.0817@gmail.com",
+		"url": "https://github.com/jwkwon0817"
+	},
+	"peerDependencies": {
+		"@prisma/client": "^6.19.0",
+		"prisma": "^6.19.0"
+	},
+	"devDependencies": {
+		"@prisma/client": "^6.19.0",
+		"@types/bcrypt": "^5.0.2",
+		"bcrypt": "^5.1.1",
+		"dotenv": "^17.2.3",
+		"prisma": "^6.19.0",
+		"rimraf": "^6.0.1",
+		"tsx": "^4.20.6",
+		"typescript": "^5.9.3"
+	},
+	"main": "./client/index.js",
+	"types": "./client/index.d.ts",
+	"browser": "./client/index-browser.js",
+	"exports": {
+		".": {
+			"require": {
+				"node": "./client/index.js",
+				"edge-light": "./client/wasm.js",
+				"workerd": "./client/wasm.js",
+				"worker": "./client/wasm.js",
+				"browser": "./client/index-browser.js",
+				"default": "./client/index.js"
+			},
+			"import": {
+				"node": "./client/index.js",
+				"edge-light": "./client/wasm.js",
+				"workerd": "./client/wasm.js",
+				"worker": "./client/wasm.js",
+				"browser": "./client/index-browser.js",
+				"default": "./client/index.js"
+			},
+			"default": "./client/index.js"
+		},
+		"./edge": {
+			"types": "./client/edge.d.ts",
+			"require": "./client/edge.js",
+			"import": "./client/edge.js",
+			"default": "./client/edge.js"
+		},
+		"./react-native": {
+			"types": "./client/react-native.d.ts",
+			"require": "./client/react-native.js",
+			"import": "./client/react-native.js",
+			"default": "./client/react-native.js"
+		},
+		"./extension": {
+			"types": "./client/extension.d.ts",
+			"require": "./client/extension.js",
+			"import": "./client/extension.js",
+			"default": "./client/extension.js"
+		},
+		"./index-browser": {
+			"types": "./client/index.d.ts",
+			"require": "./client/index-browser.js",
+			"import": "./client/index-browser.js",
+			"default": "./client/index-browser.js"
+		},
+		"./index": {
+			"types": "./client/index.d.ts",
+			"require": "./client/index.js",
+			"import": "./client/index.js",
+			"default": "./client/index.js"
+		},
+		"./wasm": {
+			"types": "./client/wasm.d.ts",
+			"require": "./client/wasm.js",
+			"import": "./client/wasm.js",
+			"default": "./client/wasm.js"
+		},
+		"./runtime/library": {
+			"types": "./client/runtime/library.d.ts",
+			"require": "./client/runtime/library.js",
+			"import": "./client/runtime/library.js",
+			"default": "./client/runtime/library.js"
+		},
+		"./runtime/binary": {
+			"types": "./client/runtime/binary.d.ts",
+			"require": "./client/runtime/binary.js",
+			"import": "./client/runtime/binary.js",
+			"default": "./client/runtime/binary.js"
+		},
+		"./generator-build": {
+			"require": "./client/generator-build/index.js",
+			"import": "./client/generator-build/index.js",
+			"default": "./client/generator-build/index.js"
+		},
+		"./sql": {
+			"require": {
+				"types": "./client/sql.d.ts",
+				"node": "./client/sql.js",
+				"default": "./client/sql.js"
+			},
+			"import": {
+				"types": "./client/sql.d.ts",
+				"node": "./client/sql.mjs",
+				"default": "./client/sql.mjs"
+			},
+			"default": "./client/sql.js"
+		},
+		"./*": "./client/*"
+	},
+	"sideEffects": false,
+	"publishConfig": {
+		"access": "public"
+	},
+	"files": [
+		"client"
+	],
+	"dependencies": {
+		"bcryptjs": "^3.0.2"
+	}
+}

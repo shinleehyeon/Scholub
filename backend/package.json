@@ -1,0 +1,19 @@
+{
+  "name": "@scholub/backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "api": "pnpm --filter @scholub/api",
+    "database": "pnpm --filter @scholub/database"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@9.15.2",
+  "devDependencies": {
+    "@code-guideline/eslint": "^0.1.6",
+    "@types/node": "^24.10.0",
+    "eslint": "^9.39.1"
+  }
+}

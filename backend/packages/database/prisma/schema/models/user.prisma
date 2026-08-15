@@ -1,0 +1,42 @@
+model User {
+  id String @id @default(uuid())
+
+  email    String @unique
+  password String
+
+  name String
+
+  avatarId String? @unique
+  avatar   Asset?  @relation("UserAvatar", fields: [avatarId], references: [id])
+
+  hashtags String[] @default([])
+
+  status UserStatus @default(ACTIVE)
+
+  preferences UserPreference?
+
+  reactions     Reaction[]
+  paperViews    PaperView[]
+  notifications Notification[]
+
+  relatedUserNotifications Notification[] @relation("RelatedUserNotifications")
+
+  userRecommendations UserRecommendation[]
+
+  userActivities UserActivity[]
+
+  discussions        Discussion[]
+  discussionMessages DiscussionMessage[]
+
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  subscriptions Subscription[]
+
+  @@index([email])
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}

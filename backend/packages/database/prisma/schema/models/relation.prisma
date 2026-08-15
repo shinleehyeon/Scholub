@@ -1,0 +1,33 @@
+model PaperRelation {
+  id String @id @default(uuid())
+
+  sourcePaperId String
+  sourcePaper   Paper  @relation("SourcePaper", fields: [sourcePaperId], references: [id], onDelete: Cascade)
+
+  relatedPaperId String
+  relatedPaper   Paper  @relation("RelatedPaper", fields: [relatedPaperId], references: [id], onDelete: Cascade)
+
+  type RelationType
+
+  similarityScore Float?
+
+  description String?
+
+  metadata Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([sourcePaperId, relatedPaperId, type])
+  @@index([sourcePaperId])
+  @@index([relatedPaperId])
+  @@index([type])
+}
+
+enum RelationType {
+  SIMILAR
+  OPPOSING
+  EXTENSION
+  CITATION
+  RELATED_TOPIC
+}
